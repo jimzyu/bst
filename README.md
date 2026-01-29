@@ -48,7 +48,7 @@ Reveal: Click the "📖 查看主題摘要 (View Theme Summary)" expander to see
 
 🛠️ Technical Info & Setup
 
-Requirements
+**Requirements
 
 To run this tool locally, install the following:
 
@@ -56,8 +56,7 @@ Bash
 
 pip install streamlit google-generativeai opencc-python-reimplemented
 
-
-Environment Settings
+**Environment Settings
 
 Model: gemini-2.5-flash.
 
@@ -65,7 +64,7 @@ Temperature: 0.3 (Set lower to ensure deterministic, consistent, and valid theol
 
 Secrets: Add your GEMINI_API_KEY to the Streamlit Advanced Settings (or secrets.toml locally).
 
-Parsing Logic
+**Parsing Logic
 
 The tool uses advanced Regular Expressions (Regex) to extract content safely, ensuring that variations in AI formatting do not crash the application.
 
@@ -74,4 +73,5 @@ The tool uses advanced Regular Expressions (Regex) to extract content safely, en
 Daily Quota: Limited to 20 requests per day (resets daily at 12:00 AM PT).
 
 Deep Mode Performance: Deep Study Mode performs 4 internal API calls (3 drafts + 1 merger). Please allow 15-20 seconds for processing.
+
 
