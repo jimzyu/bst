@@ -1,45 +1,61 @@
-📖 Biblical Theme Tool
+📖 Bible Study Tool
+An advanced AI research assistant designed for deep scriptural engagement, utilizing Google Gemini-2.0-Flash to provide structured study guides, historical context, and theological synthesis.
 
-A specialized research assistant designed for Bible study, utilizing Google Gemini-3-Flash AI to provide theological analysis and historical context for biblical passages.
+🔄 The Evolution: From Theme Tool to Study Partner
+This application has transitioned from a basic "summary generator" into a comprehensive Inductive Study Assistant. Key architectural shifts include:
+
+Inductive Methodology: Instead of jumping straight to answers, the tool now generates Observation, Interpretation, and Application questions to guide the user's personal discovery.
+
+Progressive Reveal UI: To encourage active study, the final theological summary is now hidden behind a "View Theme Summary" expander, preventing users from bypassing the reflection process.
+
+Reference Validation (The Gatekeeper): A new validation layer ensures the tool remains a specialized Bible aid by rejecting non-scriptural inputs like "Chicken Soup" or general trivia.
 
 ✨ Key Features
+🔍 Deep Study Mode (Multi-Draft Synthesis)
+When enabled, this mode conducts a rigorous analysis process:
 
-*Deep Theological Summaries: Professional insights provided by a virtual AI scholar with a conservative evangelical background.
+Draft 1: Generates a standard balanced evangelical view.
 
-*Historical Context Support: Automatically identifies and explains key historical settings such as the "Exile" or "Passion Week".
+Draft 2: Focuses exclusively on deep historical, cultural, and linguistic context.
 
-*Multi-Language Synchronization:
+Draft 3: Focuses on practical modern-day life applications.
 
-  -Traditional Chinese: Precise academic and theological terminology.
+The Merger: A final AI "Expert Editor" pass combines the best insights from all three drafts into one "Master Version".
 
-  -Simplified Chinese: Locally converted to ensure 100% semantic consistency with the Traditional version.
+🌍 Multi-Language Synchronization
+Maintains 100% semantic consistency across three versions:
 
-  -English: Provides an exact academic translation of the Chinese content, ideal for cross-linguistic teaching.
+Traditional Chinese: Precise academic and theological terminology.
+
+Simplified Chinese: Locally converted using OpenCC, with a custom multi-header detection system to ensure the UI Expanders work perfectly.
+
+English: An exact translation of the Chinese content, ideal for cross-linguistic teaching.
 
 🚀 How to Use
+Input Reference: Enter a scriptural reference (e.g., Matthew 14:1-36 or Isaiah 53:1-5).
 
-*Input Reference: Enter a biblical chapter or verse (e.g., Mark 10:45 or Isaiah 53:1-5) in the search box.
+Toggle Mode: Select "Deep Study Mode" for a comprehensive 3-draft synthesis or stay in standard mode for a quick single-shot analysis.
 
-*Generate Summary: Click the "Generate Summary" button.
+Reflect: Use the "Reflections & Summary" section to answer the generated questions.
 
-*Toggle Tabs: Once generated, use the three tabs at the bottom to switch between language versions.
+Reveal: Click the "📖 查看主題摘要 (View Theme Summary)" expander to see the consolidated theological and historical analysis.
 
-📊 Technical Info & Quota
-
-*Daily Limit: Due to free-tier API restrictions, this tool is limited to 20 requests per day.
-
-*Reset Time: The quota resets daily at 12:00 AM Pacific Time (PT).
-
-*Safety Filters: Passages involving intense historical narratives or sensitive themes may trigger the AI safety filter. If blocked, the tool will display a warning rather than crashing.
-
-🛠️ Development & Deployment
-To run this tool locally, ensure you have the following Python libraries installed:
+🛠️ Technical Info & Setup
+Requirements
+To run this tool locally, install the following:
 
 Bash
-
 pip install streamlit google-generativeai opencc-python-reimplemented
 
-Environment Variables (Secrets): 
-This application uses st.secrets to securely read your API key. When deploying to Streamlit Cloud, add the following to your Advanced Settings: GEMINI_API_KEY = "your_actual_key_here".
+Environment Settings
+Model: gemini-2.5-flash.
+Temperature: 0.3 (Set lower to ensure deterministic, consistent, and valid theological results).
+Secrets: Add your GEMINI_API_KEY to the Streamlit Advanced Settings (or secrets.toml locally).
 
-Disclaimer: This tool is intended for academic and devotional aid. AI-generated content should always be cross-referenced with original scripture and traditional exegesis.
+Parsing Logic
+The tool uses advanced Regular Expressions (Regex) to extract content safely, ensuring that variations in AI formatting do not crash the application.
+
+📊 Quota & Limits
+Daily Quota: Limited to 20 requests per day (resets daily at 12:00 AM PT).
+
+Deep Mode Performance: Deep Study Mode performs 4 internal API calls (3 drafts + 1 merger). Please allow 15-20 seconds for processing.
