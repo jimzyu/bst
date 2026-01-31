@@ -23,7 +23,7 @@ class Config:
     # Text labels
     LABELS = {
         'main_title': '📖 聖經研讀工具',
-        'subtitle': 'Biblical Study & Theme Tool',
+        'subtitle': 'Bible Study Tool',
         'input_prompt': '輸入經文引用以獲取啟發提問與深度摘要。',
         'deep_mode': '🔍 啟用深度整合模式 (Deep Study Mode - Generates 3 drafts & merges them)',
         'input_placeholder': '例如: Matthew 14:1-36',
