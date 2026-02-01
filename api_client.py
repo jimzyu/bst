@@ -282,14 +282,14 @@ class GeminiClient:
         return result
     
     def generate_deep_study(self, reference: str, prompts: List[str], 
-                           merge_prompt_template: str, status_callback=None) -> str:
+                           build_merge_prompt, status_callback=None) -> str:
         """
         Generate deep study guide (3 drafts + merge).
         
         Args:
             reference: Bible reference
             prompts: List of 3 prompts for drafts
-            merge_prompt_template: Template string for merging (with {draft_1}, {draft_2}, {draft_3})
+            build_merge_prompt: Callable that takes the list of drafts and returns the fully-formed merge prompt
             status_callback: Optional callback for UI updates
             
         Returns:
@@ -315,16 +315,12 @@ class GeminiClient:
         
         logger.info("Merging drafts into final study guide")
         
-        # Build actual merge prompt with the drafts
-        merge_prompt = merge_prompt_template.format(
-            draft_1=drafts[0],
-            draft_2=drafts[1],
-            draft_3=drafts[2]
-        )
+        # Build the merge prompt now that drafts are available
+        merge_prompt = build_merge_prompt(drafts)
         
         final_result = self.generate_content(merge_prompt)
         
-        # Log to file if enabled
+        # Log to Google Sheets if enabled
         if self.draft_logger:
             self.draft_logger.log_deep_study(reference, drafts, final_result)
         

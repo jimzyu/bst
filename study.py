@@ -165,15 +165,20 @@ def process_deep_study(reference: str, client: GeminiClient, labels: dict):
         
         prompts = PromptTemplates.get_deep_prompts(reference)
         
-        # Get merge template (with placeholders for drafts)
-        merge_template = PromptTemplates.MERGE_DRAFTS_TEMPLATE
+        def build_merge_prompt(drafts: list) -> str:
+            """Build the fully-formed merge prompt once drafts are available."""
+            return PromptTemplates.get_merge_prompt(
+                reference=reference,
+                draft_1=drafts[0],
+                draft_2=drafts[1],
+                draft_3=drafts[2]
+            )
         
         try:
-            # Client will fill in the template with actual drafts
             final_result = client.generate_deep_study(
                 reference=reference,
                 prompts=prompts,
-                merge_prompt_template=merge_template,
+                build_merge_prompt=build_merge_prompt,
                 status_callback=update_status
             )
             
