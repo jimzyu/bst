@@ -5,7 +5,10 @@ import logging
 import time
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 import google.generativeai as genai
+import gspread
+from google.oauth2.service_account import Credentials
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from config import Config
@@ -18,6 +21,99 @@ logger = logging.getLogger(__name__)
 class GeminiAPIError(Exception):
     """Custom exception for Gemini API errors."""
     pass
+
+
+class SheetsLogger:
+    """Handles logging of drafts and final results to Google Sheets."""
+
+    # Column layout (1-indexed, matching Google Sheets)
+    COL_TIMESTAMP = 1
+    COL_REFERENCE = 2
+    COL_MODE = 3
+    COL_DRAFT_1 = 4
+    COL_DRAFT_2 = 5
+    COL_DRAFT_3 = 6
+    COL_FINAL_RESULT = 7
+
+    HEADERS = [
+        "Timestamp",
+        "Reference",
+        "Mode",
+        "Draft 1 (Standard)",
+        "Draft 2 (Historical)",
+        "Draft 3 (Application)",
+        "Final Result"
+    ]
+
+    def __init__(self, service_account_info: dict, spreadsheet_id: str):
+        """
+        Initialize Google Sheets logger.
+
+        Args:
+            service_account_info: Service account credentials dict from Streamlit secrets
+            spreadsheet_id: Google Sheets spreadsheet ID
+        """
+        scopes = [
+            "https://spreadsheets.google.com/feeds",
+            "https://www.googleapis.com/auth/drive"
+        ]
+        creds = Credentials.from_service_account_info(service_account_info, scopes=scopes)
+        client = gspread.authorize(creds)
+
+        self.sheet = client.open_by_key(spreadsheet_id).sheet1
+        self._ensure_headers()
+        logger.info("SheetsLogger initialized successfully")
+
+    def _ensure_headers(self):
+        """Write header row if the sheet is empty."""
+        if self.sheet.row_count == 0 or self.sheet.acell("A1").value is None:
+            self.sheet.append_row(self.HEADERS)
+            logger.info("Header row created in Google Sheet")
+
+    def log_standard_study(self, reference: str, result: str):
+        """
+        Log a standard study session as a new row.
+
+        Args:
+            reference: Bible reference
+            result: Generated study guide text
+        """
+        row = [
+            datetime.now().isoformat(),   # Timestamp
+            reference,                    # Reference
+            "standard",                   # Mode
+            "",                           # Draft 1 (not used in standard)
+            "",                           # Draft 2 (not used in standard)
+            "",                           # Draft 3 (not used in standard)
+            result                        # Final Result
+        ]
+        self.sheet.append_row(row)
+        logger.info(f"Standard study logged to Google Sheets for: {reference}")
+
+    def log_deep_study(self, reference: str, drafts: List[str], final_result: str):
+        """
+        Log a deep study session with all drafts and final result as a new row.
+
+        Args:
+            reference: Bible reference
+            drafts: List of 3 draft texts
+            final_result: Merged final result text
+        """
+        row = [
+            datetime.now().isoformat(),   # Timestamp
+            reference,                    # Reference
+            "deep",                       # Mode
+            drafts[0],                    # Draft 1 (Standard)
+            drafts[1],                    # Draft 2 (Historical)
+            drafts[2],                    # Draft 3 (Application)
+            final_result                  # Final Result
+        ]
+        self.sheet.append_row(row)
+        logger.info(f"Deep study logged to Google Sheets for: {reference}")
+        logger.info(f"  - Draft 1: {len(drafts[0])} chars")
+        logger.info(f"  - Draft 2: {len(drafts[1])} chars")
+        logger.info(f"  - Draft 3: {len(drafts[2])} chars")
+        logger.info(f"  - Final:   {len(final_result)} chars")
 
 
 class GeminiClient:
@@ -43,7 +139,22 @@ class GeminiClient:
             system_instruction=system_instruction
         )
         
+        # Initialize sheets logger if enabled
+        self.draft_logger = None
+        if Config.ENABLE_DRAFT_LOGGING:
+            sheets_id = Config.get_google_sheets_id()
+            service_account = Config.get_google_service_account()
+
+            if sheets_id and service_account:
+                self.draft_logger = SheetsLogger(service_account, sheets_id)
+            else:
+                logger.warning(
+                    "Draft logging enabled but Google Sheets credentials are missing. "
+                    "Check GOOGLE_SHEETS_ID and google_service_account in Streamlit secrets."
+                )
+        
         logger.info(f"Initialized Gemini client with model: {Config.MODEL_NAME}")
+        logger.info(f"Draft logging: {'Enabled' if self.draft_logger else 'Disabled'}")
     
     @staticmethod
     def validate_response(response) -> str:
@@ -150,27 +261,35 @@ class GeminiClient:
         
         return drafts
     
-    def generate_standard_study(self, prompt: str) -> str:
+    def generate_standard_study(self, reference: str, prompt: str) -> str:
         """
         Generate standard study guide (single request).
         
         Args:
+            reference: Bible reference
             prompt: Study prompt
             
         Returns:
             Generated study guide text
         """
-        logger.info("Generating standard study guide")
-        return self.generate_content(prompt)
+        logger.info(f"Generating standard study guide for: {reference}")
+        result = self.generate_content(prompt)
+        
+        # Log to file if enabled
+        if self.draft_logger:
+            self.draft_logger.log_standard_study(reference, result)
+        
+        return result
     
-    def generate_deep_study(self, prompts: List[str], merge_prompt: str,
-                           status_callback=None) -> str:
+    def generate_deep_study(self, reference: str, prompts: List[str], 
+                           merge_prompt_template: str, status_callback=None) -> str:
         """
         Generate deep study guide (3 drafts + merge).
         
         Args:
+            reference: Bible reference
             prompts: List of 3 prompts for drafts
-            merge_prompt: Prompt for merging drafts
+            merge_prompt_template: Template string for merging (with {draft_1}, {draft_2}, {draft_3})
             status_callback: Optional callback for UI updates
             
         Returns:
@@ -179,7 +298,7 @@ class GeminiClient:
         Raises:
             GeminiAPIError: If generation fails
         """
-        logger.info("Starting deep study generation")
+        logger.info(f"Starting deep study generation for: {reference}")
         
         # Generate 3 drafts in parallel
         drafts = self.generate_drafts_parallel(prompts, status_callback)
@@ -195,7 +314,19 @@ class GeminiClient:
             status_callback("Merging drafts...")
         
         logger.info("Merging drafts into final study guide")
+        
+        # Build actual merge prompt with the drafts
+        merge_prompt = merge_prompt_template.format(
+            draft_1=drafts[0],
+            draft_2=drafts[1],
+            draft_3=drafts[2]
+        )
+        
         final_result = self.generate_content(merge_prompt)
+        
+        # Log to file if enabled
+        if self.draft_logger:
+            self.draft_logger.log_deep_study(reference, drafts, final_result)
         
         logger.info("Deep study generation complete")
         return final_result

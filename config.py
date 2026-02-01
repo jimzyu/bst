@@ -16,6 +16,9 @@ class Config:
     # Rate limiting
     REQUEST_COOLDOWN_SECONDS = 5
     
+    # Logging settings
+    ENABLE_DRAFT_LOGGING = True  # Set to False to disable Google Sheets logging
+    
     # UI settings
     PAGE_TITLE = "聖經研讀工具 | Bible Study Tool"
     PAGE_ICON = "📖"
@@ -44,12 +47,28 @@ class Config:
     
     @staticmethod
     def get_api_key() -> Optional[str]:
-        """Safely retrieve API key from Streamlit secrets."""
+        """Safely retrieve Gemini API key from Streamlit secrets."""
         try:
             return st.secrets["GEMINI_API_KEY"]
         except Exception:
             return None
-    
+
+    @staticmethod
+    def get_google_sheets_id() -> Optional[str]:
+        """Safely retrieve Google Sheets ID from Streamlit secrets."""
+        try:
+            return st.secrets["GOOGLE_SHEETS_ID"]
+        except Exception:
+            return None
+
+    @staticmethod
+    def get_google_service_account() -> Optional[dict]:
+        """Safely retrieve Google service account credentials from Streamlit secrets."""
+        try:
+            return dict(st.secrets["google_service_account"])
+        except Exception:
+            return None
+
     @staticmethod
     def validate_api_key() -> bool:
         """Validate that API key exists and stop execution if not."""

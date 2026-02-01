@@ -130,7 +130,7 @@ def process_standard_study(reference: str, client: GeminiClient, labels: dict):
     with st.status(labels['status_standard'], expanded=True) as status:
         # Generate study guide
         prompt = PromptTemplates.get_standard_prompt(reference)
-        result = client.generate_standard_study(prompt)
+        result = client.generate_standard_study(reference, prompt)
         
         # Save result
         SessionManager.save_study_result(
@@ -165,38 +165,34 @@ def process_deep_study(reference: str, client: GeminiClient, labels: dict):
         
         prompts = PromptTemplates.get_deep_prompts(reference)
         
+        # Get merge template (with placeholders for drafts)
+        merge_template = PromptTemplates.MERGE_DRAFTS_TEMPLATE
+        
         try:
-            drafts = client.generate_drafts_parallel(prompts, update_status)
+            # Client will fill in the template with actual drafts
+            final_result = client.generate_deep_study(
+                reference=reference,
+                prompts=prompts,
+                merge_prompt_template=merge_template,
+                status_callback=update_status
+            )
             
-            # Check if any draft is invalid
-            if any("[INVALID_REF]" in draft.upper() for draft in drafts):
+            # Check if invalid reference
+            if "[INVALID_REF]" in final_result.upper():
                 SessionManager.save_study_result(
                     reference=reference,
                     deep_mode=True,
-                    result="[INVALID_REF]",
-                    drafts=drafts
+                    result="[INVALID_REF]"
                 )
                 status.update(label="Error: Invalid Reference", state="error")
                 logger.warning(f"Invalid reference in deep study: {reference}")
                 return
             
-            # Merge drafts
-            update_status("Final Step: Merging and Polishing...")
-            merge_prompt = PromptTemplates.get_merge_prompt(
-                reference=reference,
-                draft_1=drafts[0],
-                draft_2=drafts[1],
-                draft_3=drafts[2]
-            )
-            
-            final_result = client.generate_content(merge_prompt)
-            
-            # Save result with drafts
+            # Save result
             SessionManager.save_study_result(
                 reference=reference,
                 deep_mode=True,
-                result=final_result,
-                drafts=drafts
+                result=final_result
             )
             
             status.update(label=labels['status_complete'], state="complete", expanded=False)
