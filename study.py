@@ -29,22 +29,7 @@ def initialize_app():
         page_icon=Config.PAGE_ICON,
         layout="centered"
     )
-    
-    # DEBUG: Check secrets (AFTER set_page_config)
-    st.write("🔍 DEBUG - Checking secrets:")
-    st.write(f"GOOGLE_SHEETS_ID exists: {'GOOGLE_SHEETS_ID' in st.secrets}")
-    st.write(f"google_service_account exists: {'google_service_account' in st.secrets}")
-    if 'GOOGLE_SHEETS_ID' in st.secrets:
-        st.write(f"Sheet ID (first 20 chars): {str(st.secrets['GOOGLE_SHEETS_ID'])[:20]}...")
-    if 'google_service_account' in st.secrets:
-        st.write(f"Service account has these fields: {list(st.secrets['google_service_account'].keys())}")
-    st.write("---")
-    
-    # Validate API key
-    Config.validate_api_key()
-    
-    # ... rest of your existing code
-    
+        
     # Validate API key
     Config.validate_api_key()
     
