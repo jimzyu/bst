@@ -103,6 +103,7 @@ Provide feedback in both Chinese and English:
 **Suggestion**: [How to improve]
 
 CRITICAL: Be constructive and educational. This is about learning, not grading.
+"""
 
     BASE_STUDY_TEMPLATE = """
 Analyze the following reference: "{ref}".
