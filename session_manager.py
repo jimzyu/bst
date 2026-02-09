@@ -46,6 +46,31 @@ class SessionManager:
         
         if 'total_errors' not in st.session_state:
             st.session_state.total_errors = 0
+        
+        # Quiz mode state
+        if 'quiz_active' not in st.session_state:
+            st.session_state.quiz_active = False
+        
+        if 'quiz_current_question' not in st.session_state:
+            st.session_state.quiz_current_question = 0  # 0=observation, 1=interpretation, 2=application
+        
+        if 'quiz_answer_key' not in st.session_state:
+            st.session_state.quiz_answer_key = None
+        
+        if 'quiz_questions' not in st.session_state:
+            st.session_state.quiz_questions = {}  # {type: question_text}
+        
+        if 'quiz_user_answers' not in st.session_state:
+            st.session_state.quiz_user_answers = {}  # {type: user_answer}
+        
+        if 'quiz_feedbacks' not in st.session_state:
+            st.session_state.quiz_feedbacks = {}  # {type: ai_feedback}
+        
+        if 'quiz_reference' not in st.session_state:
+            st.session_state.quiz_reference = None
+        
+        if 'quiz_sheets_row' not in st.session_state:
+            st.session_state.quiz_sheets_row = None
     
     @staticmethod
     def can_make_request(cooldown_seconds: int) -> tuple[bool, float]:
@@ -140,3 +165,62 @@ class SessionManager:
                 st.write("**Recent Studies:**")
                 for i, record in enumerate(reversed(st.session_state.study_history[-5:])):
                     st.write(f"{i+1}. {record.reference} - {record.get_datetime()} - Deep: {record.deep_mode}")
+    
+    # Quiz Mode Methods
+    
+    @staticmethod
+    def start_quiz(reference: str, answer_key: str, questions: dict, sheets_row: int = None):
+        """
+        Initialize a new quiz session.
+        
+        Args:
+            reference: Bible reference
+            answer_key: Full AI-generated answer key
+            questions: Dict of {question_type: question_text}
+            sheets_row: Google Sheets row number for logging
+        """
+        st.session_state.quiz_active = True
+        st.session_state.quiz_current_question = 0
+        st.session_state.quiz_reference = reference
+        st.session_state.quiz_answer_key = answer_key
+        st.session_state.quiz_questions = questions
+        st.session_state.quiz_user_answers = {}
+        st.session_state.quiz_feedbacks = {}
+        st.session_state.quiz_sheets_row = sheets_row
+    
+    @staticmethod
+    def get_current_question_type() -> str:
+        """Get the current question type."""
+        question_types = ["observation", "interpretation", "application"]
+        index = st.session_state.quiz_current_question
+        if index < len(question_types):
+            return question_types[index]
+        return None
+    
+    @staticmethod
+    def save_quiz_answer(question_type: str, user_answer: str, feedback: str):
+        """Save user's answer and feedback for a question."""
+        st.session_state.quiz_user_answers[question_type] = user_answer
+        st.session_state.quiz_feedbacks[question_type] = feedback
+    
+    @staticmethod
+    def advance_to_next_question():
+        """Move to the next question in the quiz."""
+        st.session_state.quiz_current_question += 1
+    
+    @staticmethod
+    def is_quiz_complete() -> bool:
+        """Check if all quiz questions have been answered."""
+        return st.session_state.quiz_current_question >= 3
+    
+    @staticmethod
+    def end_quiz():
+        """End the current quiz session."""
+        st.session_state.quiz_active = False
+        st.session_state.quiz_current_question = 0
+        st.session_state.quiz_answer_key = None
+        st.session_state.quiz_questions = {}
+        st.session_state.quiz_user_answers = {}
+        st.session_state.quiz_feedbacks = {}
+        st.session_state.quiz_reference = None
+        st.session_state.quiz_sheets_row = None
