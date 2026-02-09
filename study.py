@@ -29,7 +29,7 @@ def initialize_app():
         page_icon=Config.PAGE_ICON,
         layout="centered"
     )
-        
+    
     # Validate API key
     Config.validate_api_key()
     
@@ -59,8 +59,12 @@ def render_ui():
     st.subheader(labels['subtitle'])
     st.markdown(labels['input_prompt'])
     
-    # Deep mode toggle
-    deep_mode = st.checkbox(labels['deep_mode'])
+    # Mode selection
+    col1, col2 = st.columns(2)
+    with col1:
+        deep_mode = st.checkbox(labels['deep_mode'])
+    with col2:
+        quiz_mode = st.checkbox('🎯 Quiz Mode (Interactive Learning)')
     
     st.markdown("---")
     
@@ -70,16 +74,17 @@ def render_ui():
         placeholder=labels['input_placeholder']
     )
     
-    return reference, deep_mode
+    return reference, deep_mode, quiz_mode
 
 
-def process_study_request(reference: str, deep_mode: bool):
+def process_study_request(reference: str, deep_mode: bool, quiz_mode: bool):
     """
     Process a study request.
     
     Args:
         reference: Bible reference input
         deep_mode: Whether to use deep study mode
+        quiz_mode: Whether to use quiz mode
     """
     labels = Config.LABELS
     client = st.session_state.gemini_client
@@ -100,7 +105,9 @@ def process_study_request(reference: str, deep_mode: bool):
     
     # Process based on mode
     try:
-        if deep_mode:
+        if quiz_mode:
+            process_quiz_mode(reference, deep_mode, client, labels)
+        elif deep_mode:
             process_deep_study(reference, client, labels)
         else:
             process_standard_study(reference, client, labels)
@@ -228,20 +235,257 @@ def display_results():
         )
 
 
+def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, labels: dict):
+    """
+    Initialize quiz mode by generating answer key.
+    
+    Args:
+        reference: Bible reference
+        deep_mode: Whether to use deep mode for answer key generation
+        client: Gemini API client
+        labels: UI labels dictionary
+    """
+    from parsers import QuizParser
+    
+    with st.status("Generating quiz questions...", expanded=True) as status:
+        # Generate answer key (same as study mode, but hidden from user)
+        if deep_mode:
+            status.write("Generating comprehensive answer key with deep mode...")
+            prompts = PromptTemplates.get_deep_prompts(reference)
+            
+            def build_merge_prompt(drafts: list) -> str:
+                return PromptTemplates.get_merge_prompt(
+                    reference=reference,
+                    draft_1=drafts[0],
+                    draft_2=drafts[1],
+                    draft_3=drafts[2]
+                )
+            
+            answer_key = client.generate_deep_study(
+                reference=reference,
+                prompts=prompts,
+                build_merge_prompt=build_merge_prompt,
+                status_callback=status.write
+            )
+        else:
+            status.write("Generating answer key...")
+            prompt = PromptTemplates.get_standard_prompt(reference)
+            answer_key = client.generate_standard_study(reference, prompt)
+        
+        # Check if invalid reference
+        if "[INVALID_REF]" in answer_key.upper():
+            st.error("❌ 無法識別該經文引用。請輸入有效的聖經章節。")
+            st.info("Invalid scriptural reference. Please enter a valid Bible passage.")
+            status.update(label="Error: Invalid Reference", state="error")
+            return
+        
+        # Extract questions from answer key
+        questions = QuizParser.extract_questions_from_study(answer_key)
+        
+        if not questions:
+            st.error("Failed to extract questions from study guide. Please try again.")
+            status.update(label="Error", state="error")
+            return
+        
+        # Log initial quiz to Google Sheets
+        sheets_row = None
+        if client.draft_logger:
+            mode = "quiz_deep" if deep_mode else "quiz_standard"
+            drafts = st.session_state.current_drafts if deep_mode else None
+            sheets_row = client.draft_logger.log_quiz_initial(
+                reference=reference,
+                mode=mode,
+                answer_key=answer_key,
+                drafts=drafts
+            )
+        
+        # Initialize quiz session
+        SessionManager.start_quiz(
+            reference=reference,
+            answer_key=answer_key,
+            questions=questions,
+            sheets_row=sheets_row
+        )
+        
+        status.update(label="Quiz ready! ✅", state="complete", expanded=False)
+        logger.info(f"Quiz initialized for: {reference}")
+
+
+def display_quiz_interface():
+    """Display the interactive quiz interface."""
+    from parsers import QuizParser
+    
+    if not st.session_state.quiz_active:
+        return
+    
+    st.markdown("---")
+    st.subheader(f"📚 Quiz: {st.session_state.quiz_reference}")
+    
+    # Check if quiz is complete
+    if SessionManager.is_quiz_complete():
+        display_quiz_summary()
+        return
+    
+    # Get current question
+    question_type = SessionManager.get_current_question_type()
+    question_text = st.session_state.quiz_questions.get(question_type, "")
+    
+    # Question type labels
+    type_labels = {
+        "observation": "📖 Observation Question (觀察)",
+        "interpretation": "🤔 Interpretation Question (解釋)",
+        "application": "💡 Application Question (應用)"
+    }
+    
+    # Display current question
+    st.markdown(f"### {type_labels.get(question_type, question_type.title())}")
+    st.info(question_text)
+    
+    # Check if this question has already been answered
+    if question_type in st.session_state.quiz_feedbacks:
+        # Show previous answer and feedback
+        st.success("✅ You've answered this question!")
+        
+        with st.expander("📝 Your Answer"):
+            st.write(st.session_state.quiz_user_answers[question_type])
+        
+        with st.expander("💬 Feedback"):
+            feedback_text = st.session_state.quiz_feedbacks[question_type]
+            ch_feedback, en_feedback = QuizParser.parse_evaluation_feedback(feedback_text)
+            
+            st.markdown("**中文反饋:**")
+            st.markdown(ch_feedback)
+            
+            if en_feedback:
+                st.markdown("**English Feedback:**")
+                st.markdown(en_feedback)
+        
+        # Button to continue
+        if st.button("Continue to Next Question ➡️", type="primary"):
+            SessionManager.advance_to_next_question()
+            st.rerun()
+    
+    else:
+        # Input for user answer
+        user_answer = st.text_area(
+            "Your Answer (你的答案):",
+            height=150,
+            placeholder="Type your answer here... / 在此輸入你的答案..."
+        )
+        
+        # Submit button
+        if st.button("Submit Answer 提交答案", type="primary", disabled=not user_answer.strip()):
+            with st.spinner("Evaluating your answer... 評估中..."):
+                # Evaluate the answer
+                client = st.session_state.gemini_client
+                feedback = client.evaluate_answer(
+                    reference=st.session_state.quiz_reference,
+                    question_type=question_type,
+                    question=question_text,
+                    user_answer=user_answer,
+                    ai_answer=st.session_state.quiz_answer_key
+                )
+                
+                # Save answer and feedback
+                SessionManager.save_quiz_answer(question_type, user_answer, feedback)
+                
+                # Log to Google Sheets
+                if client.draft_logger and st.session_state.quiz_sheets_row:
+                    client.draft_logger.log_quiz_answer(
+                        row_number=st.session_state.quiz_sheets_row,
+                        question_type=question_type,
+                        user_answer=user_answer,
+                        feedback=feedback
+                    )
+                
+                st.success("Answer submitted! ✅")
+                st.rerun()
+
+
+def display_quiz_summary():
+    """Display summary after completing all quiz questions."""
+    st.success("🎉 Congratulations! You've completed the quiz!")
+    
+    st.markdown("### 📊 Quiz Summary")
+    
+    # Display all questions, answers, and feedback
+    question_types = ["observation", "interpretation", "application"]
+    type_labels = {
+        "observation": "📖 Observation (觀察)",
+        "interpretation": "🤔 Interpretation (解釋)",
+        "application": "💡 Application (應用)"
+    }
+    
+    from parsers import QuizParser
+    
+    for qtype in question_types:
+        if qtype in st.session_state.quiz_user_answers:
+            with st.expander(f"{type_labels[qtype]}", expanded=False):
+                st.markdown(f"**Question:** {st.session_state.quiz_questions[qtype]}")
+                st.markdown(f"**Your Answer:** {st.session_state.quiz_user_answers[qtype]}")
+                
+                feedback_text = st.session_state.quiz_feedbacks[qtype]
+                ch_feedback, en_feedback = QuizParser.parse_evaluation_feedback(feedback_text)
+                
+                st.markdown("**Feedback (反饋):**")
+                st.markdown(ch_feedback)
+    
+    # Option to see AI's full answer
+    if st.button("📖 View AI's Complete Study Guide", type="secondary"):
+        st.markdown("---")
+        st.markdown("### AI's Complete Answer Key")
+        ch_text, en_text = ResponseParser.parse_ai_response(st.session_state.quiz_answer_key)
+        
+        tab1, tab2, tab3 = st.tabs(["繁體中文", "简体中文", "English"])
+        
+        with tab1:
+            st.markdown(ch_text)
+        with tab2:
+            sim_text = st.session_state.cc_converter.convert(ch_text)
+            st.markdown(sim_text)
+        with tab3:
+            st.markdown(en_text)
+    
+    # Button to end quiz
+    if st.button("🔄 Start New Quiz", type="primary"):
+        SessionManager.end_quiz()
+        st.rerun()
+
+
+def display_results():
+    """Display study results if available."""
+    result = SessionManager.get_current_result()
+    
+    if result:
+        ch_text, en_text = ResponseParser.parse_ai_response(result)
+        ContentRenderer.render_results(
+            ch_text=ch_text,
+            en_text=en_text,
+            converter=st.session_state.cc_converter,
+            labels=Config.LABELS
+        )
+
+
 def main():
     """Main application entry point."""
     # Initialize
     initialize_app()
     
-    # Render UI and get inputs
-    reference, deep_mode = render_ui()
-    
-    # Process button click
-    if st.button(Config.LABELS['button_text'], type="primary"):
-        process_study_request(reference, deep_mode)
-    
-    # Display results
-    display_results()
+    # Check if quiz is active
+    if st.session_state.quiz_active:
+        # Display quiz interface
+        display_quiz_interface()
+    else:
+        # Render UI and get inputs
+        reference, deep_mode, quiz_mode = render_ui()
+        
+        # Process button click
+        if st.button(Config.LABELS['button_text'], type="primary"):
+            process_study_request(reference, deep_mode, quiz_mode)
+        
+        # Display results (only in study mode)
+        if not quiz_mode:
+            display_results()
     
     # Optional: Debug info (comment out for production)
     # SessionManager.show_debug_info()
