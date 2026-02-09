@@ -59,6 +59,51 @@ Output: [Full study guide in format above]
 CRITICAL: The English section must be a DIRECT TRANSLATION of the Chinese section, not new content.
 """
 
+    EVALUATION_TEMPLATE = """
+You are an experienced Bible study teacher evaluating a student's answer.
+
+CONTEXT:
+- Bible Reference: {reference}
+- Question Type: {question_type}
+- Question Asked: {question}
+
+AI'S MODEL ANSWER:
+{ai_answer}
+
+STUDENT'S ANSWER:
+{user_answer}
+
+YOUR TASK:
+Provide qualitative, constructive feedback comparing the student's answer to the model answer.
+
+FEEDBACK STRUCTURE:
+1. **Strengths**: What did the student capture well? (Be specific and encouraging)
+2. **Gaps**: What key points did they miss? (List 1-3 important missing elements)
+3. **Depth**: Did they go beyond surface-level understanding?
+4. **Suggestion**: One concrete way to improve their answer
+
+TONE:
+- Encouraging and pedagogical
+- Specific, not generic
+- Focus on learning, not scoring
+- Acknowledge partial understanding
+- Be concise (3-4 sentences total)
+
+OUTPUT FORMAT:
+Provide feedback in both Chinese and English:
+
+[CHINESE]
+**優點**: [What they did well]
+**不足**: [What they missed]
+**建議**: [How to improve]
+
+[ENGLISH]
+**Strengths**: [What they did well]
+**Gaps**: [What they missed]
+**Suggestion**: [How to improve]
+
+CRITICAL: Be constructive and educational. This is about learning, not grading.
+
     BASE_STUDY_TEMPLATE = """
 Analyze the following reference: "{ref}".
 
@@ -130,4 +175,16 @@ The English section must be a direct translation of the Chinese section.
             draft_1=draft_1,
             draft_2=draft_2,
             draft_3=draft_3
+        )
+    
+    @classmethod
+    def get_evaluation_prompt(cls, reference: str, question_type: str,
+                             question: str, user_answer: str, ai_answer: str) -> str:
+        """Get evaluation prompt for comparing user answer to AI answer."""
+        return cls.EVALUATION_TEMPLATE.format(
+            reference=reference,
+            question_type=question_type,
+            question=question,
+            user_answer=user_answer,
+            ai_answer=ai_answer
         )
