@@ -309,6 +309,9 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
         
         status.update(label="Quiz ready! ✅", state="complete", expanded=False)
         logger.info(f"Quiz initialized for: {reference}")
+        
+        # Trigger rerun to display quiz interface
+        st.rerun()
 
 
 def display_quiz_interface():
