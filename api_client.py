@@ -182,11 +182,31 @@ class SheetsLogger:
 
         answer_col, feedback_col = column_mapping[question_type]
 
-        # Update the specific cells
-        self.sheet.update_cell(row_number, answer_col, user_answer)
-        self.sheet.update_cell(row_number, feedback_col, feedback)
-        
-        logger.info(f"Quiz answer logged for {question_type} (row {row_number})")
+        # Use batch update to update both cells at once (avoids rate limits)
+        try:
+            # Convert column numbers to A1 notation
+            from gspread.utils import rowcol_to_a1
+            
+            answer_cell = rowcol_to_a1(row_number, answer_col)
+            feedback_cell = rowcol_to_a1(row_number, feedback_col)
+            
+            # Batch update both cells
+            self.sheet.batch_update([
+                {
+                    'range': answer_cell,
+                    'values': [[user_answer]]
+                },
+                {
+                    'range': feedback_cell,
+                    'values': [[feedback]]
+                }
+            ])
+            
+            logger.info(f"Quiz answer logged for {question_type} (row {row_number})")
+            
+        except Exception as e:
+            logger.error(f"Failed to log quiz answer: {str(e)}")
+            # Don't raise - allow quiz to continue even if logging fails
 
 
 class GeminiClient:
