@@ -34,6 +34,12 @@ class SheetsLogger:
     COL_DRAFT_2 = 5
     COL_DRAFT_3 = 6
     COL_FINAL_RESULT = 7
+    COL_USER_ANS_OBS = 8
+    COL_FEEDBACK_OBS = 9
+    COL_USER_ANS_INT = 10
+    COL_FEEDBACK_INT = 11
+    COL_USER_ANS_APP = 12
+    COL_FEEDBACK_APP = 13
 
     HEADERS = [
         "Timestamp",
@@ -42,7 +48,13 @@ class SheetsLogger:
         "Draft 1 (Standard)",
         "Draft 2 (Historical)",
         "Draft 3 (Application)",
-        "Final Result"
+        "Final Result / AI Answer Key",
+        "User Answer - Observation",
+        "Feedback - Observation",
+        "User Answer - Interpretation",
+        "Feedback - Interpretation",
+        "User Answer - Application",
+        "Feedback - Application"
     ]
 
     def __init__(self, service_account_info: dict, spreadsheet_id: str):
@@ -85,7 +97,8 @@ class SheetsLogger:
             "",                           # Draft 1 (not used in standard)
             "",                           # Draft 2 (not used in standard)
             "",                           # Draft 3 (not used in standard)
-            result                        # Final Result
+            result,                       # Final Result
+            "", "", "", "", "", ""        # Empty quiz columns
         ]
         self.sheet.append_row(row)
         logger.info(f"Standard study logged to Google Sheets for: {reference}")
@@ -106,7 +119,8 @@ class SheetsLogger:
             drafts[0],                    # Draft 1 (Standard)
             drafts[1],                    # Draft 2 (Historical)
             drafts[2],                    # Draft 3 (Application)
-            final_result                  # Final Result
+            final_result,                 # Final Result
+            "", "", "", "", "", ""        # Empty quiz columns
         ]
         self.sheet.append_row(row)
         logger.info(f"Deep study logged to Google Sheets for: {reference}")
@@ -114,6 +128,65 @@ class SheetsLogger:
         logger.info(f"  - Draft 2: {len(drafts[1])} chars")
         logger.info(f"  - Draft 3: {len(drafts[2])} chars")
         logger.info(f"  - Final:   {len(final_result)} chars")
+
+    def log_quiz_initial(self, reference: str, mode: str, answer_key: str, 
+                        drafts: Optional[List[str]] = None) -> int:
+        """
+        Log initial quiz session and return the row number for later updates.
+
+        Args:
+            reference: Bible reference
+            mode: "quiz_standard" or "quiz_deep"
+            answer_key: AI-generated answer key (all 3 questions + answers)
+            drafts: Optional list of 3 draft texts (for deep mode)
+
+        Returns:
+            Row number of the newly created entry
+        """
+        row = [
+            datetime.now().isoformat(),   # Timestamp
+            reference,                    # Reference
+            mode,                         # Mode
+            drafts[0] if drafts else "",  # Draft 1
+            drafts[1] if drafts else "",  # Draft 2
+            drafts[2] if drafts else "",  # Draft 3
+            answer_key,                   # AI Answer Key
+            "", "", "", "", "", ""        # Empty quiz response columns (will be filled later)
+        ]
+        self.sheet.append_row(row)
+        row_number = self.sheet.row_count
+        logger.info(f"Quiz session initialized in Google Sheets for: {reference} (row {row_number})")
+        return row_number
+
+    def log_quiz_answer(self, row_number: int, question_type: str, 
+                       user_answer: str, feedback: str):
+        """
+        Update a specific quiz row with user answer and feedback.
+
+        Args:
+            row_number: Row number in the sheet to update
+            question_type: "observation", "interpretation", or "application"
+            user_answer: User's submitted answer
+            feedback: AI's qualitative feedback
+        """
+        # Map question type to column indices
+        column_mapping = {
+            "observation": (self.COL_USER_ANS_OBS, self.COL_FEEDBACK_OBS),
+            "interpretation": (self.COL_USER_ANS_INT, self.COL_FEEDBACK_INT),
+            "application": (self.COL_USER_ANS_APP, self.COL_FEEDBACK_APP)
+        }
+
+        if question_type not in column_mapping:
+            logger.error(f"Invalid question type: {question_type}")
+            return
+
+        answer_col, feedback_col = column_mapping[question_type]
+
+        # Update the specific cells
+        self.sheet.update_cell(row_number, answer_col, user_answer)
+        self.sheet.update_cell(row_number, feedback_col, feedback)
+        
+        logger.info(f"Quiz answer logged for {question_type} (row {row_number})")
 
 
 class GeminiClient:
@@ -326,3 +399,35 @@ class GeminiClient:
         
         logger.info("Deep study generation complete")
         return final_result
+
+    def evaluate_answer(self, reference: str, question_type: str, question: str,
+                       user_answer: str, ai_answer: str) -> str:
+        """
+        Evaluate user's answer against AI's answer with qualitative feedback.
+
+        Args:
+            reference: Bible reference
+            question_type: "observation", "interpretation", or "application"
+            question: The question that was asked
+            user_answer: User's submitted answer
+            ai_answer: AI's answer key for comparison
+
+        Returns:
+            Qualitative feedback text
+        """
+        from prompts import PromptTemplates
+        
+        logger.info(f"Evaluating {question_type} answer for: {reference}")
+        
+        evaluation_prompt = PromptTemplates.get_evaluation_prompt(
+            reference=reference,
+            question_type=question_type,
+            question=question,
+            user_answer=user_answer,
+            ai_answer=ai_answer
+        )
+        
+        feedback = self.generate_content(evaluation_prompt)
+        logger.info(f"Evaluation complete ({len(feedback)} chars)")
+        
+        return feedback
