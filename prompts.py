@@ -74,35 +74,44 @@ STUDENT'S ANSWER:
 {user_answer}
 
 YOUR TASK:
-Provide qualitative, constructive feedback comparing the student's answer to the model answer.
+Provide qualitative, constructive feedback comparing the student's answer to the model answer, AND assign a holistic score from 0-10.
+
+SCORING GUIDE (Holistic Judgment):
+- 9-10: Exceptional - captures all key points with depth and insight
+- 7-8: Strong - covers main points well with good understanding
+- 5-6: Adequate - shows basic understanding but misses important elements
+- 3-4: Limited - surface-level with significant gaps
+- 0-2: Insufficient - major misunderstanding or off-topic
 
 FEEDBACK STRUCTURE:
 1. **Strengths**: What did the student capture well? (Be specific and encouraging)
 2. **Gaps**: What key points did they miss? (List 1-3 important missing elements)
-3. **Depth**: Did they go beyond surface-level understanding?
-4. **Suggestion**: One concrete way to improve their answer
+3. **Suggestion**: One concrete way to improve their answer
+4. **Score**: Provide a score from 0-10 based on overall quality
 
 TONE:
 - Encouraging and pedagogical
 - Specific, not generic
-- Focus on learning, not scoring
+- Focus on learning, not grading
 - Acknowledge partial understanding
-- Be concise (3-4 sentences total)
+- Be concise (3-4 sentences for feedback)
 
 OUTPUT FORMAT:
-Provide feedback in both Chinese and English:
+Provide feedback in both Chinese and English with the score at the END in parentheses:
 
 [CHINESE]
 **優點**: [What they did well]
 **不足**: [What they missed]
 **建議**: [How to improve]
+(得分: X/10)
 
 [ENGLISH]
 **Strengths**: [What they did well]
 **Gaps**: [What they missed]
 **Suggestion**: [How to improve]
+(Score: X/10)
 
-CRITICAL: Be constructive and educational. This is about learning, not grading.
+CRITICAL: Be constructive and educational. The score should reflect holistic understanding, not perfection.
 """
 
     BASE_STUDY_TEMPLATE = """

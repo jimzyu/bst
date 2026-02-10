@@ -40,6 +40,9 @@ class SheetsLogger:
     COL_FEEDBACK_INT = 11
     COL_USER_ANS_APP = 12
     COL_FEEDBACK_APP = 13
+    COL_SCORE_OBS = 14
+    COL_SCORE_INT = 15
+    COL_SCORE_APP = 16
 
     HEADERS = [
         "Timestamp",
@@ -54,7 +57,10 @@ class SheetsLogger:
         "User Answer - Interpretation",
         "Feedback - Interpretation",
         "User Answer - Application",
-        "Feedback - Application"
+        "Feedback - Application",
+        "Score - Observation",
+        "Score - Interpretation",
+        "Score - Application"
     ]
 
     def __init__(self, service_account_info: dict, spreadsheet_id: str):
@@ -98,7 +104,8 @@ class SheetsLogger:
             "",                           # Draft 2 (not used in standard)
             "",                           # Draft 3 (not used in standard)
             result,                       # Final Result
-            "", "", "", "", "", ""        # Empty quiz columns
+            "", "", "", "", "", "",       # Empty quiz answer/feedback columns
+            "", "", ""                    # Empty score columns
         ]
         self.sheet.append_row(row)
         logger.info(f"Standard study logged to Google Sheets for: {reference}")
@@ -120,7 +127,8 @@ class SheetsLogger:
             drafts[1],                    # Draft 2 (Historical)
             drafts[2],                    # Draft 3 (Application)
             final_result,                 # Final Result
-            "", "", "", "", "", ""        # Empty quiz columns
+            "", "", "", "", "", "",       # Empty quiz answer/feedback columns
+            "", "", ""                    # Empty score columns
         ]
         self.sheet.append_row(row)
         logger.info(f"Deep study logged to Google Sheets for: {reference}")
@@ -151,7 +159,8 @@ class SheetsLogger:
             drafts[1] if drafts else "",  # Draft 2
             drafts[2] if drafts else "",  # Draft 3
             answer_key,                   # AI Answer Key
-            "", "", "", "", "", ""        # Empty quiz response columns (will be filled later)
+            "", "", "", "", "", "",       # Empty quiz answer/feedback columns (will be filled later)
+            "", "", ""                    # Empty score columns (will be filled later)
         ]
         self.sheet.append_row(row)
         row_number = self.sheet.row_count
@@ -161,40 +170,46 @@ class SheetsLogger:
     def log_quiz_answer(self, row_number: int, question_type: str, 
                        user_answer: str, feedback: str):
         """
-        Update a specific quiz row with user answer and feedback.
+        Update a specific quiz row with user answer, feedback, and score.
 
         Args:
             row_number: Row number in the sheet to update
             question_type: "observation", "interpretation", or "application"
             user_answer: User's submitted answer
-            feedback: AI's qualitative feedback
+            feedback: AI's qualitative feedback (includes score in parentheses)
         """
         # Map question type to column indices
         column_mapping = {
-            "observation": (self.COL_USER_ANS_OBS, self.COL_FEEDBACK_OBS),
-            "interpretation": (self.COL_USER_ANS_INT, self.COL_FEEDBACK_INT),
-            "application": (self.COL_USER_ANS_APP, self.COL_FEEDBACK_APP)
+            "observation": (self.COL_USER_ANS_OBS, self.COL_FEEDBACK_OBS, self.COL_SCORE_OBS),
+            "interpretation": (self.COL_USER_ANS_INT, self.COL_FEEDBACK_INT, self.COL_SCORE_INT),
+            "application": (self.COL_USER_ANS_APP, self.COL_FEEDBACK_APP, self.COL_SCORE_APP)
         }
 
         if question_type not in column_mapping:
             logger.error(f"Invalid question type: {question_type}")
             return
 
-        answer_col, feedback_col = column_mapping[question_type]
+        answer_col, feedback_col, score_col = column_mapping[question_type]
+        
+        # Extract score from feedback (looks for pattern like "(得分: 7/10)" or "(Score: 7/10)")
+        import re
+        score_match = re.search(r'\((?:得分|Score):\s*(\d+)/10\)', feedback)
+        score = score_match.group(1) if score_match else ""
 
-        # Use batch update to update both cells at once (avoids rate limits)
+        # Use batch update to update all three cells at once (avoids rate limits)
         try:
             # Convert column numbers to A1 notation
             from gspread.utils import rowcol_to_a1
             
             answer_cell = rowcol_to_a1(row_number, answer_col)
             feedback_cell = rowcol_to_a1(row_number, feedback_col)
+            score_cell = rowcol_to_a1(row_number, score_col)
             
             # Small delay to avoid rate limits (especially for rapid submissions)
             import time
             time.sleep(0.5)
             
-            # Batch update both cells
+            # Batch update all three cells
             self.sheet.batch_update([
                 {
                     'range': answer_cell,
@@ -203,10 +218,14 @@ class SheetsLogger:
                 {
                     'range': feedback_cell,
                     'values': [[feedback]]
+                },
+                {
+                    'range': score_cell,
+                    'values': [[score]]
                 }
             ])
             
-            logger.info(f"Quiz answer logged for {question_type} (row {row_number})")
+            logger.info(f"Quiz answer logged for {question_type} (row {row_number}, score: {score}/10)")
             
         except Exception as e:
             logger.error(f"Failed to log quiz answer to Google Sheets: {str(e)}")

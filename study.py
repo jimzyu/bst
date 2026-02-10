@@ -64,7 +64,7 @@ def render_ui():
     with col1:
         deep_mode = st.checkbox(labels['deep_mode'])
     with col2:
-        quiz_mode = st.checkbox('🎯 啟用問答學習模式 (Quiz Mode - Interactive Learning)')
+        quiz_mode = st.checkbox('🎯 Quiz Mode (Interactive Learning)')
     
     st.markdown("---")
     
@@ -414,7 +414,7 @@ def display_quiz_summary():
     
     st.markdown("### 📊 Quiz Summary")
     
-    # Display all questions, answers, and feedback
+    # Display all questions, answers, and feedback with scores
     question_types = ["observation", "interpretation", "application"]
     type_labels = {
         "observation": "📖 Observation (觀察)",
@@ -424,6 +424,30 @@ def display_quiz_summary():
     
     from parsers import QuizParser
     
+    # Display individual scores at the top
+    st.markdown("#### Your Scores:")
+    score_cols = st.columns(3)
+    
+    for idx, qtype in enumerate(question_types):
+        if qtype in st.session_state.quiz_feedbacks:
+            feedback_text = st.session_state.quiz_feedbacks[qtype]
+            score = QuizParser.extract_score(feedback_text)
+            
+            with score_cols[idx]:
+                if score is not None:
+                    st.metric(
+                        label=type_labels[qtype],
+                        value=f"{score}/10"
+                    )
+                else:
+                    st.metric(
+                        label=type_labels[qtype],
+                        value="N/A"
+                    )
+    
+    st.markdown("---")
+    
+    # Display detailed feedback for each question
     for qtype in question_types:
         if qtype in st.session_state.quiz_user_answers:
             with st.expander(f"{type_labels[qtype]}", expanded=False):

@@ -140,6 +140,24 @@ class QuizParser:
         en_feedback = en_match.group(1).strip() if en_match else None
         
         return ch_feedback, en_feedback
+    
+    @staticmethod
+    def extract_score(feedback_text: str) -> Optional[int]:
+        """
+        Extract numerical score from feedback text.
+        
+        Args:
+            feedback_text: Feedback text containing score in format "(得分: X/10)" or "(Score: X/10)"
+            
+        Returns:
+            Score as integer, or None if not found
+        """
+        score_pattern = r'\((?:得分|Score):\s*(\d+)/10\)'
+        match = re.search(score_pattern, feedback_text)
+        
+        if match:
+            return int(match.group(1))
+        return None
 
 
 class ContentRenderer:
