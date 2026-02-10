@@ -64,7 +64,7 @@ def render_ui():
     with col1:
         deep_mode = st.checkbox(labels['deep_mode'])
     with col2:
-        quiz_mode = st.checkbox('🎯 Quiz Mode (Interactive Learning)')
+        quiz_mode = st.checkbox('🎯 啟用問答學習模式 (Quiz Mode - Interactive Learning)')
     
     st.markdown("---")
     
