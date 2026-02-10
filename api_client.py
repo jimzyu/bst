@@ -190,6 +190,10 @@ class SheetsLogger:
             answer_cell = rowcol_to_a1(row_number, answer_col)
             feedback_cell = rowcol_to_a1(row_number, feedback_col)
             
+            # Small delay to avoid rate limits (especially for rapid submissions)
+            import time
+            time.sleep(0.5)
+            
             # Batch update both cells
             self.sheet.batch_update([
                 {
@@ -205,7 +209,8 @@ class SheetsLogger:
             logger.info(f"Quiz answer logged for {question_type} (row {row_number})")
             
         except Exception as e:
-            logger.error(f"Failed to log quiz answer: {str(e)}")
+            logger.error(f"Failed to log quiz answer to Google Sheets: {str(e)}")
+            logger.warning("Quiz will continue despite logging failure")
             # Don't raise - allow quiz to continue even if logging fails
 
 

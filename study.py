@@ -392,14 +392,17 @@ def display_quiz_interface():
                 # Save answer and feedback
                 SessionManager.save_quiz_answer(question_type, user_answer, feedback)
                 
-                # Log to Google Sheets
-                if client.draft_logger and st.session_state.quiz_sheets_row:
-                    client.draft_logger.log_quiz_answer(
-                        row_number=st.session_state.quiz_sheets_row,
-                        question_type=question_type,
-                        user_answer=user_answer,
-                        feedback=feedback
-                    )
+                # Log to Google Sheets (best effort - don't fail quiz if this errors)
+                try:
+                    if client.draft_logger and st.session_state.quiz_sheets_row:
+                        client.draft_logger.log_quiz_answer(
+                            row_number=st.session_state.quiz_sheets_row,
+                            question_type=question_type,
+                            user_answer=user_answer,
+                            feedback=feedback
+                        )
+                except Exception as e:
+                    logger.warning(f"Failed to log to Google Sheets, but quiz continues: {str(e)}")
                 
                 st.success("Answer submitted! ✅")
                 st.rerun()
