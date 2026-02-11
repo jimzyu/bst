@@ -1,15 +1,16 @@
-# Bible Study Tool - Refactored Version
+# Bible Study Tool - Refactored Version with Quiz Mode
 
-A Streamlit application that generates Bible study guides using Google Gemini AI, with support for Traditional Chinese, Simplified Chinese, and English.
+A Streamlit application that generates Bible study guides using Google Gemini AI, with support for Traditional Chinese, Simplified Chinese, and English. Features both **Study Mode** for generating comprehensive study guides and **Quiz Mode** for interactive learning with AI-powered feedback.
 
 ## Features
 
 ✨ **Key Improvements:**
+- **Quiz Mode (NEW!)**: Interactive learning with AI evaluation and qualitative feedback
 - **Parallel API Calls**: Deep mode now generates 3 drafts simultaneously (4x faster)
 - **Retry Logic**: Automatic retry with exponential backoff for failed API calls
 - **Better Error Handling**: Specific exception types and detailed error messages
 - **Rate Limiting**: 5-second cooldown between requests to prevent abuse
-- **Google Sheets Logging**: Automatic logging of all studies with drafts to Google Sheets
+- **Google Sheets Logging**: Automatic logging of all studies and quiz responses with scores
 - **Session Management**: Complete study history tracking with timestamps
 - **Modular Architecture**: Clean separation of concerns (config, prompts, parsers, API client)
 - **Enhanced Validation**: Improved prompt engineering with few-shot examples
@@ -22,9 +23,9 @@ A Streamlit application that generates Bible study guides using Google Gemini AI
 .
 ├── study.py              # Main application entry point
 ├── config.py             # Configuration and constants
-├── prompts.py            # All prompt templates
+├── prompts.py            # All prompt templates (study + quiz evaluation)
 ├── parsers.py            # Response parsing and UI rendering
-├── api_client.py         # Gemini API client with retry logic
+├── api_client.py         # Gemini API client with retry logic + Google Sheets logging
 ├── session_manager.py    # Streamlit session state management
 ├── requirements.txt      # Python dependencies
 └── README.md            # This file
@@ -95,12 +96,16 @@ streamlit run study.py
 
 ## How It Works
 
-### Standard Mode
+### Study Mode (Original Feature)
+
+Generate comprehensive Bible study guides with reflection questions and thematic summaries.
+
+#### Standard Mode
 1. Single API call to generate study guide
 2. Fast response (~3-5 seconds)
 3. Balanced theological perspective
 
-### Deep Mode
+#### Deep Mode
 1. **Parallel Generation**: 3 drafts generated simultaneously
    - Draft 1: Standard evangelical theology
    - Draft 2: Historical/cultural context
@@ -108,6 +113,28 @@ streamlit run study.py
 2. **Intelligent Merging**: Combines best elements from all drafts
 3. **Comprehensive Output**: Rich study guide with multiple perspectives
 4. Response time: ~10-15 seconds (vs 30-40 seconds in original sequential version)
+
+### Quiz Mode (NEW! 🎯)
+
+Interactive learning mode where you answer questions and receive AI-powered feedback.
+
+#### How It Works
+1. **Generate Questions**: Enter a Bible reference and check "Quiz Mode"
+2. **Answer Progressively**: Questions appear one at a time:
+   - 📖 Observation (觀察): What does the text say?
+   - 🤔 Interpretation (解釋): What does the text mean?
+   - 💡 Application (應用): How does it apply to life?
+3. **Receive Feedback**: After each answer, get qualitative feedback:
+   - **Strengths (優點)**: What you captured well
+   - **Gaps (不足)**: What you missed
+   - **Suggestions (建議)**: How to improve
+   - **Score**: 0-10 holistic evaluation (in parentheses)
+4. **Review Summary**: See all your answers and feedback
+5. **View Answer Key**: Option to reveal AI's complete study guide
+
+#### Quiz Mode Options
+- **Quiz Standard**: Uses single comprehensive answer key (4 API calls total)
+- **Quiz Deep**: Uses deep mode answer key with 3 perspectives (7 API calls total)
 
 ## Configuration
 
@@ -120,6 +147,62 @@ MAX_RETRIES = 3                   # API retry attempts
 REQUEST_COOLDOWN_SECONDS = 5      # Rate limit cooldown
 ENABLE_DRAFT_LOGGING = True       # Google Sheets logging (True/False)
 ```
+
+## Google Sheets Logging
+
+All studies and quizzes are automatically logged to Google Sheets with the following structure:
+
+### Column Layout
+
+| Column | Content |
+|--------|---------|
+| A: Timestamp | ISO format timestamp of when the study/quiz was generated |
+| B: Reference | Bible reference (e.g., "Matthew 5:1-12") |
+| C: Mode | "standard", "deep", "quiz_standard", or "quiz_deep" |
+| D: Draft 1 | Standard theological view (Deep mode only) |
+| E: Draft 2 | Historical & cultural context (Deep mode only) |
+| F: Draft 3 | Practical life application (Deep mode only) |
+| G: Final Result / AI Answer Key | The final merged study guide or quiz answer key |
+| H: User Answer - Observation | User's answer to observation question (Quiz mode only) |
+| I: Feedback - Observation | AI feedback on observation answer (Quiz mode only) |
+| J: User Answer - Interpretation | User's answer to interpretation question (Quiz mode only) |
+| K: Feedback - Interpretation | AI feedback on interpretation answer (Quiz mode only) |
+| L: User Answer - Application | User's answer to application question (Quiz mode only) |
+| M: Feedback - Application | AI feedback on application answer (Quiz mode only) |
+| N: Score - Observation | 0-10 score for observation answer (Quiz mode only) |
+| O: Score - Interpretation | 0-10 score for interpretation answer (Quiz mode only) |
+| P: Score - Application | 0-10 score for application answer (Quiz mode only) |
+
+### Mode-Specific Logging
+
+**Study Mode (Standard/Deep):**
+- Columns A-G populated
+- Columns H-P empty
+
+**Quiz Mode (Standard/Deep):**
+- Columns A-G populated (with answer key in G)
+- Columns H-P populated as user progresses through questions
+- Scores automatically extracted from feedback and logged separately
+
+**To disable logging**, set `ENABLE_DRAFT_LOGGING = False` in `config.py`.
+
+## API Usage
+
+### Study Mode
+- **Standard Mode**: 1 API call (~3-5 seconds)
+- **Deep Mode**: 4 API calls (3 parallel + 1 merge, ~10-15 seconds)
+
+### Quiz Mode
+- **Quiz Standard Mode**: 4 API calls total
+  - 1 call: Generate answer key
+  - 3 calls: Evaluate each answer (sequential as user progresses)
+  - Total time: ~15-20 seconds (spread over quiz session)
+- **Quiz Deep Mode**: 7 API calls total
+  - 4 calls: Generate answer key (3 parallel + 1 merge)
+  - 3 calls: Evaluate each answer (sequential as user progresses)
+  - Total time: ~25-30 seconds (spread over quiz session)
+
+**Rate Limit**: 5 seconds cooldown between initial requests
 
 ## Key Improvements Explained
 
@@ -147,71 +230,17 @@ def generate_content(prompt):
     # Automatically retries on failure with increasing wait times
 ```
 
-### 3. Enhanced Input Validation
-**Before:** Weak validation, confusing errors
-```python
-if "[INVALID_REF]" in text.upper():  # Fragile
-```
+### 3. Quiz Mode AI Evaluation
 
-**After:** Improved prompts with examples
-```python
-EXAMPLES:
-Input: "Chicken Soup" → Output: [INVALID_REF]
-Input: "Matthew 5:1-12" → Output: [Full study guide]
-```
-
-### 4. Rate Limiting Protection
-```python
-# Prevents API abuse and quota exhaustion
-if time_since_last_request < 5:
-    st.warning("Please wait 5 seconds...")
-```
-
-### 5. Complete Session History
-```python
-# Track all studies with metadata
-study_history = [
-    {
-        'reference': 'Matthew 5:1-12',
-        'timestamp': 1706745600,
-        'deep_mode': True,
-        'drafts': [...],
-        'result': '...'
-    }
-]
-```
-
-## Google Sheets Logging
-
-All studies are automatically logged to Google Sheets with the following structure:
-
-| Column | Content |
-|--------|---------|
-| A: Timestamp | ISO format timestamp of when the study was generated |
-| B: Reference | Bible reference (e.g., "Matthew 5:1-12") |
-| C: Mode | "standard" or "deep" |
-| D: Draft 1 | Standard theological view (Deep mode only) |
-| E: Draft 2 | Historical & cultural context (Deep mode only) |
-| F: Draft 3 | Practical life application (Deep mode only) |
-| G: Final Result | The final merged study guide |
-
-**Standard Mode**: Columns D-F are empty, only G contains the result.
-**Deep Mode**: All columns D-G are populated, allowing you to compare drafts and verify the merge quality.
-
-**To disable logging**, set `ENABLE_DRAFT_LOGGING = False` in `config.py`.
-
-**Console Logging**
-
-The application also logs events to the console:
-
-```python
-logger.info("Generating standard study guide")
-logger.info("SheetsLogger initialized successfully")
-logger.error("API error: Content blocked")
-logger.warning("Invalid reference detected")
-```
-
-View logs in terminal when running locally, or in Streamlit Cloud's "Manage app" → "Logs" section.
+The AI evaluates answers using:
+- **Holistic Scoring**: 0-10 scale based on overall understanding
+  - 9-10: Exceptional understanding
+  - 7-8: Strong understanding
+  - 5-6: Adequate understanding
+  - 3-4: Limited understanding
+  - 0-2: Insufficient understanding
+- **Qualitative Feedback**: Specific strengths, gaps, and suggestions
+- **Bilingual Output**: Feedback provided in both Chinese and English
 
 ## Error Handling
 
@@ -221,6 +250,7 @@ The app handles various error scenarios:
 - **Rate limiting**: Enforced cooldown periods
 - **Content blocking**: Specific error messages
 - **Network issues**: Graceful degradation
+- **Google Sheets errors**: Quiz continues even if logging fails (best effort logging)
 
 ## Development Tips
 
@@ -236,42 +266,43 @@ In `config.py`:
 REQUEST_COOLDOWN_SECONDS = 0  # Disable for testing
 ```
 
-### Test Error Handling
+### Test Quiz Mode
 ```python
-# Try invalid references
-"Chicken Soup"  # Should show [INVALID_REF]
-"Batman"        # Should show [INVALID_REF]
+# Try different references
+"John 3:16"      # Short passage
+"Matthew 5:1-12" # Longer passage (Beatitudes)
+"Psalm 23"       # Poetic text
 
-# Try valid references
-"John 3:16"     # Should generate study guide
-"Matthew 5:1-12"
+# Test invalid references (should show error)
+"Chicken Soup"   # Should show [INVALID_REF]
+"Batman"         # Should show [INVALID_REF]
 ```
 
 ## Performance Benchmarks
 
-| Mode | Original | Refactored | Improvement |
-|------|----------|------------|-------------|
-| Standard | ~5s | ~3-5s | Same |
-| Deep Mode | 30-40s | 10-15s | **4x faster** |
+| Mode | API Calls | Time | Use Case |
+|------|-----------|------|----------|
+| Study Standard | 1 | ~3-5s | Quick study guide |
+| Study Deep | 4 | ~10-15s | Comprehensive multi-perspective study |
+| Quiz Standard | 4 | ~15-20s | Interactive learning (spread over session) |
+| Quiz Deep | 7 | ~25-30s | In-depth interactive learning (spread over session) |
 
-## API Usage
+## Troubleshooting
 
-- **Standard Mode**: 1 API call
-- **Deep Mode**: 4 API calls (3 parallel + 1 merge)
-- **Rate Limit**: 5 seconds between requests
+### Quiz Mode Issues
 
-## License
+**"Quiz ready!" but no questions appear**
+- This was fixed with `st.rerun()` - make sure you have the latest `study.py`
 
-This is a refactored version incorporating best practices for:
-- Error handling
-- Performance optimization
-- Code organization
-- Type safety
-- Logging and monitoring
+**Google Sheets logging errors during quiz**
+- The app uses batch updates and defensive error handling
+- Quiz will continue even if logging fails
+- Check logs for specific Google Sheets API errors
+- Common causes: rate limits (handled with 0.5s delay), quota issues, permission problems
 
-## Troubleshooting Google Sheets Logging
+### Google Sheets Logging Issues
 
-### "Draft logging: Disabled" in logs
+**"Draft logging: Disabled" in logs**
 
 **Cause**: Either `GOOGLE_SHEETS_ID` or `google_service_account` couldn't be loaded from secrets.
 
@@ -282,7 +313,7 @@ This is a refactored version incorporating best practices for:
 2. Verify all required fields are present in the service account section
 3. Reboot the app after changing secrets
 
-### No rows appearing in Google Sheet
+**No rows appearing in Google Sheet**
 
 **Cause**: Service account doesn't have permission to write to the sheet.
 
@@ -294,7 +325,7 @@ This is a refactored version incorporating best practices for:
 5. Uncheck "Notify people" (service accounts can't receive emails)
 6. Try running another study
 
-### "private_key" format errors
+**"private_key" format errors**
 
 **Cause**: The private key field isn't properly formatted in TOML.
 
@@ -313,15 +344,26 @@ Do NOT use:
 - Regular double quotes `"..."` 
 - Escaped newlines `\n`
 
-### Verify logging is working
+**Verify logging is working**
 
 Check the console logs for:
 ```
 INFO:api_client:SheetsLogger initialized successfully
 INFO:api_client:Deep study logged to Google Sheets for: [reference]
+INFO:api_client:Quiz answer logged for observation (row X, score: Y/10)
 ```
 
 If you don't see these lines, logging isn't working.
+
+## License
+
+This is a refactored version incorporating best practices for:
+- Error handling
+- Performance optimization
+- Code organization
+- Type safety
+- Logging and monitoring
+- Interactive learning (Quiz Mode)
 
 ## Support
 
@@ -339,7 +381,27 @@ For issues or questions:
 ## Credits
 
 Refactored and optimized version with improvements in:
-- Parallel processing
-- Error handling
-- Code architecture
-- User experience
+- Parallel processing (4x speed improvement in deep mode)
+- Error handling with automatic retry
+- Code architecture and maintainability
+- User experience with interactive quiz mode
+- Comprehensive logging to Google Sheets
+
+## Changelog
+
+### v2.0 - Quiz Mode Release
+- **NEW**: Interactive Quiz Mode with AI-powered evaluation
+- **NEW**: Progressive question flow (Observation → Interpretation → Application)
+- **NEW**: Qualitative feedback with holistic 0-10 scoring
+- **NEW**: Individual score tracking in Google Sheets (columns N, O, P)
+- **IMPROVED**: Google Sheets logging with batch updates to avoid rate limits
+- **IMPROVED**: Defensive error handling - quiz continues even if logging fails
+- **IMPROVED**: Enhanced prompt templates for quiz evaluation
+
+### v1.0 - Initial Refactored Release
+- Parallel API calls for 4x speed improvement
+- Modular architecture (6 files)
+- Google Sheets logging for study sessions
+- Retry logic with exponential backoff
+- Rate limiting protection
+- Comprehensive session management
