@@ -18,7 +18,7 @@ class BibleAPIClient:
     
     # Bible IDs (from api.bible)
     BIBLE_ESV = "de4e12af7f28f599-02"  # English Standard Version
-    BIBLE_CUV = "692c9f9f01a8b8e8-01"  # Chinese Union Version Traditional (和合本繁體)
+    BIBLE_FEB = "692c9f9f01a8b8e8-01"  # Chinese Free Easy-to-Read Bible (FEB 簡明聖經)
     
     def __init__(self, api_key: str):
         """
@@ -179,7 +179,7 @@ class BibleAPIClient:
         Returns:
             Tuple of (formatted_reference, passage_text) or None if failed
         """
-        bible_id = self.BIBLE_ESV if language == "english" else self.BIBLE_CUV
+        bible_id = self.BIBLE_ESV if language == "english" else self.BIBLE_FEB
         
         try:
             # Normalize reference

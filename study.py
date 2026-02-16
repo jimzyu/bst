@@ -502,7 +502,7 @@ def display_bible_passage(reference: str, location: str = "expander"):
             
             if 'chinese' in passages:
                 chinese_ref, chinese_text = passages['chinese']
-                with st.expander("繁體中文 (CUV)", expanded=True):
+                with st.expander("中文 (FEB)", expanded=True):
                     st.markdown(chinese_text)
             
             if 'english' in passages:
@@ -513,7 +513,7 @@ def display_bible_passage(reference: str, location: str = "expander"):
     else:
         # Display as expander (for Study Mode)
         with st.expander("📖 View Bible Passage", expanded=False):
-            tab1, tab2 = st.tabs(["繁體中文 (CUV)", "English (ESV)"])
+            tab1, tab2 = st.tabs(["中文 (FEB)", "English (ESV)"])
             
             with tab1:
                 if 'chinese' in passages:

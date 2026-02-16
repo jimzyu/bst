@@ -52,7 +52,9 @@ The Bible passage feature will automatically activate once the API key is detect
 ## Supported Translations
 
 - **English**: ESV (English Standard Version)
-- **Chinese**: CUV Traditional (和合本繁體)
+- **Chinese**: FEB (Free Easy-to-Read Bible - 簡明聖經)
+
+*Note: FEB uses simpler, modern Chinese which may be easier to understand than traditional translations.*
 
 ## How It Works in Your App
 
