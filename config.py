@@ -70,6 +70,14 @@ class Config:
             return None
 
     @staticmethod
+    def get_bible_api_key() -> Optional[str]:
+        """Safely retrieve Bible API key from Streamlit secrets."""
+        try:
+            return st.secrets["BIBLE_API_KEY"]
+        except Exception:
+            return None
+
+    @staticmethod
     def validate_api_key() -> bool:
         """Validate that API key exists and stop execution if not."""
         api_key = Config.get_api_key()

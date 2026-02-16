@@ -48,6 +48,17 @@ def initialize_app():
             system_instruction=PromptTemplates.SYSTEM_INSTRUCTION
         )
         logger.info("Application initialized successfully")
+    
+    # Initialize Bible API client
+    if 'bible_client' not in st.session_state:
+        bible_api_key = Config.get_bible_api_key()
+        if bible_api_key:
+            from bible_api import BibleAPIClient
+            st.session_state.bible_client = BibleAPIClient(bible_api_key)
+            logger.info("Bible API client initialized")
+        else:
+            st.session_state.bible_client = None
+            logger.warning("Bible API key not found - passage display will be disabled")
 
 
 def render_ui():
@@ -139,7 +150,8 @@ def process_standard_study(reference: str, client: GeminiClient, labels: dict):
         prompt = PromptTemplates.get_standard_prompt(reference)
         result = client.generate_standard_study(reference, prompt)
         
-        # Save result
+        # Save result and reference
+        st.session_state.last_reference = reference
         SessionManager.save_study_result(
             reference=reference,
             deep_mode=False,
@@ -201,6 +213,7 @@ def process_deep_study(reference: str, client: GeminiClient, labels: dict):
                 return
             
             # Save result
+            st.session_state.last_reference = reference
             SessionManager.save_study_result(
                 reference=reference,
                 deep_mode=True,
@@ -320,6 +333,10 @@ def display_quiz_interface():
     
     if not st.session_state.quiz_active:
         return
+    
+    # Display Bible passage in sidebar for quiz mode
+    if st.session_state.quiz_reference:
+        display_bible_passage(st.session_state.quiz_reference, location="sidebar")
     
     st.markdown("---")
     st.subheader(f"📚 Quiz: {st.session_state.quiz_reference}")
@@ -464,6 +481,10 @@ def display_results():
     result = SessionManager.get_current_result()
     
     if result:
+        # Display Bible passage (expander for study mode)
+        if 'last_reference' in st.session_state:
+            display_bible_passage(st.session_state.last_reference, location="expander")
+        
         ch_text, en_text = ResponseParser.parse_ai_response(result)
         ContentRenderer.render_results(
             ch_text=ch_text,
@@ -471,6 +492,62 @@ def display_results():
             converter=st.session_state.cc_converter,
             labels=Config.LABELS
         )
+
+
+def display_bible_passage(reference: str, location: str = "expander"):
+    """
+    Display Bible passage in English and Chinese.
+    
+    Args:
+        reference: Bible reference
+        location: "expander" for collapsible section, "sidebar" for sidebar display
+    """
+    if not st.session_state.bible_client:
+        return
+    
+    # Fetch passage
+    passages = st.session_state.bible_client.fetch_both_languages(reference)
+    
+    if not passages:
+        logger.warning(f"Could not fetch Bible passage for: {reference}")
+        return
+    
+    if location == "sidebar":
+        # Display in sidebar (for Quiz Mode)
+        with st.sidebar:
+            st.markdown("### 📖 Bible Passage")
+            st.markdown(f"**{reference}**")
+            
+            if 'chinese' in passages:
+                chinese_ref, chinese_text = passages['chinese']
+                with st.expander("繁體中文 (CUV)", expanded=True):
+                    st.markdown(chinese_text)
+            
+            if 'english' in passages:
+                english_ref, english_text = passages['english']
+                with st.expander("English (ESV)", expanded=False):
+                    st.markdown(english_text)
+    
+    else:
+        # Display as expander (for Study Mode)
+        with st.expander("📖 View Bible Passage", expanded=False):
+            tab1, tab2 = st.tabs(["繁體中文 (CUV)", "English (ESV)"])
+            
+            with tab1:
+                if 'chinese' in passages:
+                    chinese_ref, chinese_text = passages['chinese']
+                    st.markdown(f"**{chinese_ref}**")
+                    st.markdown(chinese_text)
+                else:
+                    st.info("Chinese passage not available")
+            
+            with tab2:
+                if 'english' in passages:
+                    english_ref, english_text = passages['english']
+                    st.markdown(f"**{english_ref}**")
+                    st.markdown(english_text)
+                else:
+                    st.info("English passage not available")
 
 
 def main():
