@@ -17,8 +17,8 @@ class BibleAPIClient:
     BASE_URL = "https://rest.api.bible/v1"
     
     # Bible IDs (from api.bible)
-    BIBLE_ESV = "de4e12af7f28f599-02"  # English Standard Version
-    BIBLE_FEB = "692c9f9f01a8b8e8-01"  # Chinese Free Easy-to-Read Bible (FEB 簡明聖經)
+    BIBLE_NIRV = "5b888a42e2d9a89d-01"  # New International Reader's Version (NIrV)
+    BIBLE_FEB = "04fb2bec0d582d1f-01"   # Chinese Free Easy-to-Read Bible (FEB)
     
     def __init__(self, api_key: str):
         """
@@ -179,7 +179,7 @@ class BibleAPIClient:
         Returns:
             Tuple of (formatted_reference, passage_text) or None if failed
         """
-        bible_id = self.BIBLE_ESV if language == "english" else self.BIBLE_FEB
+        bible_id = self.BIBLE_NIRV if language == "english" else self.BIBLE_FEB
         
         try:
             # Normalize reference
@@ -197,7 +197,15 @@ class BibleAPIClient:
                 "include-verse-spans": "false"
             }
             
+            logger.info(f"API URL: {url}")
             response = requests.get(url, headers=self.headers, params=params, timeout=10)
+            
+            # Log response status
+            logger.info(f"API Response Status: {response.status_code}")
+            
+            if response.status_code != 200:
+                logger.error(f"API Error Response: {response.text}")
+            
             response.raise_for_status()
             
             data = response.json()

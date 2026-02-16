@@ -51,10 +51,10 @@ The Bible passage feature will automatically activate once the API key is detect
 
 ## Supported Translations
 
-- **English**: ESV (English Standard Version)
+- **English**: NIrV (New International Reader's Version)
 - **Chinese**: FEB (Free Easy-to-Read Bible - 簡明聖經)
 
-*Note: FEB uses simpler, modern Chinese which may be easier to understand than traditional translations.*
+*Both versions use simpler, modern language designed for easier reading and comprehension - perfect for Bible study!*
 
 ## How It Works in Your App
 
