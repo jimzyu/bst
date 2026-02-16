@@ -17,8 +17,8 @@ class BibleAPIClient:
     BASE_URL = "https://rest.api.bible/v1"
     
     # Bible IDs (from api.bible)
-    BIBLE_NIRV = "5b888a42e2d9a89d-01"  # New International Reader's Version (NIrV)
-    BIBLE_FEB = "04fb2bec0d582d1f-01"   # Chinese Free Easy-to-Read Bible (FEB)
+    BIBLE_WEB = "9879dbb7cfe39e4d-01"  # World English Bible (WEB)
+    BIBLE_FEB = "04fb2bec0d582d1f-01"  # Chinese Free Easy-to-Read Bible (FEB)
     
     def __init__(self, api_key: str):
         """
@@ -179,7 +179,7 @@ class BibleAPIClient:
         Returns:
             Tuple of (formatted_reference, passage_text) or None if failed
         """
-        bible_id = self.BIBLE_NIRV if language == "english" else self.BIBLE_FEB
+        bible_id = self.BIBLE_WEB if language == "english" else self.BIBLE_FEB
         
         try:
             # Normalize reference
