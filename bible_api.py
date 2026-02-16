@@ -14,7 +14,7 @@ class BibleAPIClient:
     """Client for fetching Bible passages from api.bible."""
     
     # API endpoints
-    BASE_URL = "https://api.scripture.api.bible/v1"
+    BASE_URL = "https://rest.api.bible/v1"
     
     # Bible IDs (from api.bible)
     BIBLE_ESV = "de4e12af7f28f599-02"  # English Standard Version
