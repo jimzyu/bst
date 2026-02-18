@@ -114,6 +114,19 @@ Provide feedback in both Chinese and English with the score at the END in parent
 CRITICAL: Be constructive and educational. The score should reflect holistic understanding, not perfection.
 """
 
+    CASE_STUDY_INSTRUCTION = """
+ADDITIONAL REQUIREMENT FOR QUIZ MODE:
+After providing the study guide, include a practical case study section:
+
+[CASE_STUDY_CHINESE]
+### 實際案例 (Practical Case Study)
+[Create a realistic, modern-day scenario (2-3 paragraphs) in Traditional Chinese that applies the key principles from this passage to everyday life. Make it relatable, specific, and thought-provoking. Include a situation people might actually face at work, home, or in relationships.]
+
+[CASE_STUDY_ENGLISH]
+### Practical Case Study
+[Direct English translation of the case study above - same scenario, same details]
+"""
+
     BASE_STUDY_TEMPLATE = """
 Analyze the following reference: "{ref}".
 
@@ -124,6 +137,8 @@ FIRST, determine if this is a valid Bible reference or passage name.
 Context focus for this draft: {focus}
 
 Follow the output format specified in your system instructions exactly.
+
+{case_study_instruction}
 
 Reference to analyze: "{ref}"
 """
@@ -165,16 +180,29 @@ The English section must be a direct translation of the Chinese section.
         """Get standard study prompt."""
         return cls.BASE_STUDY_TEMPLATE.format(
             ref=reference,
-            focus=cls.FOCUS_AREAS['standard']
+            focus=cls.FOCUS_AREAS['standard'],
+            case_study_instruction=""  # No case study for regular study mode
         )
     
     @classmethod
     def get_deep_prompts(cls, reference: str) -> list[str]:
         """Get all three prompts for deep mode."""
         return [
-            cls.BASE_STUDY_TEMPLATE.format(ref=reference, focus=cls.FOCUS_AREAS['standard']),
-            cls.BASE_STUDY_TEMPLATE.format(ref=reference, focus=cls.FOCUS_AREAS['historical']),
-            cls.BASE_STUDY_TEMPLATE.format(ref=reference, focus=cls.FOCUS_AREAS['application'])
+            cls.BASE_STUDY_TEMPLATE.format(
+                ref=reference, 
+                focus=cls.FOCUS_AREAS['standard'],
+                case_study_instruction=""
+            ),
+            cls.BASE_STUDY_TEMPLATE.format(
+                ref=reference, 
+                focus=cls.FOCUS_AREAS['historical'],
+                case_study_instruction=""
+            ),
+            cls.BASE_STUDY_TEMPLATE.format(
+                ref=reference, 
+                focus=cls.FOCUS_AREAS['application'],
+                case_study_instruction=""
+            )
         ]
     
     @classmethod
@@ -198,3 +226,40 @@ The English section must be a direct translation of the Chinese section.
             user_answer=user_answer,
             ai_answer=ai_answer
         )
+    
+    @classmethod
+    def get_quiz_prompt(cls, reference: str, deep_mode: bool = False) -> list[str]:
+        """
+        Get prompts for quiz mode (includes case study instruction).
+        
+        Args:
+            reference: Bible reference
+            deep_mode: If True, return 3 prompts for deep mode; if False, return 1 prompt
+            
+        Returns:
+            List of prompts with case study instruction included
+        """
+        if deep_mode:
+            return [
+                cls.BASE_STUDY_TEMPLATE.format(
+                    ref=reference, 
+                    focus=cls.FOCUS_AREAS['standard'],
+                    case_study_instruction=cls.CASE_STUDY_INSTRUCTION
+                ),
+                cls.BASE_STUDY_TEMPLATE.format(
+                    ref=reference, 
+                    focus=cls.FOCUS_AREAS['historical'],
+                    case_study_instruction=""  # Only first draft includes case study
+                ),
+                cls.BASE_STUDY_TEMPLATE.format(
+                    ref=reference, 
+                    focus=cls.FOCUS_AREAS['application'],
+                    case_study_instruction=""  # Only first draft includes case study
+                )
+            ]
+        else:
+            return [cls.BASE_STUDY_TEMPLATE.format(
+                ref=reference,
+                focus=cls.FOCUS_AREAS['standard'],
+                case_study_instruction=cls.CASE_STUDY_INSTRUCTION
+            )]

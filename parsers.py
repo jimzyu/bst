@@ -158,6 +158,30 @@ class QuizParser:
         if match:
             return int(match.group(1))
         return None
+    
+    @staticmethod
+    def extract_case_study(answer_key: str) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Extract case study from answer key.
+        
+        Args:
+            answer_key: Full answer key text that may contain case study sections
+            
+        Returns:
+            Tuple of (chinese_case_study, english_case_study) or (None, None) if not found
+        """
+        # Extract Chinese case study
+        ch_pattern = r'\[CASE_STUDY_CHINESE\](.*?)(?:\[CASE_STUDY_ENGLISH\]|$)'
+        ch_match = re.search(ch_pattern, answer_key, re.DOTALL | re.IGNORECASE)
+        
+        # Extract English case study
+        en_pattern = r'\[CASE_STUDY_ENGLISH\](.*?)(?:\[|$)'
+        en_match = re.search(en_pattern, answer_key, re.DOTALL | re.IGNORECASE)
+        
+        ch_case_study = ch_match.group(1).strip() if ch_match else None
+        en_case_study = en_match.group(1).strip() if en_match else None
+        
+        return ch_case_study, en_case_study
 
 
 class ContentRenderer:

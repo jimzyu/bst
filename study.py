@@ -261,10 +261,10 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
     from parsers import QuizParser
     
     with st.status("Generating quiz questions...", expanded=True) as status:
-        # Generate answer key (same as study mode, but hidden from user)
+        # Generate answer key with case study (using quiz-specific prompts)
         if deep_mode:
             status.write("Generating comprehensive answer key with deep mode...")
-            prompts = PromptTemplates.get_deep_prompts(reference)
+            prompts = PromptTemplates.get_quiz_prompt(reference, deep_mode=True)
             
             def build_merge_prompt(drafts: list) -> str:
                 return PromptTemplates.get_merge_prompt(
@@ -282,8 +282,8 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
             )
         else:
             status.write("Generating answer key...")
-            prompt = PromptTemplates.get_standard_prompt(reference)
-            answer_key = client.generate_standard_study(reference, prompt)
+            quiz_prompts = PromptTemplates.get_quiz_prompt(reference, deep_mode=False)
+            answer_key = client.generate_standard_study(reference, quiz_prompts[0])
         
         # Check if invalid reference
         if "[INVALID_REF]" in answer_key.upper():
@@ -300,6 +300,9 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
             status.update(label="Error", state="error")
             return
         
+        # Extract case study from answer key
+        case_study = QuizParser.extract_case_study(answer_key)
+        
         # Log initial quiz to Google Sheets
         sheets_row = None
         if client.draft_logger:
@@ -312,11 +315,12 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
                 drafts=drafts
             )
         
-        # Initialize quiz session
+        # Initialize quiz session with case study
         SessionManager.start_quiz(
             reference=reference,
             answer_key=answer_key,
             questions=questions,
+            case_study=case_study,
             sheets_row=sheets_row
         )
         
@@ -379,6 +383,21 @@ def display_quiz_interface():
             if en_feedback:
                 st.markdown("**English Feedback:**")
                 st.markdown(en_feedback)
+        
+        # Show case study after Application question
+        if question_type == "application" and st.session_state.quiz_case_study:
+            ch_case, en_case = st.session_state.quiz_case_study
+            if ch_case or en_case:
+                st.markdown("---")
+                st.markdown("### 💡 Reflect on This Case Study")
+                
+                with st.expander("📖 實際案例 / Practical Case Study", expanded=True):
+                    if ch_case:
+                        st.markdown("**中文:**")
+                        st.markdown(ch_case)
+                    if en_case:
+                        st.markdown("**English:**")
+                        st.markdown(en_case)
         
         # Button to continue
         if st.button("Continue to Next Question ➡️", type="primary"):

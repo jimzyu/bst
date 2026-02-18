@@ -71,6 +71,9 @@ class SessionManager:
         
         if 'quiz_sheets_row' not in st.session_state:
             st.session_state.quiz_sheets_row = None
+        
+        if 'quiz_case_study' not in st.session_state:
+            st.session_state.quiz_case_study = None  # Stores (chinese, english) tuple
     
     @staticmethod
     def can_make_request(cooldown_seconds: int) -> tuple[bool, float]:
@@ -169,7 +172,8 @@ class SessionManager:
     # Quiz Mode Methods
     
     @staticmethod
-    def start_quiz(reference: str, answer_key: str, questions: dict, sheets_row: int = None):
+    def start_quiz(reference: str, answer_key: str, questions: dict, 
+                  case_study: tuple = None, sheets_row: int = None):
         """
         Initialize a new quiz session.
         
@@ -177,6 +181,7 @@ class SessionManager:
             reference: Bible reference
             answer_key: Full AI-generated answer key
             questions: Dict of {question_type: question_text}
+            case_study: Tuple of (chinese_case_study, english_case_study)
             sheets_row: Google Sheets row number for logging
         """
         st.session_state.quiz_active = True
@@ -187,6 +192,7 @@ class SessionManager:
         st.session_state.quiz_user_answers = {}
         st.session_state.quiz_feedbacks = {}
         st.session_state.quiz_sheets_row = sheets_row
+        st.session_state.quiz_case_study = case_study
     
     @staticmethod
     def get_current_question_type() -> str:
@@ -224,3 +230,4 @@ class SessionManager:
         st.session_state.quiz_feedbacks = {}
         st.session_state.quiz_reference = None
         st.session_state.quiz_sheets_row = None
+        st.session_state.quiz_case_study = None
