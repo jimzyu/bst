@@ -302,11 +302,6 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
         
         # Extract case study from answer key
         case_study = QuizParser.extract_case_study(answer_key)
-        logger.info(f"Case study extraction result: {case_study is not None}")
-        if case_study:
-            ch_case, en_case = case_study
-            logger.info(f"Chinese case study: {len(ch_case) if ch_case else 0} chars")
-            logger.info(f"English case study: {len(en_case) if en_case else 0} chars")
         
         # Log initial quiz to Google Sheets
         sheets_row = None
