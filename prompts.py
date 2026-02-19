@@ -88,6 +88,11 @@ FEEDBACK STRUCTURE:
 2. **Gaps**: What key points did they miss? (List 1-3 important missing elements)
 3. **Suggestion**: One concrete way to improve their answer
 4. **Score**: Provide a score from 0-10 based on overall quality
+5. **Confidence**: Rate your confidence in this assessment (0-100%)
+   - 90-100%: Very confident, answer is clearly strong/weak
+   - 70-89%: Moderately confident, some ambiguity in interpretation
+   - 50-69%: Less confident, answer could be interpreted multiple ways
+   - Below 50%: Low confidence, difficult to assess definitively
 
 TONE:
 - Encouraging and pedagogical
@@ -97,21 +102,21 @@ TONE:
 - Be concise (3-4 sentences for feedback)
 
 OUTPUT FORMAT:
-Provide feedback in both Chinese and English with the score at the END in parentheses:
+Provide feedback in both Chinese and English with the score and confidence at the END in parentheses:
 
 [CHINESE]
 **優點**: [What they did well]
 **不足**: [What they missed]
 **建議**: [How to improve]
-(得分: X/10)
+(得分: X/10, 信心度: Y%)
 
 [ENGLISH]
 **Strengths**: [What they did well]
 **Gaps**: [What they missed]
 **Suggestion**: [How to improve]
-(Score: X/10)
+(Score: X/10, Confidence: Y%)
 
-CRITICAL: Be constructive and educational. The score should reflect holistic understanding, not perfection.
+CRITICAL: Be constructive and educational. The score should reflect holistic understanding, not perfection. The confidence level reflects how certain you are about your assessment.
 """
 
     CASE_STUDY_INSTRUCTION = """

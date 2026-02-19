@@ -147,13 +147,31 @@ class QuizParser:
         Extract numerical score from feedback text.
         
         Args:
-            feedback_text: Feedback text containing score in format "(得分: X/10)" or "(Score: X/10)"
+            feedback_text: Feedback text containing score in format "(得分: X/10, 信心度: Y%)" or "(Score: X/10, Confidence: Y%)"
             
         Returns:
             Score as integer, or None if not found
         """
-        score_pattern = r'\((?:得分|Score):\s*(\d+)/10\)'
+        score_pattern = r'\((?:得分|Score):\s*(\d+)/10'
         match = re.search(score_pattern, feedback_text)
+        
+        if match:
+            return int(match.group(1))
+        return None
+    
+    @staticmethod
+    def extract_confidence(feedback_text: str) -> Optional[int]:
+        """
+        Extract confidence percentage from feedback text.
+        
+        Args:
+            feedback_text: Feedback text containing confidence in format "信心度: X%" or "Confidence: X%"
+            
+        Returns:
+            Confidence as integer (0-100), or None if not found
+        """
+        confidence_pattern = r'(?:信心度|Confidence):\s*(\d+)%'
+        match = re.search(confidence_pattern, feedback_text)
         
         if match:
             return int(match.group(1))
