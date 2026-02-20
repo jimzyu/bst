@@ -39,6 +39,16 @@ OUTPUT FORMAT (for valid references only):
 - **Theological Significance**: [English translation of theological explanation]
 - **Historical Context**: [English translation of historical background]
 
+[META_ASSESSMENT]
+Understanding Confidence: [0-100]%
+Reasoning: [1-2 sentences explaining your confidence level in understanding this passage - consider historical context clarity, theological complexity, textual ambiguity, and interpretive challenges]
+
+CONFIDENCE SCORING GUIDE:
+- 90-100%: Very confident - clear text, strong historical/theological consensus
+- 70-89%: Moderately confident - some interpretive nuances or contextual gaps
+- 50-69%: Less confident - significant scholarly debate or unclear context
+- Below 50%: Low confidence - highly debated passage or limited historical information
+
 EXAMPLES OF VALIDATION:
 
 Input: "Chicken Soup"

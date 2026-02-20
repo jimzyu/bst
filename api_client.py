@@ -46,6 +46,7 @@ class SheetsLogger:
     COL_CONFIDENCE_OBS = 17
     COL_CONFIDENCE_INT = 18
     COL_CONFIDENCE_APP = 19
+    COL_UNDERSTANDING_CONF = 20
 
     HEADERS = [
         "Timestamp",
@@ -66,7 +67,8 @@ class SheetsLogger:
         "Score - Application",
         "Confidence - Observation (%)",
         "Confidence - Interpretation (%)",
-        "Confidence - Application (%)"
+        "Confidence - Application (%)",
+        "AI Understanding Confidence (%)"
     ]
 
     def __init__(self, service_account_info: dict, spreadsheet_id: str):
@@ -102,6 +104,9 @@ class SheetsLogger:
             reference: Bible reference
             result: Generated study guide text
         """
+        # Extract understanding confidence from result
+        understanding_conf = self._extract_understanding_confidence(result)
+        
         row = [
             datetime.now().isoformat(),   # Timestamp
             reference,                    # Reference
@@ -112,7 +117,8 @@ class SheetsLogger:
             result,                       # Final Result
             "", "", "", "", "", "",       # Empty quiz answer/feedback columns
             "", "", "",                   # Empty score columns
-            "", "", ""                    # Empty confidence columns
+            "", "", "",                   # Empty confidence columns
+            understanding_conf            # AI Understanding Confidence
         ]
         self.sheet.append_row(row)
         logger.info(f"Standard study logged to Google Sheets for: {reference}")
@@ -126,6 +132,9 @@ class SheetsLogger:
             drafts: List of 3 draft texts
             final_result: Merged final result text
         """
+        # Extract understanding confidence from final result
+        understanding_conf = self._extract_understanding_confidence(final_result)
+        
         row = [
             datetime.now().isoformat(),   # Timestamp
             reference,                    # Reference
@@ -136,7 +145,8 @@ class SheetsLogger:
             final_result,                 # Final Result
             "", "", "", "", "", "",       # Empty quiz answer/feedback columns
             "", "", "",                   # Empty score columns
-            "", "", ""                    # Empty confidence columns
+            "", "", "",                   # Empty confidence columns
+            understanding_conf            # AI Understanding Confidence
         ]
         self.sheet.append_row(row)
         logger.info(f"Deep study logged to Google Sheets for: {reference}")
@@ -159,6 +169,9 @@ class SheetsLogger:
         Returns:
             Row number of the newly created entry
         """
+        # Extract understanding confidence from answer key
+        understanding_conf = self._extract_understanding_confidence(answer_key)
+        
         row = [
             datetime.now().isoformat(),   # Timestamp
             reference,                    # Reference
@@ -169,7 +182,8 @@ class SheetsLogger:
             answer_key,                   # AI Answer Key
             "", "", "", "", "", "",       # Empty quiz answer/feedback columns (will be filled later)
             "", "", "",                   # Empty score columns (will be filled later)
-            "", "", ""                    # Empty confidence columns (will be filled later)
+            "", "", "",                   # Empty confidence columns (will be filled later)
+            understanding_conf            # AI Understanding Confidence
         ]
         self.sheet.append_row(row)
         row_number = self.sheet.row_count
@@ -248,6 +262,21 @@ class SheetsLogger:
             logger.error(f"Failed to log quiz answer to Google Sheets: {str(e)}")
             logger.warning("Quiz will continue despite logging failure")
             # Don't raise - allow quiz to continue even if logging fails
+    
+    def _extract_understanding_confidence(self, text: str) -> str:
+        """
+        Extract understanding confidence percentage from text.
+        
+        Args:
+            text: Text containing META_ASSESSMENT section
+            
+        Returns:
+            Confidence percentage as string, or empty string if not found
+        """
+        import re
+        pattern = r'Understanding Confidence:\s*(\d+)%'
+        match = re.search(pattern, text)
+        return match.group(1) if match else ""
 
 
 class GeminiClient:

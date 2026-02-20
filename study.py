@@ -239,6 +239,34 @@ def display_results():
     result = SessionManager.get_current_result()
     
     if result:
+        # Extract and display AI's understanding confidence
+        confidence, reasoning = ResponseParser.extract_understanding_confidence(result)
+        
+        if confidence is not None:
+            # Determine color based on confidence level
+            if confidence >= 90:
+                color = "green"
+                emoji = "✅"
+            elif confidence >= 70:
+                color = "blue"
+                emoji = "ℹ️"
+            elif confidence >= 50:
+                color = "orange"
+                emoji = "⚠️"
+            else:
+                color = "red"
+                emoji = "⚠️"
+            
+            # Display confidence banner
+            st.markdown(f"""
+            <div style="background-color: rgba(100, 100, 100, 0.1); padding: 12px; border-radius: 8px; border-left: 4px solid {color}; margin-bottom: 20px;">
+                <div style="font-size: 14px; font-weight: bold; color: {color};">
+                    {emoji} AI Understanding Confidence: {confidence}%
+                </div>
+                {f'<div style="font-size: 12px; color: #666; margin-top: 4px;">{reasoning}</div>' if reasoning else ''}
+            </div>
+            """, unsafe_allow_html=True)
+        
         ch_text, en_text = ResponseParser.parse_ai_response(result)
         ContentRenderer.render_results(
             ch_text=ch_text,
@@ -344,6 +372,35 @@ def display_quiz_interface():
     
     st.markdown("---")
     st.subheader(f"📚 Quiz: {st.session_state.quiz_reference}")
+    
+    # Display AI's understanding confidence at the start of quiz
+    if st.session_state.quiz_answer_key:
+        confidence, reasoning = ResponseParser.extract_understanding_confidence(st.session_state.quiz_answer_key)
+        
+        if confidence is not None:
+            # Determine color based on confidence level
+            if confidence >= 90:
+                color = "green"
+                emoji = "✅"
+            elif confidence >= 70:
+                color = "blue"
+                emoji = "ℹ️"
+            elif confidence >= 50:
+                color = "orange"
+                emoji = "⚠️"
+            else:
+                color = "red"
+                emoji = "⚠️"
+            
+            # Display confidence banner
+            st.markdown(f"""
+            <div style="background-color: rgba(100, 100, 100, 0.1); padding: 12px; border-radius: 8px; border-left: 4px solid {color}; margin-bottom: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: {color};">
+                    {emoji} AI Understanding Confidence: {confidence}%
+                </div>
+                {f'<div style="font-size: 12px; color: #666; margin-top: 4px;">{reasoning}</div>' if reasoning else ''}
+            </div>
+            """, unsafe_allow_html=True)
     
     # Check if quiz is complete
     if SessionManager.is_quiz_complete():

@@ -73,6 +73,40 @@ class ResponseParser:
         return questions, summary
 
 
+    @staticmethod
+    def extract_understanding_confidence(response: str) -> tuple:
+        """
+        Extract AI's self-assessment of passage understanding.
+        
+        Args:
+            response: Full AI response text
+            
+        Returns:
+            Tuple of (confidence_score, reasoning) or (None, None) if not found
+        """
+        # Extract meta-assessment section
+        meta_pattern = r'\[META_ASSESSMENT\](.*?)(?:\[|$)'
+        meta_match = re.search(meta_pattern, response, re.DOTALL | re.IGNORECASE)
+        
+        if not meta_match:
+            return None, None
+        
+        meta_text = meta_match.group(1)
+        
+        # Extract confidence score
+        confidence_pattern = r'Understanding Confidence:\s*(\d+)%'
+        confidence_match = re.search(confidence_pattern, meta_text)
+        
+        # Extract reasoning
+        reasoning_pattern = r'Reasoning:\s*(.+?)(?:\n\n|$)'
+        reasoning_match = re.search(reasoning_pattern, meta_text, re.DOTALL)
+        
+        confidence = int(confidence_match.group(1)) if confidence_match else None
+        reasoning = reasoning_match.group(1).strip() if reasoning_match else None
+        
+        return confidence, reasoning
+
+
 class QuizParser:
     """Parse quiz-specific responses."""
     
