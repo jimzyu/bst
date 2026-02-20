@@ -21,6 +21,46 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def check_sandbox_authentication():
+    """
+    Check if sandbox mode is enabled and authenticate user.
+    Returns True if user should proceed, False if authentication fails.
+    """
+    # Check if sandbox mode is enabled
+    sandbox_mode = Config.get_sandbox_mode()
+    
+    if not sandbox_mode:
+        # Sandbox mode disabled, proceed normally
+        return True
+    
+    # Initialize authentication state
+    if "sandbox_authenticated" not in st.session_state:
+        st.session_state.sandbox_authenticated = False
+    
+    # If already authenticated, proceed
+    if st.session_state.sandbox_authenticated:
+        return True
+    
+    # Show login screen
+    st.title("🔒 Bible Study Tool - Sandbox Mode")
+    st.info("This app is currently in testing mode. Please enter the password to continue.")
+    
+    password = st.text_input("Enter Password:", type="password", key="sandbox_password")
+    
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        if st.button("Login", type="primary"):
+            if password == Config.get_sandbox_password():
+                st.session_state.sandbox_authenticated = True
+                st.success("✅ Authentication successful!")
+                st.rerun()
+            else:
+                st.error("❌ Incorrect password. Please try again.")
+    
+    # Stop execution here - don't show the rest of the app
+    return False
+
+
 def initialize_app():
     """Initialize the application."""
     # Page configuration
@@ -628,6 +668,10 @@ def display_results():
 
 def main():
     """Main application entry point."""
+    # Check sandbox authentication first
+    if not check_sandbox_authentication():
+        st.stop()  # Stop execution if not authenticated
+    
     # Initialize
     initialize_app()
     

@@ -76,6 +76,22 @@ class Config:
             return st.secrets["BIBLE_API_KEY"]
         except Exception:
             return None
+    
+    @staticmethod
+    def get_sandbox_mode() -> bool:
+        """Check if sandbox mode is enabled."""
+        try:
+            return st.secrets.get("SANDBOX_MODE", False)
+        except Exception:
+            return False
+    
+    @staticmethod
+    def get_sandbox_password() -> str:
+        """Get sandbox password from secrets."""
+        try:
+            return st.secrets.get("SANDBOX_PASSWORD", "")
+        except Exception:
+            return ""
 
     @staticmethod
     def validate_api_key() -> bool:
