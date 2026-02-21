@@ -156,7 +156,9 @@ FIRST, determine if this is a valid Bible reference or passage name.
 
 Context focus for this draft: {focus}
 
-Follow the output format specified in your system instructions exactly.
+Follow the output format specified in your system instructions exactly, INCLUDING the [META_ASSESSMENT] section with Understanding Confidence percentage and reasoning.
+
+CRITICAL: You MUST include the [META_ASSESSMENT] section at the end of your response.
 
 {case_study_instruction}
 
@@ -186,6 +188,8 @@ Instructions:
 
 CRITICAL: Output STRICTLY in [CHINESE] and [ENGLISH] format as specified in your system instructions.
 The English section must be a direct translation of the Chinese section.
+
+IMPORTANT: You MUST include the [META_ASSESSMENT] section at the end with your Understanding Confidence percentage and reasoning based on your combined analysis of all three drafts.
 """
 
     # Focus areas for deep mode
