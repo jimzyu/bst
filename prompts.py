@@ -114,19 +114,24 @@ TONE:
 OUTPUT FORMAT:
 Provide feedback in both Chinese and English with the score and confidence at the END in parentheses:
 
+IMPORTANT FORMATTING RULES:
+- Do NOT use Markdown numbered lists (1. 2. 3.)
+- Use inline numbering like "1) item, 2) item" within the text
+- Keep all feedback as flowing text, not bullet points
+
 [CHINESE]
-**優點**: [What they did well]
-**不足**: [What they missed]
-**建議**: [How to improve]
+**優點**: [What they did well - write as flowing text, not bullet points]
+**不足**: [What they missed - if multiple items, write as: 1) first gap, 2) second gap, 3) third gap - all in one line or paragraph, not as separate bullet points]
+**建議**: [How to improve - write as flowing text]
 (得分: X/10, 信心度: Y%)
 
 [ENGLISH]
-**Strengths**: [What they did well]
-**Gaps**: [What they missed]
-**Suggestion**: [How to improve]
+**Strengths**: [What they did well - write as flowing text, not bullet points]
+**Gaps**: [What they missed - if multiple items, write as: 1) first gap, 2) second gap, 3) third gap - all in one line or paragraph, not as separate bullet points]
+**Suggestion**: [How to improve - write as flowing text]
 (Score: X/10, Confidence: Y%)
 
-CRITICAL: Be constructive and educational. The score should reflect holistic understanding, not perfection. The confidence level reflects how certain you are about your assessment.
+CRITICAL: Be constructive and educational. The score should reflect holistic understanding, not perfection. The confidence level reflects how certain you are about your assessment. NEVER use Markdown numbered or bulleted lists - keep everything as flowing prose with inline numbering if needed.
 """
 
     CASE_STUDY_INSTRUCTION = """

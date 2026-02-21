@@ -300,10 +300,10 @@ def display_results():
             # Display confidence banner
             st.markdown(f"""
             <div style="background-color: rgba(100, 100, 100, 0.1); padding: 12px; border-radius: 8px; border-left: 4px solid {color}; margin-bottom: 20px;">
-                <div style="font-size: 14px; font-weight: bold; color: {color};">
+                <div style="font-size: 18px; font-weight: bold; color: {color};">
                     {emoji} AI Understanding Confidence: {confidence}%
                 </div>
-                {f'<div style="font-size: 12px; color: #666; margin-top: 4px;">{reasoning}</div>' if reasoning else ''}
+                {f'<div style="font-size: 14px; color: #666; margin-top: 4px;">{reasoning}</div>' if reasoning else ''}
             </div>
             """, unsafe_allow_html=True)
         
@@ -435,10 +435,10 @@ def display_quiz_interface():
             # Display confidence banner
             st.markdown(f"""
             <div style="background-color: rgba(100, 100, 100, 0.1); padding: 12px; border-radius: 8px; border-left: 4px solid {color}; margin-bottom: 15px;">
-                <div style="font-size: 14px; font-weight: bold; color: {color};">
+                <div style="font-size: 18px; font-weight: bold; color: {color};">
                     {emoji} AI Understanding Confidence: {confidence}%
                 </div>
-                {f'<div style="font-size: 12px; color: #666; margin-top: 4px;">{reasoning}</div>' if reasoning else ''}
+                {f'<div style="font-size: 14px; color: #666; margin-top: 4px;">{reasoning}</div>' if reasoning else ''}
             </div>
             """, unsafe_allow_html=True)
     
