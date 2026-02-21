@@ -91,10 +91,36 @@ class SheetsLogger:
         logger.info("SheetsLogger initialized successfully")
 
     def _ensure_headers(self):
-        """Write header row if the sheet is empty."""
-        if self.sheet.row_count == 0 or self.sheet.acell("A1").value is None:
-            self.sheet.append_row(self.HEADERS)
-            logger.info("Header row created in Google Sheet")
+        """Write or update header row to match current HEADERS definition."""
+        try:
+            # Get current first row
+            current_headers = self.sheet.row_values(1) if self.sheet.row_count > 0 else []
+            
+            # Check if headers need updating
+            headers_match = (current_headers == self.HEADERS)
+            
+            if not current_headers:
+                # Sheet is empty, add headers
+                self.sheet.append_row(self.HEADERS)
+                logger.info("Header row created in Google Sheet")
+            elif not headers_match:
+                # Headers exist but don't match - update them
+                logger.warning(f"Headers mismatch! Current: {len(current_headers)} cols, Expected: {len(self.HEADERS)} cols")
+                logger.info("Updating header row to match current schema...")
+                
+                # Update the entire first row
+                for i, header in enumerate(self.HEADERS, start=1):
+                    self.sheet.update_cell(1, i, header)
+                
+                logger.info("Header row updated successfully")
+            else:
+                logger.info("Headers already match - no update needed")
+                
+        except Exception as e:
+            logger.error(f"Error ensuring headers: {str(e)}")
+            # If there's an error, try to append headers anyway
+            if self.sheet.row_count == 0:
+                self.sheet.append_row(self.HEADERS)
 
     def log_standard_study(self, reference: str, result: str):
         """

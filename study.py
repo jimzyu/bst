@@ -279,8 +279,15 @@ def display_results():
     result = SessionManager.get_current_result()
     
     if result:
+        # Display Bible passage first (if available)
+        if 'last_reference' in st.session_state:
+            display_bible_passage(st.session_state.last_reference, location="expander")
+        
         # Extract and display AI's understanding confidence
         confidence, reasoning = ResponseParser.extract_understanding_confidence(result)
+        
+        logger.info(f"Study mode - Confidence extracted: {confidence}")
+        logger.info(f"Study mode - Reasoning extracted: {reasoning is not None}")
         
         if confidence is not None:
             # Determine color based on confidence level
@@ -306,6 +313,9 @@ def display_results():
                 {f'<div style="font-size: 14px; color: #666; margin-top: 4px;">{reasoning}</div>' if reasoning else ''}
             </div>
             """, unsafe_allow_html=True)
+        else:
+            # Debug: show why confidence isn't displaying
+            st.warning("⚠️ Debug: AI Understanding Confidence not found in response. Check logs.")
         
         ch_text, en_text = ResponseParser.parse_ai_response(result)
         ContentRenderer.render_results(
