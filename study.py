@@ -720,13 +720,19 @@ def main():
         # Render UI and get inputs
         reference, deep_mode, quiz_mode = render_ui()
         
+        # DEBUG: Show what mode we're in
+        st.sidebar.info(f"🔍 Mode Check:\n- quiz_mode checkbox: {quiz_mode}\n- quiz_active: {st.session_state.quiz_active}")
+        
         # Process button click
         if st.button(Config.LABELS['button_text'], type="primary"):
             process_study_request(reference, deep_mode, quiz_mode)
         
         # Display results (only in study mode)
         if not quiz_mode:
+            st.info("✅ About to call display_results() because quiz_mode=False")
             display_results()
+        else:
+            st.warning("⚠️ NOT calling display_results() because quiz_mode=True")
     
     # Optional: Debug info (comment out for production)
     # SessionManager.show_debug_info()
