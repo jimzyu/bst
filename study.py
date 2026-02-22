@@ -279,6 +279,14 @@ def display_results():
     result = SessionManager.get_current_result()
     
     if result:
+        # TEMPORARY DEBUG - Shows raw AI response
+        with st.expander("🔍 DEBUG: View Raw AI Response", expanded=False):
+            st.text_area("Raw Response:", result, height=400)
+            st.write("Response length:", len(result))
+            st.write("Contains [META_ASSESSMENT]:", "[META_ASSESSMENT]" in result)
+            st.write("Contains [CHINESE]:", "[CHINESE]" in result)
+            st.write("Contains [ENGLISH]:", "[ENGLISH]" in result)
+        
         # Display Bible passage first (if available)
         if 'last_reference' in st.session_state:
             display_bible_passage(st.session_state.last_reference, location="expander")
