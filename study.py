@@ -6,15 +6,15 @@ import streamlit as st
 from opencc import OpenCC
 import logging
 
+# VERSION INDICATOR
+APP_VERSION = "2025-02-21-18:00-DEBUG"
+
 # Local imports
 from config import Config
 from prompts import PromptTemplates
 from parsers import ResponseParser, ContentRenderer
 from api_client import GeminiClient, GeminiAPIError
 from session_manager import SessionManager
-
-# At the very top of study.py after imports, add:
-st.sidebar.success("🔴 VERSION: 2025-02-21-17:30")
 
 # Configure logging
 logging.basicConfig(
@@ -72,6 +72,10 @@ def initialize_app():
         page_icon=Config.PAGE_ICON,
         layout="centered"
     )
+    
+    # DISPLAY VERSION
+    st.sidebar.error(f"🔴 CODE VERSION: {APP_VERSION}")
+    st.sidebar.caption("Debug mode active - extra diagnostics enabled")
     
     # Validate API key
     Config.validate_api_key()
@@ -279,16 +283,26 @@ def process_deep_study(reference: str, client: GeminiClient, labels: dict):
 
 def display_results():
     """Display study results if available."""
+    # BIG DEBUG INDICATOR - Can't miss this!
+    st.error("🔴 DEBUG MODE ACTIVE: display_results() function is running")
+    
     result = SessionManager.get_current_result()
     
     if result:
-        # TEMPORARY DEBUG - Shows raw AI response
-        with st.expander("🔍 DEBUG: View Raw AI Response", expanded=False):
-            st.text_area("Raw Response:", result, height=400)
-            st.write("Response length:", len(result))
-            st.write("Contains [META_ASSESSMENT]:", "[META_ASSESSMENT]" in result)
-            st.write("Contains [CHINESE]:", "[CHINESE]" in result)
-            st.write("Contains [ENGLISH]:", "[ENGLISH]" in result)
+        st.success(f"✅ Result retrieved from session! Length: {len(result)} characters")
+        
+        # Debug expander - ALWAYS expanded for visibility
+        with st.expander("🔍 DEBUG: Raw AI Response Analysis", expanded=True):
+            st.markdown("### Response Content Check:")
+            st.write("- Contains `[META_ASSESSMENT]`:", "[META_ASSESSMENT]" in result)
+            st.write("- Contains `[CHINESE]`:", "[CHINESE]" in result)
+            st.write("- Contains `[ENGLISH]`:", "[ENGLISH]" in result)
+            
+            st.markdown("### First 500 characters of response:")
+            st.code(result[:500])
+            
+            st.markdown("### Full Raw Response:")
+            st.text_area("Complete AI Output:", result, height=300)
         
         # Display Bible passage first (if available)
         if 'last_reference' in st.session_state:
@@ -299,6 +313,8 @@ def display_results():
         
         logger.info(f"Study mode - Confidence extracted: {confidence}")
         logger.info(f"Study mode - Reasoning extracted: {reasoning is not None}")
+        
+        st.info(f"🔍 Confidence Extraction Result: confidence={confidence}, reasoning={'Yes' if reasoning else 'No'}")
         
         if confidence is not None:
             # Determine color based on confidence level
