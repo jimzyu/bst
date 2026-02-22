@@ -13,8 +13,8 @@ from parsers import ResponseParser, ContentRenderer
 from api_client import GeminiClient, GeminiAPIError
 from session_manager import SessionManager
 
-   # At the very top of study.py after imports, add:
-   st.sidebar.success("🔴 VERSION: 2025-02-21-17:30")
+# At the very top of study.py after imports, add:
+st.sidebar.success("🔴 VERSION: 2025-02-21-17:30")
 
 # Configure logging
 logging.basicConfig(
