@@ -6,9 +6,6 @@ import streamlit as st
 from opencc import OpenCC
 import logging
 
-# VERSION INDICATOR
-APP_VERSION = "2025-02-21-18:00-DEBUG"
-
 # Local imports
 from config import Config
 from prompts import PromptTemplates
@@ -72,10 +69,6 @@ def initialize_app():
         page_icon=Config.PAGE_ICON,
         layout="centered"
     )
-    
-    # DISPLAY VERSION
-    st.sidebar.error(f"🔴 CODE VERSION: {APP_VERSION}")
-    st.sidebar.caption("Debug mode active - extra diagnostics enabled")
     
     # Validate API key
     Config.validate_api_key()
@@ -283,27 +276,9 @@ def process_deep_study(reference: str, client: GeminiClient, labels: dict):
 
 def display_results():
     """Display study results if available."""
-    # BIG DEBUG INDICATOR - Can't miss this!
-    st.error("🔴 DEBUG MODE ACTIVE: display_results() function is running")
-    
     result = SessionManager.get_current_result()
     
     if result:
-        st.success(f"✅ Result retrieved from session! Length: {len(result)} characters")
-        
-        # Debug expander - ALWAYS expanded for visibility
-        with st.expander("🔍 DEBUG: Raw AI Response Analysis", expanded=True):
-            st.markdown("### Response Content Check:")
-            st.write("- Contains `[META_ASSESSMENT]`:", "[META_ASSESSMENT]" in result)
-            st.write("- Contains `[CHINESE]`:", "[CHINESE]" in result)
-            st.write("- Contains `[ENGLISH]`:", "[ENGLISH]" in result)
-            
-            st.markdown("### First 500 characters of response:")
-            st.code(result[:500])
-            
-            st.markdown("### Full Raw Response:")
-            st.text_area("Complete AI Output:", result, height=300)
-        
         # Display Bible passage first (if available)
         if 'last_reference' in st.session_state:
             display_bible_passage(st.session_state.last_reference, location="expander")
@@ -313,8 +288,6 @@ def display_results():
         
         logger.info(f"Study mode - Confidence extracted: {confidence}")
         logger.info(f"Study mode - Reasoning extracted: {reasoning is not None}")
-        
-        st.info(f"🔍 Confidence Extraction Result: confidence={confidence}, reasoning={'Yes' if reasoning else 'No'}")
         
         if confidence is not None:
             # Determine color based on confidence level
@@ -685,22 +658,6 @@ def display_bible_passage(reference: str, location: str = "expander"):
                     st.info("English passage not available")
 
 
-def display_results():
-    """Display study results if available."""
-    result = SessionManager.get_current_result()
-    
-    if result:
-        # Display Bible passage (expander for study mode)
-        if 'last_reference' in st.session_state:
-            display_bible_passage(st.session_state.last_reference, location="expander")
-        
-        ch_text, en_text = ResponseParser.parse_ai_response(result)
-        ContentRenderer.render_results(
-            ch_text=ch_text,
-            en_text=en_text,
-            converter=st.session_state.cc_converter,
-            labels=Config.LABELS
-        )
 
 
 def main():
@@ -720,19 +677,13 @@ def main():
         # Render UI and get inputs
         reference, deep_mode, quiz_mode = render_ui()
         
-        # DEBUG: Show what mode we're in
-        st.sidebar.info(f"🔍 Mode Check:\n- quiz_mode checkbox: {quiz_mode}\n- quiz_active: {st.session_state.quiz_active}")
-        
         # Process button click
         if st.button(Config.LABELS['button_text'], type="primary"):
             process_study_request(reference, deep_mode, quiz_mode)
         
         # Display results (only in study mode)
         if not quiz_mode:
-            st.info("✅ About to call display_results() because quiz_mode=False")
             display_results()
-        else:
-            st.warning("⚠️ NOT calling display_results() because quiz_mode=True")
     
     # Optional: Debug info (comment out for production)
     # SessionManager.show_debug_info()
