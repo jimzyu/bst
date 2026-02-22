@@ -135,22 +135,16 @@ CRITICAL: Be constructive and educational. The score should reflect holistic und
 """
 
     CASE_STUDY_INSTRUCTION = """
-================================================================================
-CRITICAL REQUIREMENT FOR QUIZ MODE - YOU MUST INCLUDE THIS:
-================================================================================
-
-After completing the study guide (including [CHINESE], [ENGLISH], and [META_ASSESSMENT] sections), 
-you MUST add the following case study sections. This is MANDATORY.
+ADDITIONAL REQUIREMENT FOR QUIZ MODE:
+After providing the study guide, include a practical case study section:
 
 [CASE_STUDY_CHINESE]
 ### 實際案例 (Practical Case Study)
-[Write a realistic, modern-day scenario (2-3 paragraphs) in Traditional Chinese that applies the key principles from this passage to everyday life. Make it relatable, specific, and thought-provoking. Include a situation people might actually face at work, home, or in relationships.]
+[Create a realistic, modern-day scenario (2-3 paragraphs) in Traditional Chinese that applies the key principles from this passage to everyday life. Make it relatable, specific, and thought-provoking. Include a situation people might actually face at work, home, or in relationships.]
 
 [CASE_STUDY_ENGLISH]
 ### Practical Case Study
-[Write the exact same scenario as above in English - same story, same characters, same details]
-
-CRITICAL: Do NOT skip these [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections. They are required for quiz mode to function properly.
+[Direct English translation of the case study above - same scenario, same details]
 """
 
     BASE_STUDY_TEMPLATE = """
@@ -191,11 +185,14 @@ Instructions:
 3. Select the most challenging and practical "Application" question (or create a more actionable one)
 4. Combine the historical facts and theological meanings into a rich, comprehensive summary
 5. Ensure all content is cohesive and flows well together
+6. **CRITICAL FOR QUIZ MODE**: If Draft 1 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, you MUST include them in your merged output. Do NOT drop these sections.
 
 CRITICAL: Output STRICTLY in [CHINESE] and [ENGLISH] format as specified in your system instructions.
 The English section must be a direct translation of the Chinese section.
 
 IMPORTANT: You MUST include the [META_ASSESSMENT] section at the end with your Understanding Confidence percentage and reasoning based on your combined analysis of all three drafts.
+
+IMPORTANT: If Draft 1 contains case study sections ([CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH]), copy them verbatim to your merged output after the [META_ASSESSMENT] section.
 """
 
     # Focus areas for deep mode

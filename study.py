@@ -501,8 +501,15 @@ def display_quiz_interface():
         
         # Show case study after Application question
         if question_type == "application":
+            # DEBUG: Show what we have
+            st.sidebar.warning(f"🔍 Case Study Debug:\n- quiz_case_study exists: {st.session_state.quiz_case_study is not None}\n- Value: {st.session_state.quiz_case_study}")
+            
             if st.session_state.quiz_case_study:
                 ch_case, en_case = st.session_state.quiz_case_study
+                
+                # DEBUG: Show extraction results
+                st.sidebar.info(f"🔍 Extracted:\n- CH length: {len(ch_case) if ch_case else 0}\n- EN length: {len(en_case) if en_case else 0}")
+                
                 if ch_case or en_case:
                     st.markdown("---")
                     st.markdown("### 💡 Reflect on This Case Study")
@@ -516,9 +523,11 @@ def display_quiz_interface():
                             st.markdown(en_case)
                 else:
                     # Debug: case study was None/empty
+                    st.warning("⚠️ DEBUG: Case study tuple exists but both CH and EN are empty!")
                     st.info("ℹ️ Case study was not generated for this quiz. This is a known occasional issue.")
             else:
                 # Debug: no case study in session state
+                st.warning("⚠️ DEBUG: quiz_case_study is None in session state!")
                 st.info("ℹ️ Case study was not generated for this quiz. This is a known occasional issue.")
         
         # Button to continue
