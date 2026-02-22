@@ -135,16 +135,22 @@ CRITICAL: Be constructive and educational. The score should reflect holistic und
 """
 
     CASE_STUDY_INSTRUCTION = """
-ADDITIONAL REQUIREMENT FOR QUIZ MODE:
-After providing the study guide, include a practical case study section:
+================================================================================
+CRITICAL REQUIREMENT FOR QUIZ MODE - YOU MUST INCLUDE THIS:
+================================================================================
+
+After completing the study guide (including [CHINESE], [ENGLISH], and [META_ASSESSMENT] sections), 
+you MUST add the following case study sections. This is MANDATORY.
 
 [CASE_STUDY_CHINESE]
 ### 實際案例 (Practical Case Study)
-[Create a realistic, modern-day scenario (2-3 paragraphs) in Traditional Chinese that applies the key principles from this passage to everyday life. Make it relatable, specific, and thought-provoking. Include a situation people might actually face at work, home, or in relationships.]
+[Write a realistic, modern-day scenario (2-3 paragraphs) in Traditional Chinese that applies the key principles from this passage to everyday life. Make it relatable, specific, and thought-provoking. Include a situation people might actually face at work, home, or in relationships.]
 
 [CASE_STUDY_ENGLISH]
 ### Practical Case Study
-[Direct English translation of the case study above - same scenario, same details]
+[Write the exact same scenario as above in English - same story, same characters, same details]
+
+CRITICAL: Do NOT skip these [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections. They are required for quiz mode to function properly.
 """
 
     BASE_STUDY_TEMPLATE = """

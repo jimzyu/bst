@@ -381,6 +381,14 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
         # Extract case study from answer key
         case_study = QuizParser.extract_case_study(answer_key)
         
+        # Debug logging
+        if case_study and (case_study[0] or case_study[1]):
+            logger.info(f"✅ Case study extracted successfully: CH={bool(case_study[0])}, EN={bool(case_study[1])}")
+        else:
+            logger.warning(f"⚠️ Case study NOT found in answer key!")
+            logger.warning(f"Answer key contains [CASE_STUDY_CHINESE]: {'[CASE_STUDY_CHINESE]' in answer_key}")
+            logger.warning(f"Answer key contains [CASE_STUDY_ENGLISH]: {'[CASE_STUDY_ENGLISH]' in answer_key}")
+        
         # Log initial quiz to Google Sheets
         sheets_row = None
         if client.draft_logger:
@@ -492,19 +500,26 @@ def display_quiz_interface():
                 st.markdown(en_feedback)
         
         # Show case study after Application question
-        if question_type == "application" and st.session_state.quiz_case_study:
-            ch_case, en_case = st.session_state.quiz_case_study
-            if ch_case or en_case:
-                st.markdown("---")
-                st.markdown("### 💡 Reflect on This Case Study")
-                
-                with st.expander("📖 實際案例 / Practical Case Study", expanded=True):
-                    if ch_case:
-                        st.markdown("**中文:**")
-                        st.markdown(ch_case)
-                    if en_case:
-                        st.markdown("**English:**")
-                        st.markdown(en_case)
+        if question_type == "application":
+            if st.session_state.quiz_case_study:
+                ch_case, en_case = st.session_state.quiz_case_study
+                if ch_case or en_case:
+                    st.markdown("---")
+                    st.markdown("### 💡 Reflect on This Case Study")
+                    
+                    with st.expander("📖 實際案例 / Practical Case Study", expanded=True):
+                        if ch_case:
+                            st.markdown("**中文:**")
+                            st.markdown(ch_case)
+                        if en_case:
+                            st.markdown("**English:**")
+                            st.markdown(en_case)
+                else:
+                    # Debug: case study was None/empty
+                    st.info("ℹ️ Case study was not generated for this quiz. This is a known occasional issue.")
+            else:
+                # Debug: no case study in session state
+                st.info("ℹ️ Case study was not generated for this quiz. This is a known occasional issue.")
         
         # Button to continue
         if st.button("Continue to Next Question ➡️", type="primary"):
@@ -658,6 +673,22 @@ def display_bible_passage(reference: str, location: str = "expander"):
                     st.info("English passage not available")
 
 
+def display_results():
+    """Display study results if available."""
+    result = SessionManager.get_current_result()
+    
+    if result:
+        # Display Bible passage (expander for study mode)
+        if 'last_reference' in st.session_state:
+            display_bible_passage(st.session_state.last_reference, location="expander")
+        
+        ch_text, en_text = ResponseParser.parse_ai_response(result)
+        ContentRenderer.render_results(
+            ch_text=ch_text,
+            en_text=en_text,
+            converter=st.session_state.cc_converter,
+            labels=Config.LABELS
+        )
 
 
 def main():
