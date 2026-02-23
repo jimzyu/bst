@@ -313,9 +313,6 @@ def display_results():
                 {f'<div style="font-size: 14px; color: #666; margin-top: 4px;">{reasoning}</div>' if reasoning else ''}
             </div>
             """, unsafe_allow_html=True)
-        else:
-            # Debug: show why confidence isn't displaying
-            st.warning("⚠️ Debug: AI Understanding Confidence not found in response. Check logs.")
         
         ch_text, en_text = ResponseParser.parse_ai_response(result)
         ContentRenderer.render_results(
@@ -381,13 +378,9 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
         # Extract case study from answer key
         case_study = QuizParser.extract_case_study(answer_key)
         
-        # Debug logging
+        # Log case study extraction result
         if case_study and (case_study[0] or case_study[1]):
-            logger.info(f"✅ Case study extracted successfully: CH={bool(case_study[0])}, EN={bool(case_study[1])}")
-        else:
-            logger.warning(f"⚠️ Case study NOT found in answer key!")
-            logger.warning(f"Answer key contains [CASE_STUDY_CHINESE]: {'[CASE_STUDY_CHINESE]' in answer_key}")
-            logger.warning(f"Answer key contains [CASE_STUDY_ENGLISH]: {'[CASE_STUDY_ENGLISH]' in answer_key}")
+            logger.info(f"Case study extracted: CH={bool(case_study[0])}, EN={bool(case_study[1])}")
         
         # Log initial quiz to Google Sheets
         sheets_row = None
@@ -501,14 +494,8 @@ def display_quiz_interface():
         
         # Show case study after Application question
         if question_type == "application":
-            # DEBUG: Show what we have
-            st.sidebar.warning(f"🔍 Case Study Debug:\n- quiz_case_study exists: {st.session_state.quiz_case_study is not None}\n- Value: {st.session_state.quiz_case_study}")
-            
             if st.session_state.quiz_case_study:
                 ch_case, en_case = st.session_state.quiz_case_study
-                
-                # DEBUG: Show extraction results
-                st.sidebar.info(f"🔍 Extracted:\n- CH length: {len(ch_case) if ch_case else 0}\n- EN length: {len(en_case) if en_case else 0}")
                 
                 if ch_case or en_case:
                     st.markdown("---")
@@ -521,14 +508,6 @@ def display_quiz_interface():
                         if en_case:
                             st.markdown("**English:**")
                             st.markdown(en_case)
-                else:
-                    # Debug: case study was None/empty
-                    st.warning("⚠️ DEBUG: Case study tuple exists but both CH and EN are empty!")
-                    st.info("ℹ️ Case study was not generated for this quiz. This is a known occasional issue.")
-            else:
-                # Debug: no case study in session state
-                st.warning("⚠️ DEBUG: quiz_case_study is None in session state!")
-                st.info("ℹ️ Case study was not generated for this quiz. This is a known occasional issue.")
         
         # Button to continue
         if st.button("Continue to Next Question ➡️", type="primary"):
