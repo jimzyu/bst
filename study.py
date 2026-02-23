@@ -661,22 +661,6 @@ def display_bible_passage(reference: str, location: str = "expander"):
                     st.info("English passage not available")
 
 
-def display_results():
-    """Display study results if available."""
-    result = SessionManager.get_current_result()
-    
-    if result:
-        # Display Bible passage (expander for study mode)
-        if 'last_reference' in st.session_state:
-            display_bible_passage(st.session_state.last_reference, location="expander")
-        
-        ch_text, en_text = ResponseParser.parse_ai_response(result)
-        ContentRenderer.render_results(
-            ch_text=ch_text,
-            en_text=en_text,
-            converter=st.session_state.cc_converter,
-            labels=Config.LABELS
-        )
 
 
 def main():
