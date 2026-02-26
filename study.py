@@ -9,7 +9,7 @@ import logging
 # Local imports
 from config import Config
 from prompts import PromptTemplates
-from parsers import ResponseParser, ContentRenderer
+from parsers import ResponseParser, ContentRenderer, QuizParser
 from api_client import GeminiClient, GeminiAPIError
 from session_manager import SessionManager
 
