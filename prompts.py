@@ -204,31 +204,31 @@ IMPORTANT: If Draft 1 contains case study sections ([CASE_STUDY_CHINESE] and [CA
     
     @classmethod
     def get_standard_prompt(cls, reference: str) -> str:
-        """Get standard study prompt."""
+        """Get standard study prompt (always includes case study)."""
         return cls.BASE_STUDY_TEMPLATE.format(
             ref=reference,
             focus=cls.FOCUS_AREAS['standard'],
-            case_study_instruction=""  # No case study for regular study mode
+            case_study_instruction=cls.CASE_STUDY_INSTRUCTION
         )
     
     @classmethod
     def get_deep_prompts(cls, reference: str) -> list[str]:
-        """Get all three prompts for deep mode."""
+        """Get all three prompts for deep mode (case study in first draft)."""
         return [
             cls.BASE_STUDY_TEMPLATE.format(
                 ref=reference, 
                 focus=cls.FOCUS_AREAS['standard'],
-                case_study_instruction=""
+                case_study_instruction=cls.CASE_STUDY_INSTRUCTION  # Include in Draft 1
             ),
             cls.BASE_STUDY_TEMPLATE.format(
                 ref=reference, 
                 focus=cls.FOCUS_AREAS['historical'],
-                case_study_instruction=""
+                case_study_instruction=""  # Not in Draft 2
             ),
             cls.BASE_STUDY_TEMPLATE.format(
                 ref=reference, 
                 focus=cls.FOCUS_AREAS['application'],
-                case_study_instruction=""
+                case_study_instruction=""  # Not in Draft 3
             )
         ]
     

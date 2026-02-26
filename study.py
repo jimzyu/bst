@@ -321,6 +321,21 @@ def display_results():
             converter=st.session_state.cc_converter,
             labels=Config.LABELS
         )
+        
+        # Display case study after study results (if present)
+        ch_case, en_case = QuizParser.extract_case_study(result)
+        if ch_case or en_case:
+            st.markdown("---")
+            st.markdown("### 💡 Practical Case Study (實際案例)")
+            
+            with st.expander("📖 View Case Study / 查看案例", expanded=False):
+                if ch_case:
+                    st.markdown("**中文:**")
+                    st.markdown(ch_case)
+                if en_case:
+                    st.markdown("---")
+                    st.markdown("**English:**")
+                    st.markdown(en_case)
 
 
 def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, labels: dict):
