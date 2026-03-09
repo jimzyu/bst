@@ -74,6 +74,13 @@ class SessionManager:
         
         if 'quiz_case_study' not in st.session_state:
             st.session_state.quiz_case_study = None  # Stores (chinese, english) tuple
+
+        # Sub-question tracking
+        if 'quiz_current_subquestion' not in st.session_state:
+            st.session_state.quiz_current_subquestion = 0  # Index within current question's sub-questions
+
+        if 'quiz_subquestion_answers' not in st.session_state:
+            st.session_state.quiz_subquestion_answers = {}  # {question_type: [answer1, answer2, ...]}
     
     @staticmethod
     def can_make_request(cooldown_seconds: int) -> tuple[bool, float]:
@@ -193,6 +200,8 @@ class SessionManager:
         st.session_state.quiz_feedbacks = {}
         st.session_state.quiz_sheets_row = sheets_row
         st.session_state.quiz_case_study = case_study
+        st.session_state.quiz_current_subquestion = 0
+        st.session_state.quiz_subquestion_answers = {}
     
     @staticmethod
     def get_current_question_type() -> str:
@@ -213,6 +222,24 @@ class SessionManager:
     def advance_to_next_question():
         """Move to the next question in the quiz."""
         st.session_state.quiz_current_question += 1
+        st.session_state.quiz_current_subquestion = 0  # Reset sub-question index
+
+    @staticmethod
+    def advance_to_next_subquestion():
+        """Move to the next sub-question within the current question."""
+        st.session_state.quiz_current_subquestion += 1
+
+    @staticmethod
+    def save_subquestion_answer(question_type: str, answer: str):
+        """Append a sub-question answer for the given question type."""
+        if question_type not in st.session_state.quiz_subquestion_answers:
+            st.session_state.quiz_subquestion_answers[question_type] = []
+        st.session_state.quiz_subquestion_answers[question_type].append(answer)
+
+    @staticmethod
+    def get_subquestion_answers(question_type: str) -> list:
+        """Get all collected sub-question answers for a question type."""
+        return st.session_state.quiz_subquestion_answers.get(question_type, [])
     
     @staticmethod
     def is_quiz_complete() -> bool:
@@ -231,3 +258,5 @@ class SessionManager:
         st.session_state.quiz_reference = None
         st.session_state.quiz_sheets_row = None
         st.session_state.quiz_case_study = None
+        st.session_state.quiz_current_subquestion = 0
+        st.session_state.quiz_subquestion_answers = {}

@@ -444,7 +444,6 @@ def display_quiz_interface():
         confidence, reasoning = ResponseParser.extract_understanding_confidence(st.session_state.quiz_answer_key)
         
         if confidence is not None:
-            # Determine color based on confidence level
             if confidence >= 90:
                 color = "green"
                 emoji = "✅"
@@ -458,7 +457,6 @@ def display_quiz_interface():
                 color = "red"
                 emoji = "⚠️"
             
-            # Display confidence banner
             st.markdown(f"""
             <div style="background-color: rgba(100, 100, 100, 0.1); padding: 12px; border-radius: 8px; border-left: 4px solid {color}; margin-bottom: 15px;">
                 <div style="font-size: 18px; font-weight: bold; color: {color};">
@@ -477,6 +475,11 @@ def display_quiz_interface():
     question_type = SessionManager.get_current_question_type()
     question_text = st.session_state.quiz_questions.get(question_type, "")
     
+    # Split question into sub-questions
+    subquestions = QuizParser.split_into_subquestions(question_text)
+    total_subquestions = len(subquestions)
+    current_sub_idx = st.session_state.quiz_current_subquestion
+    
     # Question type labels
     type_labels = {
         "observation": "📖 Observation Question (觀察)",
@@ -484,17 +487,23 @@ def display_quiz_interface():
         "application": "💡 Application Question (應用)"
     }
     
-    # Display current question
     st.markdown(f"### {type_labels.get(question_type, question_type.title())}")
-    st.info(question_text)
     
-    # Check if this question has already been answered
+    # Show progress within this question if there are multiple sub-questions
+    if total_subquestions > 1:
+        st.caption(f"Sub-question {min(current_sub_idx + 1, total_subquestions)} of {total_subquestions}")
+    
+    # --- Case: this question has already been fully evaluated (feedback stored) ---
     if question_type in st.session_state.quiz_feedbacks:
-        # Show previous answer and feedback
         st.success("✅ You've answered this question!")
         
-        with st.expander("📝 Your Answer"):
-            st.write(st.session_state.quiz_user_answers[question_type])
+        # Show all sub-questions and their answers
+        collected_answers = SessionManager.get_subquestion_answers(question_type)
+        for i, sq in enumerate(subquestions):
+            with st.expander(f"📝 Sub-question {i+1}" if total_subquestions > 1 else "📝 Your Answer"):
+                st.markdown(f"**Question:** {sq}")
+                if i < len(collected_answers):
+                    st.write(collected_answers[i])
         
         with st.expander("💬 Feedback"):
             feedback_text = st.session_state.quiz_feedbacks[question_type]
@@ -511,11 +520,9 @@ def display_quiz_interface():
         if question_type == "application":
             if st.session_state.quiz_case_study:
                 ch_case, en_case = st.session_state.quiz_case_study
-                
                 if ch_case or en_case:
                     st.markdown("---")
                     st.markdown("### 💡 Reflect on This Case Study")
-                    
                     with st.expander("📖 實際案例 / Practical Case Study", expanded=True):
                         if ch_case:
                             st.markdown("**中文:**")
@@ -524,48 +531,82 @@ def display_quiz_interface():
                             st.markdown("**English:**")
                             st.markdown(en_case)
         
-        # Button to continue
         if st.button("Continue to Next Question ➡️", type="primary"):
             SessionManager.advance_to_next_question()
             st.rerun()
     
-    else:
-        # Input for user answer
+    # --- Case: still collecting sub-question answers ---
+    elif current_sub_idx < total_subquestions:
+        current_subquestion = subquestions[current_sub_idx]
+        
+        # Show previously answered sub-questions (read-only) for context
+        collected_answers = SessionManager.get_subquestion_answers(question_type)
+        if collected_answers:
+            with st.expander("📋 Previous sub-questions in this set", expanded=False):
+                for i, (sq, ans) in enumerate(zip(subquestions[:current_sub_idx], collected_answers)):
+                    st.markdown(f"**{i+1}. {sq}**")
+                    st.write(f"Your answer: {ans}")
+                    st.markdown("---")
+        
+        # Show current sub-question
+        st.info(current_subquestion)
+        
         user_answer = st.text_area(
             "Your Answer (你的答案):",
             height=150,
-            placeholder="Type your answer here... / 在此輸入你的答案..."
+            placeholder="Type your answer here... / 在此輸入你的答案...",
+            key=f"answer_{question_type}_{current_sub_idx}"
         )
         
-        # Submit button
-        if st.button("Submit Answer 提交答案", type="primary", disabled=not user_answer.strip()):
-            with st.spinner("Evaluating your answer... 評估中..."):
-                # Evaluate the answer
-                client = st.session_state.gemini_client
-                feedback = client.evaluate_answer(
-                    reference=st.session_state.quiz_reference,
-                    question_type=question_type,
-                    question=question_text,
-                    user_answer=user_answer,
-                    ai_answer=st.session_state.quiz_answer_key
-                )
+        is_last_subquestion = (current_sub_idx == total_subquestions - 1)
+        btn_label = "Submit Answer 提交答案" if is_last_subquestion else "Next Sub-question ➡️"
+        
+        if st.button(btn_label, type="primary", disabled=not user_answer.strip()):
+            # Save this sub-question's answer
+            SessionManager.save_subquestion_answer(question_type, user_answer)
+            
+            if is_last_subquestion:
+                # All sub-questions answered — now evaluate with ONE API call
+                all_answers = SessionManager.get_subquestion_answers(question_type)
+                # Include current answer (just saved above)
+                combined_user_answer = "\n\n".join(
+                    f"Sub-question {i+1}: {ans}" for i, ans in enumerate(all_answers)
+                ) if total_subquestions > 1 else all_answers[0]
                 
-                # Save answer and feedback
-                SessionManager.save_quiz_answer(question_type, user_answer, feedback)
+                combined_question = "\n".join(
+                    f"{i+1}. {sq}" for i, sq in enumerate(subquestions)
+                ) if total_subquestions > 1 else subquestions[0]
                 
-                # Log to Google Sheets (best effort - don't fail quiz if this errors)
-                try:
-                    if client.draft_logger and st.session_state.quiz_sheets_row:
-                        client.draft_logger.log_quiz_answer(
-                            row_number=st.session_state.quiz_sheets_row,
-                            question_type=question_type,
-                            user_answer=user_answer,
-                            feedback=feedback
-                        )
-                except Exception as e:
-                    logger.warning(f"Failed to log to Google Sheets, but quiz continues: {str(e)}")
+                with st.spinner("Evaluating your answer... 評估中..."):
+                    client = st.session_state.gemini_client
+                    feedback = client.evaluate_answer(
+                        reference=st.session_state.quiz_reference,
+                        question_type=question_type,
+                        question=combined_question,
+                        user_answer=combined_user_answer,
+                        ai_answer=st.session_state.quiz_answer_key
+                    )
+                    
+                    # Save feedback under question_type (signals this question is done)
+                    SessionManager.save_quiz_answer(question_type, combined_user_answer, feedback)
+                    
+                    # Log to Google Sheets
+                    try:
+                        if client.draft_logger and st.session_state.quiz_sheets_row:
+                            client.draft_logger.log_quiz_answer(
+                                row_number=st.session_state.quiz_sheets_row,
+                                question_type=question_type,
+                                user_answer=combined_user_answer,
+                                feedback=feedback
+                            )
+                    except Exception as e:
+                        logger.warning(f"Failed to log to Google Sheets, but quiz continues: {str(e)}")
                 
                 st.success("Answer submitted! ✅")
+                st.rerun()
+            else:
+                # Move to next sub-question (no API call yet)
+                SessionManager.advance_to_next_subquestion()
                 st.rerun()
 
 

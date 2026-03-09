@@ -212,6 +212,27 @@ class QuizParser:
         return None
     
     @staticmethod
+    def split_into_subquestions(question_text: str) -> list:
+        """
+        Split a question block into individual sub-questions.
+        Each sentence ending with '?' is treated as a sub-question.
+        Preserves the full sentence (including any leading context).
+
+        Args:
+            question_text: Full question text potentially containing multiple sub-questions
+
+        Returns:
+            List of sub-question strings. Returns [question_text] if no split needed.
+        """
+        import re
+        # Split on '?' boundaries, keeping the delimiter
+        parts = re.split(r'(?<=\?)\s*', question_text.strip())
+        # Filter empty strings and strip whitespace
+        subquestions = [p.strip() for p in parts if p.strip()]
+        # Only return split result if there are genuinely multiple sub-questions
+        return subquestions if len(subquestions) > 1 else [question_text.strip()]
+
+    @staticmethod
     def extract_case_study(answer_key: str) -> Tuple[Optional[str], Optional[str]]:
         """
         Extract case study from answer key.
