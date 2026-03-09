@@ -225,8 +225,8 @@ class QuizParser:
             List of sub-question strings. Returns [question_text] if no split needed.
         """
         import re
-        # Split on '?' boundaries, keeping the delimiter
-        parts = re.split(r'(?<=\?)\s*', question_text.strip())
+        # Split on both ASCII '?' and full-width Chinese '？' (U+FF1F)
+        parts = re.split(r'(?<=[?？])\s*', question_text.strip())
         # Filter empty strings and strip whitespace
         subquestions = [p.strip() for p in parts if p.strip()]
         # Only return split result if there are genuinely multiple sub-questions
