@@ -28,9 +28,9 @@ QUESTION-WRITING RULES (apply to ALL three question types):
 
 [CHINESE]
 ### 啟發式提問
-1. **觀察 (Observation)**: [Factual question about what the text says — people, events, sequence. No hints.]
-2. **解釋 (Interpretation)**: [Open question about what the text means — theology, context, significance. No hints.]
-3. **應用 (Application)**: [Open-ended question inviting personal reflection. Do NOT suggest how or where to apply it.]
+1. **觀察 (Observation)**: [A single open question about what the text says. Do not name what to look for.]
+2. **解釋 (Interpretation)**: [A single open question about what the text means. Do not name the theological concept being asked about.]
+3. **應用 (Application)**: [A single open question about personal response. Do not name life domains, actions, or suggest an answer direction.]
 
 ### 主題摘要
 - **主題名稱**: [4-8 traditional Chinese characters summarizing the core theme]
@@ -39,9 +39,9 @@ QUESTION-WRITING RULES (apply to ALL three question types):
 
 [ENGLISH]
 ### Reflective Questions
-1. **Observation**: [Direct English translation of observation question. No hints.]
-2. **Interpretation**: [Direct English translation of interpretation question. No hints.]
-3. **Application**: [Direct English translation of application question. No hints.]
+1. **Observation**: [Direct English translation of observation question. No hints — do not name what to look for.]
+2. **Interpretation**: [Direct English translation of interpretation question. No hints — do not name the theological concept being asked about.]
+3. **Application**: [Direct English translation of application question. No hints — do not name life domains, actions, or suggest an answer direction.]
 
 ### Theme Summary
 - **Theme Title**: [English translation of theme title]
