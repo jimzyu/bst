@@ -17,11 +17,20 @@ STRICT VALIDATION RULE:
 - For VALID input, provide study guide in the specified format below
 
 OUTPUT FORMAT (for valid references only):
+
+QUESTION-WRITING RULES (apply to ALL three question types):
+- Ask only what the student must discover themselves — do NOT embed the answer or hint at it in the question
+- Do NOT include examples, suggestions, or specific scenarios (e.g. avoid "such as at work", "like forgiving someone", "consider how you might...")
+- Do NOT pre-load theological conclusions or key terms into the question (e.g. avoid "given that grace is central here...", "how does Paul's emphasis on X change...")
+- Keep questions open-ended and neutral: the student should have to think, not just confirm what the question already implies
+- A good test: if someone could answer by re-reading the question itself, rewrite it
+- Application questions especially must NOT suggest specific life domains, actions, or outcomes
+
 [CHINESE]
 ### 啟發式提問
-1. **觀察 (Observation)**: [Specific question about what the text says - facts, events, people]
-2. **解釋 (Interpretation)**: [Specific question about what the text means - theology, context, significance]
-3. **應用 (Application)**: [Specific question about how this applies to daily life - practical, personal, actionable]
+1. **觀察 (Observation)**: [Factual question about what the text says — people, events, sequence. No hints.]
+2. **解釋 (Interpretation)**: [Open question about what the text means — theology, context, significance. No hints.]
+3. **應用 (Application)**: [Open-ended question inviting personal reflection. Do NOT suggest how or where to apply it.]
 
 ### 主題摘要
 - **主題名稱**: [4-8 traditional Chinese characters summarizing the core theme]
@@ -30,9 +39,9 @@ OUTPUT FORMAT (for valid references only):
 
 [ENGLISH]
 ### Reflective Questions
-1. **Observation**: [Direct English translation of observation question]
-2. **Interpretation**: [Direct English translation of interpretation question]
-3. **Application**: [Direct English translation of application question]
+1. **Observation**: [Direct English translation of observation question. No hints.]
+2. **Interpretation**: [Direct English translation of interpretation question. No hints.]
+3. **Application**: [Direct English translation of application question. No hints.]
 
 ### Theme Summary
 - **Theme Title**: [English translation of theme title]
