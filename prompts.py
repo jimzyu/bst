@@ -210,7 +210,7 @@ Instructions:
 3. Select the most challenging and practical "Application" question (or create a more actionable one)
 4. Combine the historical facts and theological meanings into a rich, comprehensive summary
 5. Ensure all content is cohesive and flows well together
-6. **CRITICAL FOR QUIZ MODE**: If Draft 1 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, write an improved case study drawing on insights from ALL THREE drafts — especially the historical/cultural context from Draft 2 and the practical application angle from Draft 3. Follow the case study writing rules strictly:
+6. **CRITICAL FOR QUIZ MODE**: If Draft 3 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, write an improved case study drawing on insights from ALL THREE drafts — enriching Draft 3's application scenario with the theological grounding from Draft 1 and the historical/cultural depth from Draft 2. Follow the case study writing rules strictly:
    - The protagonist is a believer — show this lightly (a verse recalled, a prayer that doesn't fix things, a quiet sense of accountability) without announcing it or using it as a plot device
    - The protagonist must already be at their limit, not just someone who delayed and decided to try harder
    - Do NOT state the theological lesson or moral anywhere — especially not in the final sentence. If the final sentence reads like a sermon point, rewrite it as a concrete action or image instead
@@ -221,14 +221,14 @@ The English section must be a direct translation of the Chinese section.
 
 IMPORTANT: You MUST include the [META_ASSESSMENT] section at the end with your Understanding Confidence percentage and reasoning based on your combined analysis of all three drafts.
 
-IMPORTANT: If Draft 1 contains case study sections, include your improved [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections after the [META_ASSESSMENT] section.
+IMPORTANT: If Draft 3 contains case study sections, include your improved [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections after the [META_ASSESSMENT] section.
 """
 
     # Focus areas for deep mode
     FOCUS_AREAS = {
         'standard': "Standard balanced evangelical theology with clear, accessible explanations.",
         'historical': "Deep historical, cultural, linguistic context. Include specific details about time period, cultural practices, original language nuances, and archaeological insights where relevant.",
-        'application': "Practical application for modern daily life. Focus on contemporary struggles, workplace challenges, family relationships, and personal spiritual growth. Make it actionable and specific."
+        'application': "Practical application for modern daily life. Focus on contemporary struggles, workplace challenges, family relationships, and personal spiritual growth. Make it actionable and specific. When writing the case study, ensure the scenario is rooted in the specific theological truth of this passage — the everyday situation should naturally surface what the text is actually teaching, not just a generic life problem."
     }
     
     @classmethod
@@ -242,12 +242,12 @@ IMPORTANT: If Draft 1 contains case study sections, include your improved [CASE_
     
     @classmethod
     def get_deep_prompts(cls, reference: str) -> list[str]:
-        """Get all three prompts for deep mode (case study in first draft)."""
+        """Get all three prompts for deep mode (case study in third draft)."""
         return [
             cls.BASE_STUDY_TEMPLATE.format(
                 ref=reference, 
                 focus=cls.FOCUS_AREAS['standard'],
-                case_study_instruction=cls.CASE_STUDY_INSTRUCTION  # Include in Draft 1
+                case_study_instruction=""  # Not in Draft 1
             ),
             cls.BASE_STUDY_TEMPLATE.format(
                 ref=reference, 
@@ -257,7 +257,7 @@ IMPORTANT: If Draft 1 contains case study sections, include your improved [CASE_
             cls.BASE_STUDY_TEMPLATE.format(
                 ref=reference, 
                 focus=cls.FOCUS_AREAS['application'],
-                case_study_instruction=""  # Not in Draft 3
+                case_study_instruction=cls.CASE_STUDY_INSTRUCTION  # Case study in Draft 3
             )
         ]
     
@@ -300,17 +300,17 @@ IMPORTANT: If Draft 1 contains case study sections, include your improved [CASE_
                 cls.BASE_STUDY_TEMPLATE.format(
                     ref=reference, 
                     focus=cls.FOCUS_AREAS['standard'],
-                    case_study_instruction=cls.CASE_STUDY_INSTRUCTION
+                    case_study_instruction=""  # Not in Draft 1
                 ),
                 cls.BASE_STUDY_TEMPLATE.format(
                     ref=reference, 
                     focus=cls.FOCUS_AREAS['historical'],
-                    case_study_instruction=""  # Only first draft includes case study
+                    case_study_instruction=""  # Not in Draft 2
                 ),
                 cls.BASE_STUDY_TEMPLATE.format(
                     ref=reference, 
                     focus=cls.FOCUS_AREAS['application'],
-                    case_study_instruction=""  # Only first draft includes case study
+                    case_study_instruction=cls.CASE_STUDY_INSTRUCTION  # Case study in Draft 3
                 )
             ]
         else:
