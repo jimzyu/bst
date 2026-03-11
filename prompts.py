@@ -207,14 +207,14 @@ Instructions:
 3. Select the most challenging and practical "Application" question (or create a more actionable one)
 4. Combine the historical facts and theological meanings into a rich, comprehensive summary
 5. Ensure all content is cohesive and flows well together
-6. **CRITICAL FOR QUIZ MODE**: If Draft 1 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, you MUST include them in your merged output. Do NOT drop these sections.
+6. **CRITICAL FOR QUIZ MODE**: If Draft 1 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, you MUST write an improved case study drawing on insights from ALL THREE drafts — especially the historical/cultural context from Draft 2 and the practical application angle from Draft 3. Do NOT simply copy Draft 1's case study verbatim; synthesize a richer version using the full picture across all three drafts. Follow the case study writing rules from the original prompt.
 
 CRITICAL: Output STRICTLY in [CHINESE] and [ENGLISH] format as specified in your system instructions.
 The English section must be a direct translation of the Chinese section.
 
 IMPORTANT: You MUST include the [META_ASSESSMENT] section at the end with your Understanding Confidence percentage and reasoning based on your combined analysis of all three drafts.
 
-IMPORTANT: If Draft 1 contains case study sections ([CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH]), copy them verbatim to your merged output after the [META_ASSESSMENT] section.
+IMPORTANT: If Draft 1 contains case study sections, include your improved [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections after the [META_ASSESSMENT] section.
 """
 
     # Focus areas for deep mode
