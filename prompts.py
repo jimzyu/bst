@@ -156,7 +156,7 @@ CASE STUDY WRITING RULES:
 - The protagonist must ALREADY BE at their limit before the turning point — exhausted, stuck, unable to fix the situation through their own effort. The story is NOT about someone who merely delayed and then decided to try harder
 - Do NOT state the lesson or moral anywhere in the story — especially not in the final sentence. Let the situation demonstrate it without commentary
 - The resolution is SMALL and directional: one concrete shift in posture or action. It is not a triumph, not a relief that comes from the protagonist's own strength, and not a tidy wrap-up
-- A good test: if the final sentence could appear in a sermon outline, rewrite it
+- The final sentence must be a physical action or image — NOT a summary of what the action means. Do not end with sentences like "這是他走向關懷的第一步", "至少這是一個開始", "她的信念不再只是停留在口頭", or any sentence that explains the significance of what just happened. End on what the person did or said, or what they saw
 
 STRUCTURE (2–3 paragraphs):
 1. The struggle: the protagonist is already at a wall — specific, grounded, emotionally real. Their own resources are not enough
@@ -215,6 +215,7 @@ Instructions:
    - The protagonist must already be at their limit, not just someone who delayed and decided to try harder
    - Do NOT state the theological lesson or moral anywhere — especially not in the final sentence. If the final sentence reads like a sermon point, rewrite it as a concrete action or image instead
    - The resolution must be small, directional, and not triumphant
+   - The final sentence must end on a physical action, gesture, or image — never a sentence that summarizes the significance of what just happened
 
 CRITICAL: Output STRICTLY in [CHINESE] and [ENGLISH] format as specified in your system instructions.
 The English section must be a direct translation of the Chinese section.
