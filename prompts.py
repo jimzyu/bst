@@ -145,15 +145,28 @@ CRITICAL: Be constructive and educational. The score should reflect holistic und
 
     CASE_STUDY_INSTRUCTION = """
 ADDITIONAL REQUIREMENT FOR QUIZ MODE:
-After providing the study guide, include a practical case study section:
+After providing the study guide, include a practical case study section.
+
+CASE STUDY WRITING RULES:
+- Set the scenario in ORDINARY everyday life: workplace stress, family conflict, personal failure, loneliness, ambition, fear, grief — not church ministry or church events
+- Use plain, accessible language. Avoid Christian jargon (do not use words like "sanctification", "conviction", "spiritual warfare", "quiet time", "testimony" as plot devices; plain equivalents are fine)
+- Church settings are not forbidden but should not be the default — use them at most occasionally
+- The protagonist must face a moment where their own effort, willpower, or competence is not enough — the scenario should make this feel real and concrete, not theoretical
+- Do NOT moralize or state the lesson explicitly — let the situation show it
+- The resolution is SMALL and directional, not triumphant — the protagonist takes one step in the right direction, not a full solution
+
+STRUCTURE (2–3 paragraphs):
+1. The struggle: a specific, grounded situation where the protagonist hits a wall they cannot push through on their own
+2. (Optional — include only if it flows naturally) A moment of encounter with the passage's truth — could be a memory, a phrase they recall, a quiet realization
+3. The small resolution: one concrete shift in posture or action — not victory, but the right first step
 
 [CASE_STUDY_CHINESE]
 ### 實際案例 (Practical Case Study)
-[Create a realistic, modern-day scenario (2-3 paragraphs) in Traditional Chinese that applies the key principles from this passage to everyday life. Make it relatable, specific, and thought-provoking. Include a situation people might actually face at work, home, or in relationships.]
+[Write the case study in Traditional Chinese following the rules and structure above. 2–3 paragraphs.]
 
 [CASE_STUDY_ENGLISH]
 ### Practical Case Study
-[Direct English translation of the case study above - same scenario, same details]
+[Direct English translation of the case study above — same scenario, same details]
 """
 
     BASE_STUDY_TEMPLATE = """
