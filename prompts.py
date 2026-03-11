@@ -148,6 +148,8 @@ ADDITIONAL REQUIREMENT FOR QUIZ MODE:
 After providing the study guide, include a practical case study section.
 
 CASE STUDY WRITING RULES:
+- The protagonist IS a believer — show this lightly and naturally: a verse that surfaces in memory, a habit of prayer mentioned in passing, a quiet sense of being accountable to something beyond themselves. Do NOT explain or announce their faith; let it show in small details
+- Faith markers should feel like part of who the person is, not plot devices — e.g. they pray but it doesn't fix things, a passage comes to mind but they still feel stuck, they sense a nudge they haven't yet acted on
 - Set the scenario in ORDINARY everyday life: workplace stress, family conflict, personal failure, loneliness, ambition, fear, grief
 - Church settings are acceptable but should not be the default — use them at most occasionally, and only when the scenario would feel equally natural to a non-churchgoer
 - Use plain, accessible language. Avoid Christian jargon (do not use words like "sanctification", "conviction", "spiritual warfare", "quiet time", "testimony", "肢體", "關懷事工", "活潑的信心" as plot devices; plain equivalents are fine)
@@ -209,6 +211,7 @@ Instructions:
 4. Combine the historical facts and theological meanings into a rich, comprehensive summary
 5. Ensure all content is cohesive and flows well together
 6. **CRITICAL FOR QUIZ MODE**: If Draft 1 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, write an improved case study drawing on insights from ALL THREE drafts — especially the historical/cultural context from Draft 2 and the practical application angle from Draft 3. Follow the case study writing rules strictly:
+   - The protagonist is a believer — show this lightly (a verse recalled, a prayer that doesn't fix things, a quiet sense of accountability) without announcing it or using it as a plot device
    - The protagonist must already be at their limit, not just someone who delayed and decided to try harder
    - Do NOT state the theological lesson or moral anywhere — especially not in the final sentence. If the final sentence reads like a sermon point, rewrite it as a concrete action or image instead
    - The resolution must be small, directional, and not triumphant
