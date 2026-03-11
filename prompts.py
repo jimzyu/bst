@@ -148,17 +148,18 @@ ADDITIONAL REQUIREMENT FOR QUIZ MODE:
 After providing the study guide, include a practical case study section.
 
 CASE STUDY WRITING RULES:
-- Set the scenario in ORDINARY everyday life: workplace stress, family conflict, personal failure, loneliness, ambition, fear, grief — not church ministry or church events
-- Use plain, accessible language. Avoid Christian jargon (do not use words like "sanctification", "conviction", "spiritual warfare", "quiet time", "testimony" as plot devices; plain equivalents are fine)
-- Church settings are not forbidden but should not be the default — use them at most occasionally
-- The protagonist must face a moment where their own effort, willpower, or competence is not enough — the scenario should make this feel real and concrete, not theoretical
-- Do NOT moralize or state the lesson explicitly — let the situation show it
-- The resolution is SMALL and directional, not triumphant — the protagonist takes one step in the right direction, not a full solution
+- Set the scenario in ORDINARY everyday life: workplace stress, family conflict, personal failure, loneliness, ambition, fear, grief
+- Church settings are acceptable but should not be the default — use them at most occasionally, and only when the scenario would feel equally natural to a non-churchgoer
+- Use plain, accessible language. Avoid Christian jargon (do not use words like "sanctification", "conviction", "spiritual warfare", "quiet time", "testimony", "肢體", "關懷事工", "活潑的信心" as plot devices; plain equivalents are fine)
+- The protagonist must ALREADY BE at their limit before the turning point — exhausted, stuck, unable to fix the situation through their own effort. The story is NOT about someone who merely delayed and then decided to try harder
+- Do NOT state the lesson or moral anywhere in the story — especially not in the final sentence. Let the situation demonstrate it without commentary
+- The resolution is SMALL and directional: one concrete shift in posture or action. It is not a triumph, not a relief that comes from the protagonist's own strength, and not a tidy wrap-up
+- A good test: if the final sentence could appear in a sermon outline, rewrite it
 
 STRUCTURE (2–3 paragraphs):
-1. The struggle: a specific, grounded situation where the protagonist hits a wall they cannot push through on their own
-2. (Optional — include only if it flows naturally) A moment of encounter with the passage's truth — could be a memory, a phrase they recall, a quiet realization
-3. The small resolution: one concrete shift in posture or action — not victory, but the right first step
+1. The struggle: the protagonist is already at a wall — specific, grounded, emotionally real. Their own resources are not enough
+2. (Optional — only if it flows naturally) A quiet moment of encounter with the passage's truth — a memory, a phrase recalled, a realization. Do not explain what it means
+3. The small resolution: one concrete step taken from a place of acknowledged limitation — not because they found the strength, but despite not having it
 
 [CASE_STUDY_CHINESE]
 ### 實際案例 (Practical Case Study)
@@ -207,7 +208,10 @@ Instructions:
 3. Select the most challenging and practical "Application" question (or create a more actionable one)
 4. Combine the historical facts and theological meanings into a rich, comprehensive summary
 5. Ensure all content is cohesive and flows well together
-6. **CRITICAL FOR QUIZ MODE**: If Draft 1 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, you MUST write an improved case study drawing on insights from ALL THREE drafts — especially the historical/cultural context from Draft 2 and the practical application angle from Draft 3. Do NOT simply copy Draft 1's case study verbatim; synthesize a richer version using the full picture across all three drafts. Follow the case study writing rules from the original prompt.
+6. **CRITICAL FOR QUIZ MODE**: If Draft 1 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, write an improved case study drawing on insights from ALL THREE drafts — especially the historical/cultural context from Draft 2 and the practical application angle from Draft 3. Follow the case study writing rules strictly:
+   - The protagonist must already be at their limit, not just someone who delayed and decided to try harder
+   - Do NOT state the theological lesson or moral anywhere — especially not in the final sentence. If the final sentence reads like a sermon point, rewrite it as a concrete action or image instead
+   - The resolution must be small, directional, and not triumphant
 
 CRITICAL: Output STRICTLY in [CHINESE] and [ENGLISH] format as specified in your system instructions.
 The English section must be a direct translation of the Chinese section.
