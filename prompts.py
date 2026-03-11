@@ -150,7 +150,8 @@ After providing the study guide, include a practical case study section.
 CASE STUDY WRITING RULES:
 - The protagonist IS a believer — show this lightly and naturally: a verse that surfaces in memory, a habit of prayer mentioned in passing, a quiet sense of being accountable to something beyond themselves. Do NOT explain or announce their faith; let it show in small details
 - Faith markers should feel like part of who the person is, not plot devices — e.g. they pray but it doesn't fix things, a passage comes to mind but they still feel stuck, they sense a nudge they haven't yet acted on
-- Set the scenario in ORDINARY everyday life: workplace stress, family conflict, personal failure, loneliness, ambition, fear, grief
+- Set the scenario in ORDINARY everyday life. Draw from the full range of human experience: parenting struggles, marriage tension, caring for aging parents, friendship drift, financial pressure, personal failure, loneliness, grief, ambition, health anxiety — not just workplace situations
+- The "busy professional notices a struggling colleague and offers a small gesture" scenario has been overused — avoid it unless the passage genuinely calls for it. Prefer settings that are more personal and closer to home: family, close relationships, private struggles
 - Church settings are acceptable but should not be the default — use them at most occasionally, and only when the scenario would feel equally natural to a non-churchgoer
 - Use plain, accessible language. Avoid Christian jargon (do not use words like "sanctification", "conviction", "spiritual warfare", "quiet time", "testimony", "肢體", "關懷事工", "活潑的信心" as plot devices; plain equivalents are fine)
 - The protagonist must ALREADY BE at their limit before the turning point — exhausted, stuck, unable to fix the situation through their own effort. The story is NOT about someone who merely delayed and then decided to try harder
@@ -212,6 +213,7 @@ Instructions:
 5. Ensure all content is cohesive and flows well together
 6. **CRITICAL FOR QUIZ MODE**: If Draft 3 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, write an improved case study drawing on insights from ALL THREE drafts — enriching Draft 3's application scenario with the theological grounding from Draft 1 and the historical/cultural depth from Draft 2. Follow the case study writing rules strictly:
    - The protagonist is a believer — show this lightly (a verse recalled, a prayer that doesn't fix things, a quiet sense of accountability) without announcing it or using it as a plot device
+   - Vary the setting — avoid defaulting to "busy professional notices struggling colleague at work." Prefer more personal domains: family, marriage, parenting, friendship, private struggle
    - The protagonist must already be at their limit, not just someone who delayed and decided to try harder
    - Do NOT state the theological lesson or moral anywhere — especially not in the final sentence. If the final sentence reads like a sermon point, rewrite it as a concrete action or image instead
    - The resolution must be small, directional, and not triumphant
