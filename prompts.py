@@ -313,6 +313,6 @@ IMPORTANT: If Draft 3 contains case study sections, copy [CASE_STUDY_CHINESE] an
         else:
             return [cls.BASE_STUDY_TEMPLATE.format(
                 ref=reference,
-                focus=cls.FOCUS_AREAS['standard'],
+                focus=cls.FOCUS_AREAS['application'],
                 case_study_instruction=cls.CASE_STUDY_INSTRUCTION
             )]
