@@ -154,15 +154,19 @@ CASE STUDY WRITING RULES:
 - Vary the protagonist's gender naturally — do not default to female protagonists for caregiving or domestic scenarios, or male protagonists for workplace scenarios. Men can be caregivers; women can be professionals under pressure. Let the person fit the situation, not the stereotype
 - Church settings are acceptable but should not be the default — use them at most occasionally, and only when the scenario would feel equally natural to a non-churchgoer
 - Use plain, accessible language. Avoid Christian jargon (do not use words like "sanctification", "conviction", "spiritual warfare", "quiet time", "testimony", "肢體", "關懷事工", "活潑的信心" as plot devices; plain equivalents are fine)
-- The protagonist must ALREADY BE at their limit before the turning point — exhausted, stuck, unable to fix the situation through their own effort. The story is NOT about someone who merely delayed and then decided to try harder
+- The protagonist's struggle must feel GENUINE and SPECIFIC — but exhaustion and depletion are not the only valid starting points. Choose naturally from these three types, and vary across different passages:
+  1. DEPLETED: already at their physical or emotional limit — tired, resource-scarce, genuinely unable to give more from their own strength
+  2. KNOWLEDGEABLE BUT INACTIVE: theologically capable, perhaps respected in their faith community, but a quiet gap has opened between what they know and what they do — not from busyness but from a subtle assumption that knowing is enough, or that someone else will act
+  3. AVOIDANT: not especially busy or ignorant, but held back by something subtler — discomfort, fear of awkwardness, self-protection, not wanting to get entangled — they have capacity but find reasons not to use it
+- Whichever type is chosen, the protagonist's inaction must feel true and recognisable, not a moral failing to be corrected but a human condition to be understood
 - Do NOT state the lesson or moral anywhere in the story — especially not in the final sentence. Let the situation demonstrate it without commentary
 - The resolution is SMALL and directional: one concrete shift in posture or action. It is not a triumph, not a relief that comes from the protagonist's own strength, and not a tidy wrap-up
 - The final sentence must be a physical action or image — NOT a summary of what the action means. Do not end with sentences like "這是他走向關懷的第一步", "至少這是一個開始", "她的信念不再只是停留在口頭", or any sentence that explains the significance of what just happened. End on what the person did or said, or what they saw
 
 STRUCTURE (2–3 paragraphs):
-1. The struggle: the protagonist is already at a wall — specific, grounded, emotionally real. Their own resources are not enough
+1. The struggle: a specific, grounded situation that makes the protagonist's inaction feel true and human — whether from depletion, from a widened gap between knowledge and action, or from avoidance. Do not explain which type it is; let the situation show it
 2. (Optional — only if it flows naturally) A quiet moment of encounter with the passage's truth — a memory, a phrase recalled, a realization. Do not explain what it means
-3. The small resolution: one concrete step taken from a place of acknowledged limitation — not because they found the strength, but despite not having it
+3. The small resolution: one concrete step — not a triumph, not a full solution, and not necessarily taken from strength. It may be taken despite emptiness, despite awkwardness, or despite knowing it won't be enough
 
 [CASE_STUDY_CHINESE]
 ### 實際案例 (Practical Case Study)
