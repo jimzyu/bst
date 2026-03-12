@@ -211,20 +211,14 @@ Instructions:
 3. Select the most challenging and practical "Application" question (or create a more actionable one)
 4. Combine the historical facts and theological meanings into a rich, comprehensive summary
 5. Ensure all content is cohesive and flows well together
-6. **CRITICAL FOR QUIZ MODE**: If Draft 3 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, write an improved case study drawing on insights from ALL THREE drafts — enriching Draft 3's application scenario with the theological grounding from Draft 1 and the historical/cultural depth from Draft 2. Follow the case study writing rules strictly:
-   - The protagonist is a believer — show this lightly (a verse recalled, a prayer that doesn't fix things, a quiet sense of accountability) without announcing it or using it as a plot device
-   - Vary the setting — avoid defaulting to "busy professional notices struggling colleague at work." Prefer more personal domains: family, marriage, parenting, friendship, private struggle
-   - The protagonist must already be at their limit, not just someone who delayed and decided to try harder
-   - Do NOT state the theological lesson or moral anywhere — especially not in the final sentence. If the final sentence reads like a sermon point, rewrite it as a concrete action or image instead
-   - The resolution must be small, directional, and not triumphant
-   - The final sentence must end on a physical action, gesture, or image — never a sentence that summarizes the significance of what just happened
+6. **CRITICAL FOR QUIZ MODE**: If Draft 3 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, copy them verbatim into your merged output. Do NOT rewrite, improve, or synthesize them with other drafts — the case study was intentionally written from an application-focused perspective and synthesis tends to introduce over-explanation. Preserve it exactly as written.
 
 CRITICAL: Output STRICTLY in [CHINESE] and [ENGLISH] format as specified in your system instructions.
 The English section must be a direct translation of the Chinese section.
 
 IMPORTANT: You MUST include the [META_ASSESSMENT] section at the end with your Understanding Confidence percentage and reasoning based on your combined analysis of all three drafts.
 
-IMPORTANT: If Draft 3 contains case study sections, include your improved [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections after the [META_ASSESSMENT] section.
+IMPORTANT: If Draft 3 contains case study sections, copy [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] verbatim after the [META_ASSESSMENT] section.
 """
 
     # Focus areas for deep mode
@@ -236,10 +230,10 @@ IMPORTANT: If Draft 3 contains case study sections, include your improved [CASE_
     
     @classmethod
     def get_standard_prompt(cls, reference: str) -> str:
-        """Get standard study prompt (always includes case study)."""
+        """Get standard study prompt (application-leaning focus for better case studies)."""
         return cls.BASE_STUDY_TEMPLATE.format(
             ref=reference,
-            focus=cls.FOCUS_AREAS['standard'],
+            focus=cls.FOCUS_AREAS['application'],
             case_study_instruction=cls.CASE_STUDY_INSTRUCTION
         )
     
