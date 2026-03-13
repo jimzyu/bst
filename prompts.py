@@ -167,16 +167,28 @@ The protagonist's inaction should feel recognisable and understandable, not like
 - AVOIDANT: not busy or ignorant, but held back by something subtler — discomfort, fear of awkwardness, self-protection — they have capacity but find reasons not to use it
 The protagonist is not a villain. Their inaction is a human condition to be understood, not a moral failing to be corrected.
 
-PRINCIPLE 3 — THE RESOLUTION IS A FIRST STEP, NOT A CONCLUSION.
-The story should end at the moment of movement, not after the outcome is known. The step taken is small, specific, and does not resolve everything — it may even feel inadequate to the protagonist. It is not taken from a place of sudden strength or inspiration. The narrative does not need to reach completion: the envelope left on the table, the gloves picked up from the garage shelf, the question asked across a lunch table — these are enough. The story ends on what the person did or said or saw, not on what it meant.
+PRINCIPLE 3 — THE RESOLUTION IS SHOWN, NOT EXPLAINED.
+The story ends on what the person did or said or saw — never on what it meant, what it represents, or what kind of person it shows them to be. The restraint is in the telling, not necessarily in the action itself. A resolution can be small and tentative, or it can be large and decisive — both are honest depending on the passage and the person. What matters is that the action speaks for itself without the narrator stepping in to explain it. The story does not need to reach completion, but it also does not need to stop short artificially. End at the natural moment when the action has occurred and nothing more needs to be said.
 
 PRINCIPLE 4 — VARIETY IS A FORM OF HONESTY.
-Real life does not repeat the same scenario. Vary the setting (domestic, neighbourhood, workplace, family — not always the same), the protagonist's gender (men can be caregivers; women can be professionals under pressure), and the shape of the inaction. Avoid the default: the exhausted professional who notices a struggling colleague. Prefer settings that are personal and close — marriage, parenting, friendship, caring for a parent. Church settings are acceptable occasionally. Plain language throughout; avoid Christian jargon as plot machinery.
+Real life does not repeat the same scenario. Vary the setting, the protagonist's gender (men can be caregivers; women can be professionals under pressure), and the shape of the inaction. Avoid the default: the exhausted professional who notices a struggling colleague.
+
+Draw from the full range of lived experience — including situations that are often underrepresented but deeply real:
+- Chronic illness (one's own) — a person navigating long-term sickness, pain, or disability, and what faith looks like from inside that
+- Marital conflict — not as background texture but as the primary situation: a marriage under strain, a spouse who has grown distant, a couple who have stopped speaking honestly
+- Adult children and aging parents — the complexity of roles reversing, old wounds resurfacing, duty without affection or affection without knowing how to show it
+- Singleness and loneliness — not as a problem to be solved but as a condition to be lived in, and what the passage's truth means from there
+- Bereavement — fresh grief or old grief, the kind that doesn't resolve, and faith that feels inadequate to it
+- Financial debt and material scarcity — not just "tight budget" but real pressure: overdue bills, borrowing from family, the shame that comes with it
+- Estranged relationships — a sibling not spoken to in years, a parent who caused harm, a friendship that ended badly and was never repaired
+- Digital life — the way faith is performed online versus lived privately, the habit of scrolling past need, the gap between what someone posts and what they do
+
+Church settings are acceptable occasionally. Plain language throughout; avoid Christian jargon as plot machinery.
 
 STRUCTURE (2–3 paragraphs):
 1. The struggle — specific, grounded, emotionally true. Let the situation show which kind of inaction it is without naming it
 2. (Optional) A quiet moment where the passage's truth brushes against the protagonist's awareness — incidental, not explained
-3. The resolution — one small, concrete step. End on the action itself
+3. The resolution — a concrete action, small or large, shown without explanation. End when the action has occurred and nothing more needs to be said
 
 WHAT A STRONG ENDING DOES (do not copy these — find your own equivalent):
 A strong ending lands on a single physical detail that carries the whole weight of the story without explaining it. It might be an object picked up, a door knocked on, a message sent, food placed quietly somewhere, a question asked. The action is ordinary and incomplete — it does not resolve the situation, and the story does not tell us whether it will. The reader understands what it means; the story does not say so.
