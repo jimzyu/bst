@@ -155,6 +155,7 @@ Good narrative writing never announces what it is doing. The story should demons
 - The gap between belief and action is shown through specific behaviour — rationalising, scrolling past a need, saying the right words and walking on — never described as a theological problem
 - The passage's truth surfaces as a personal, incidental moment — a phrase that drifts into mind during an ordinary task, an image that resurfaces unexpectedly — not through a formal event like a sermon or a devotional reading, and never quoted in full with chapter and verse
 - The resolution is shown as a concrete action or a word spoken — the story ends there, without commentary on what it means or what it represents
+- The move to action must be invisible — do not insert a transitional gesture (a deep breath, a pause, a moment of hesitation, "猶豫了一下", "深吸一口氣", or any equivalent) to signal that the character is about to act. Good narrative writing does not announce its own turns. The character simply acts — or the paragraph simply ends on the action without a preparatory beat
 
 PRINCIPLE 2 — THE STRUGGLE MUST BE HUMANLY TRUE, NOT MORALLY CONVENIENT.
 The protagonist's inaction should feel recognisable and understandable, not like a simple failure waiting to be corrected. There are three honest forms this takes — vary across different stories:
@@ -174,13 +175,10 @@ STRUCTURE (2–3 paragraphs):
 2. (Optional) A quiet moment where the passage's truth brushes against the protagonist's awareness — incidental, not explained
 3. The resolution — one small, concrete step. End on the action itself
 
-GOOD EXAMPLE OF AN ENDING (from a strong case study):
-他緩緩起身，走到車庫，從工具架上取下了那副沾滿泥土的舊園藝手套和一把修枝剪。
-[The story ends here — no explanation of what this means, no summary of his growth]
+WHAT A STRONG ENDING DOES (do not copy these — find your own equivalent):
+A strong ending lands on a single physical detail that carries the whole weight of the story without explaining it. It might be an object picked up, a door knocked on, a message sent, food placed quietly somewhere, a question asked. The action is ordinary and incomplete — it does not resolve the situation, and the story does not tell us whether it will. The reader understands what it means; the story does not say so.
 
-WEAK EXAMPLE OF AN ENDING (avoid this pattern):
-他深吸一口氣，決定不能再這樣下去。這是他走向實際關懷的第一步，他知道信心需要行動來證明。
-[Announces the transition, then explains the significance — tells instead of shows]
+A weak ending announces the transition before it ("他深吸一口氣", "猶豫了一下", "他知道不能再這樣下去"), then explains what the action represents ("這是他走向關懷的第一步", "她終於明白信心需要行動"). Both of these are the writer stepping in front of the story. Remove them, and what remains is the ending.
 
 [CASE_STUDY_CHINESE]
 ### 實際案例 (Practical Case Study)
