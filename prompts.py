@@ -206,6 +206,69 @@ A weak ending announces the transition before it ("他深吸一口氣", "猶豫�
 [Direct English translation of the case study above — same scenario, same details]
 """
 
+
+    THRESHOLD_SCENARIO_INSTRUCTION = """
+ADDITIONAL REQUIREMENT — THRESHOLD SCENARIO:
+After providing the study guide, generate a threshold scenario in Traditional Chinese, followed by a direct English translation.
+
+BEFORE WRITING — TWO QUESTIONS:
+First: What is the specific tension this passage is diagnosing — not a general faith principle, but the precise shape of human failure the passage addresses? Let that determine the scenario's centre of gravity.
+
+Second: What rationale for inaction would a reasonable, thoughtful person actually defend? The protagonist's reason must be arguable, not obviously wrong. If a group would immediately agree the protagonist should act, the scenario has failed.
+
+PRINCIPLE 1 — THE RATIONALE MUST BE GENUINELY DEFENSIBLE.
+The protagonist is not failing through laziness or obvious selfishness. Their reason for not acting should be one that some group members will instinctively defend — professional boundaries, respect for privacy, relational history, real and non-self-indulgent depletion, or a sincere belief that they have already done what they can. The debate happens because the group disagrees, not because the answer is obvious.
+
+PRINCIPLE 2 — SHOW, DON'T DIAGNOSE.
+The passage's tension surfaces through specific, concrete detail — not through the protagonist quoting or paraphrasing Scripture, not through the narrator naming their failure, and not through a moment of obvious conviction. Faith vocabulary is permitted only where it occurs naturally. The reader should feel the gap before they can name it.
+
+PRINCIPLE 3 — STOP AT THE THRESHOLD.
+The scenario ends at the moment of decision — not after it. No resolution, no first step, no gesture toward change. The final image should place a person at the edge: a phone face-down on a desk, an elevator door open, a hand on a coffee cup. The reader is left inside the tension, not released from it. Do NOT include any transitional gestures or hesitation beats (深吸一口氣, 猶豫了一下, or any equivalent) — these are resolutions in disguise.
+
+PRINCIPLE 4 — VARIETY.
+Vary setting (workplace, family, neighbourhood, community), protagonist gender, and the shape of inaction. Avoid the default: an exhausted professional noticing a struggling colleague. Draw from underrepresented but deeply real situations: estranged relationships, aging parents, chronic illness, marital conflict, financial shame, ambiguous or invisible needs, digital life. The deed the passage calls for is not always material — sometimes it is a conversation avoided for years, a message not yet sent, a relationship held at arm's length.
+
+STRUCTURE (2–3 paragraphs, 150–250 Traditional Chinese characters per scenario):
+- Establish the protagonist and their situation concretely — who they are, what the need is, what is stopping them
+- (Optional) A specific moment or detail that sharpens the tension without resolving it
+- End at the threshold — the final image is a person at the edge of acting, no further
+
+TWO DISCUSSION QUESTIONS follow each scenario:
+- Question 1: Makes the group argue about the protagonist — is their reason for not acting legitimate?
+- Question 2: Makes the group argue about themselves — where do they recognise this in their own life?
+
+Questions must NOT suggest the answer, name the passage's theme, or use faith vocabulary unless unavoidable. They should be open enough that group members genuinely disagree.
+
+[THRESHOLD_SCENARIO_CHINESE]
+### 情境案例
+[Write the scenario in Traditional Chinese following the principles and structure above. 2–3 paragraphs.]
+
+**討論問題：**
+1. [Question about the protagonist — arguable, no embedded answer]
+2. [Question about the group themselves — personal, no embedded answer]
+
+[THRESHOLD_SCENARIO_ENGLISH]
+### Threshold Scenario
+[Direct English translation of the scenario above — same situation, same details]
+
+**Discussion Questions:**
+1. [Direct English translation of question 1]
+2. [Direct English translation of question 2]
+"""
+
+    THRESHOLD_WITH_THEOLOGY_TEMPLATE = """
+Generate a threshold scenario for group Bible study based on the following passage and theological analysis.
+
+PASSAGE: {reference}
+
+THEOLOGICAL ANALYSIS FROM PRIOR DRAFTS:
+{theology_summary}
+
+Using the theological analysis above to identify the passage's precise diagnosis, generate a threshold scenario in Traditional Chinese followed by a direct English translation.
+
+{threshold_instruction}
+"""
+
     BASE_STUDY_TEMPLATE = """
 Analyze the following reference: "{ref}".
 
@@ -349,3 +412,51 @@ IMPORTANT: If Draft 3 contains case study sections, copy [CASE_STUDY_CHINESE] an
                 focus=cls.FOCUS_AREAS['application'],
                 case_study_instruction=cls.CASE_STUDY_INSTRUCTION
             )]
+
+    @classmethod
+    def get_threshold_prompt(cls, reference: str) -> str:
+        """Get standard (single-call) threshold scenario prompt."""
+        return cls.BASE_STUDY_TEMPLATE.format(
+            ref=reference,
+            focus=cls.FOCUS_AREAS['application'],
+            case_study_instruction=cls.THRESHOLD_SCENARIO_INSTRUCTION
+        )
+
+    @classmethod
+    def get_threshold_deep_prompts(cls, reference: str) -> list[str]:
+        """
+        Get prompts for deep mode threshold scenario.
+        Drafts 1 and 2 build theological understanding.
+        Draft 3 generates the threshold scenario informed by that theology.
+        """
+        return [
+            cls.BASE_STUDY_TEMPLATE.format(
+                ref=reference,
+                focus=cls.FOCUS_AREAS['standard'],
+                case_study_instruction=""  # Theology only — no scenario
+            ),
+            cls.BASE_STUDY_TEMPLATE.format(
+                ref=reference,
+                focus=cls.FOCUS_AREAS['historical'],
+                case_study_instruction=""  # Theology only — no scenario
+            ),
+            cls.BASE_STUDY_TEMPLATE.format(
+                ref=reference,
+                focus=cls.FOCUS_AREAS['application'],
+                case_study_instruction=cls.THRESHOLD_SCENARIO_INSTRUCTION  # Scenario in Draft 3
+            )
+        ]
+
+    @classmethod
+    def get_threshold_with_theology_prompt(cls, reference: str, theology_summary: str) -> str:
+        """
+        Get threshold scenario prompt that explicitly uses theological summary
+        from prior drafts. Used in deep mode after drafts 1 and 2 are complete,
+        so the scenario generation is directly informed by the passage's
+        precise theological diagnosis.
+        """
+        return cls.THRESHOLD_WITH_THEOLOGY_TEMPLATE.format(
+            reference=reference,
+            theology_summary=theology_summary,
+            threshold_instruction=cls.THRESHOLD_SCENARIO_INSTRUCTION
+        )
