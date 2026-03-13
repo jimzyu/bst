@@ -145,32 +145,46 @@ CRITICAL: Be constructive and educational. The score should reflect holistic und
 
     CASE_STUDY_INSTRUCTION = """
 ADDITIONAL REQUIREMENT FOR QUIZ MODE:
-After providing the study guide, include a practical case study section.
+After providing the study guide, include a practical case study in Traditional Chinese (2–3 paragraphs), followed by a direct English translation.
 
-CASE STUDY WRITING RULES:
-- The protagonist IS a believer — show this lightly and naturally: a verse that surfaces in memory, a habit of prayer mentioned in passing, a quiet sense of being accountable to something beyond themselves. Do NOT explain or announce their faith; let it show in small details
-- Faith markers should feel like part of who the person is, not plot devices — e.g. they pray but it doesn't fix things, a passage comes to mind but they still feel stuck, they sense a nudge they haven't yet acted on
-- Set the scenario in ORDINARY everyday life. Draw from the full range of human experience: parenting struggles, marriage tension, caring for aging parents, friendship drift, financial pressure, personal failure, loneliness, grief, ambition, health anxiety, workplace pressure — include workplace settings occasionally, just not as the default
-- Vary the protagonist's gender naturally — do not default to female protagonists for caregiving or domestic scenarios, or male protagonists for workplace scenarios. Men can be caregivers; women can be professionals under pressure. Let the person fit the situation, not the stereotype
-- Church settings are acceptable but should not be the default — use them at most occasionally, and only when the scenario would feel equally natural to a non-churchgoer
-- Use plain, accessible language. Avoid Christian jargon (do not use words like "sanctification", "conviction", "spiritual warfare", "quiet time", "testimony", "肢體", "關懷事工", "活潑的信心" as plot devices; plain equivalents are fine)
-- The protagonist's struggle must feel GENUINE and SPECIFIC — but exhaustion and depletion are not the only valid starting points. Choose naturally from these three types, and vary across different passages:
-  1. DEPLETED: already at their physical or emotional limit — tired, resource-scarce, genuinely unable to give more from their own strength
-  2. KNOWLEDGEABLE BUT INACTIVE: theologically capable, perhaps respected in their faith community, but a quiet gap has opened between what they know and what they do — not from busyness but from a subtle assumption that knowing is enough, or that someone else will act
-  3. AVOIDANT: not especially busy or ignorant, but held back by something subtler — discomfort, fear of awkwardness, self-protection, not wanting to get entangled — they have capacity but find reasons not to use it
-- Whichever type is chosen, the protagonist's inaction must feel true and recognisable, not a moral failing to be corrected but a human condition to be understood
-- Do NOT state the lesson or moral anywhere in the story — especially not in the final sentence. Let the situation demonstrate it without commentary
-- The resolution is SMALL and directional: one concrete shift in posture or action. It is not a triumph, not a relief that comes from the protagonist's own strength, and not a tidy wrap-up
-- The final sentence must be a physical action or image — NOT a summary of what the action means. Do not end with sentences like "這是他走向關懷的第一步", "至少這是一個開始", "她的信念不再只是停留在口頭", or any sentence that explains the significance of what just happened. End on what the person did or said, or what they saw
+FOUR PRINCIPLES FOR WRITING THE CASE STUDY:
+
+PRINCIPLE 1 — SHOW, DON'T EXPLAIN.
+Good narrative writing never announces what it is doing. The story should demonstrate the passage's truth through situation and action, not state it. This applies everywhere:
+- The protagonist's faith is shown through small details — a half-remembered phrase, a habit of prayer that doesn't fix things, a quiet sense of accountability — never announced or labelled
+- The gap between belief and action is shown through specific behaviour — rationalising, scrolling past a need, saying the right words and walking on — never described as a theological problem
+- The passage's truth surfaces as a personal, incidental moment — a phrase that drifts into mind during an ordinary task, an image that resurfaces unexpectedly — not through a formal event like a sermon or a devotional reading, and never quoted in full with chapter and verse
+- The resolution is shown as a concrete action or a word spoken — the story ends there, without commentary on what it means or what it represents
+
+PRINCIPLE 2 — THE STRUGGLE MUST BE HUMANLY TRUE, NOT MORALLY CONVENIENT.
+The protagonist's inaction should feel recognisable and understandable, not like a simple failure waiting to be corrected. There are three honest forms this takes — vary across different stories:
+- DEPLETED: genuinely at their limit — tired, resource-scarce, with nothing left to give from their own strength
+- KNOWLEDGEABLE BUT INACTIVE: theologically capable, perhaps even respected for their faith, but a quiet gap has opened between what they know and what they do — not from busyness but from a subtle assumption that knowing is enough, or that someone else will act
+- AVOIDANT: not busy or ignorant, but held back by something subtler — discomfort, fear of awkwardness, self-protection — they have capacity but find reasons not to use it
+The protagonist is not a villain. Their inaction is a human condition to be understood, not a moral failing to be corrected.
+
+PRINCIPLE 3 — THE RESOLUTION IS A FIRST STEP, NOT A CONCLUSION.
+The story should end at the moment of movement, not after the outcome is known. The step taken is small, specific, and does not resolve everything — it may even feel inadequate to the protagonist. It is not taken from a place of sudden strength or inspiration. The narrative does not need to reach completion: the envelope left on the table, the gloves picked up from the garage shelf, the question asked across a lunch table — these are enough. The story ends on what the person did or said or saw, not on what it meant.
+
+PRINCIPLE 4 — VARIETY IS A FORM OF HONESTY.
+Real life does not repeat the same scenario. Vary the setting (domestic, neighbourhood, workplace, family — not always the same), the protagonist's gender (men can be caregivers; women can be professionals under pressure), and the shape of the inaction. Avoid the default: the exhausted professional who notices a struggling colleague. Prefer settings that are personal and close — marriage, parenting, friendship, caring for a parent. Church settings are acceptable occasionally. Plain language throughout; avoid Christian jargon as plot machinery.
 
 STRUCTURE (2–3 paragraphs):
-1. The struggle: a specific, grounded situation that makes the protagonist's inaction feel true and human — whether from depletion, from a widened gap between knowledge and action, or from avoidance. Do not explain which type it is; let the situation show it
-2. (Optional — only if it flows naturally) A quiet moment of encounter with the passage's truth — a memory, a phrase recalled, a realization. Do not explain what it means
-3. The small resolution: one concrete step — not a triumph, not a full solution, and not necessarily taken from strength. It may be taken despite emptiness, despite awkwardness, or despite knowing it won't be enough
+1. The struggle — specific, grounded, emotionally true. Let the situation show which kind of inaction it is without naming it
+2. (Optional) A quiet moment where the passage's truth brushes against the protagonist's awareness — incidental, not explained
+3. The resolution — one small, concrete step. End on the action itself
+
+GOOD EXAMPLE OF AN ENDING (from a strong case study):
+他緩緩起身，走到車庫，從工具架上取下了那副沾滿泥土的舊園藝手套和一把修枝剪。
+[The story ends here — no explanation of what this means, no summary of his growth]
+
+WEAK EXAMPLE OF AN ENDING (avoid this pattern):
+他深吸一口氣，決定不能再這樣下去。這是他走向實際關懷的第一步，他知道信心需要行動來證明。
+[Announces the transition, then explains the significance — tells instead of shows]
 
 [CASE_STUDY_CHINESE]
 ### 實際案例 (Practical Case Study)
-[Write the case study in Traditional Chinese following the rules and structure above. 2–3 paragraphs.]
+[Write the case study in Traditional Chinese following the four principles and structure above. 2–3 paragraphs.]
 
 [CASE_STUDY_ENGLISH]
 ### Practical Case Study
