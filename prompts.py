@@ -183,6 +183,8 @@ Draw from the full range of lived experience — including situations that are o
 - Estranged relationships — a sibling not spoken to in years, a parent who caused harm, a friendship that ended badly and was never repaired
 - Digital life — the way faith is performed online versus lived privately, the habit of scrolling past need, the gap between what someone posts and what they do
 
+The deed the passage calls for is not always material — sometimes it is a conversation avoided for years, a message not yet sent, a relationship held at arm's length. Let the scenario follow the passage's logic, not the most obvious illustration of it.
+
 Church settings are acceptable occasionally. Plain language throughout; avoid Christian jargon as plot machinery.
 
 STRUCTURE (2–3 paragraphs):
@@ -193,7 +195,7 @@ STRUCTURE (2–3 paragraphs):
 WHAT A STRONG ENDING DOES (do not copy these — find your own equivalent):
 A strong ending lands on a single physical detail that carries the whole weight of the story without explaining it. It might be an object picked up, a door knocked on, a message sent, food placed quietly somewhere, a question asked. The action is ordinary and incomplete — it does not resolve the situation, and the story does not tell us whether it will. The reader understands what it means; the story does not say so.
 
-A weak ending announces the transition before it ("他深吸一口氣", "猶豫了一下", "他知道不能再這樣下去"), then explains what the action represents ("這是他走向關懷的第一步", "她終於明白信心需要行動"). Both of these are the writer stepping in front of the story. Remove them, and what remains is the ending.
+A weak ending announces the transition before it ("他深吸一口氣", "猶豫了一下", "她沒有立刻敲門，只是在那裡站了一會兒", "他知道不能再這樣下去"), then explains what the action represents ("這是他走向關懷的第一步", "她終於明白信心需要行動"). Both of these are the writer stepping in front of the story. Remove them, and what remains is the ending.
 
 [CASE_STUDY_CHINESE]
 ### 實際案例 (Practical Case Study)
