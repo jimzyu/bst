@@ -147,6 +147,9 @@ CRITICAL: Be constructive and educational. The score should reflect holistic und
 ADDITIONAL REQUIREMENT FOR QUIZ MODE:
 After providing the study guide, include a practical case study in Traditional Chinese (2–3 paragraphs), followed by a direct English translation.
 
+BEFORE WRITING — ONE QUESTION TO ASK FIRST:
+Where does this passage's primary tension lie? Is it horizontal — between the protagonist and another person (neglect, avoidance, withholding, pride toward others)? Or is it vertical — between the protagonist and God (ingratitude, self-sufficiency, drift, failure to acknowledge dependence)? Some passages have both, but most have a centre of gravity. Let that determine what the scenario is fundamentally about. A passage about pride before God calls for a different story than a passage about neglecting a neighbour — even if both can be set in an ordinary workplace or home. For vertical passages, the resolution may be as small and physical as a changed posture, a moment of acknowledgement, or an object placed somewhere — it does not need to involve another person at all.
+
 FOUR PRINCIPLES FOR WRITING THE CASE STUDY:
 
 PRINCIPLE 1 — SHOW, DON'T EXPLAIN.
