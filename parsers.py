@@ -235,26 +235,27 @@ class QuizParser:
     @staticmethod
     def extract_case_study(answer_key: str) -> Tuple[Optional[str], Optional[str]]:
         """
-        Extract case study from answer key.
-        
+        Extract threshold scenario from answer key.
+        Looks for [THRESHOLD_SCENARIO_CHINESE] and [THRESHOLD_SCENARIO_ENGLISH] tags.
+
         Args:
-            answer_key: Full answer key text that may contain case study sections
-            
+            answer_key: Full answer key text that may contain threshold scenario sections
+
         Returns:
-            Tuple of (chinese_case_study, english_case_study) or (None, None) if not found
+            Tuple of (chinese_scenario, english_scenario) or (None, None) if not found
         """
-        # Extract Chinese case study
-        ch_pattern = r'\[CASE_STUDY_CHINESE\](.*?)(?:\[CASE_STUDY_ENGLISH\]|$)'
+        # Extract Chinese threshold scenario
+        ch_pattern = r'\[THRESHOLD_SCENARIO_CHINESE\](.*?)(?:\[THRESHOLD_SCENARIO_ENGLISH\]|\[META_ASSESSMENT\]|$)'
         ch_match = re.search(ch_pattern, answer_key, re.DOTALL | re.IGNORECASE)
-        
-        # Extract English case study
-        en_pattern = r'\[CASE_STUDY_ENGLISH\](.*?)(?:\[|$)'
+
+        # Extract English threshold scenario
+        en_pattern = r'\[THRESHOLD_SCENARIO_ENGLISH\](.*?)(?:\[META_ASSESSMENT\]|\[|$)'
         en_match = re.search(en_pattern, answer_key, re.DOTALL | re.IGNORECASE)
-        
-        ch_case_study = ch_match.group(1).strip() if ch_match else None
-        en_case_study = en_match.group(1).strip() if en_match else None
-        
-        return ch_case_study, en_case_study
+
+        ch_scenario = ch_match.group(1).strip() if ch_match else None
+        en_scenario = en_match.group(1).strip() if en_match else None
+
+        return ch_scenario, en_scenario
 
 
 class ContentRenderer:

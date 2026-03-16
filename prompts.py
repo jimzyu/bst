@@ -208,36 +208,53 @@ A weak ending announces the transition before it ("他深吸一口氣", "猶豫�
 
 
     THRESHOLD_SCENARIO_INSTRUCTION = """
-ADDITIONAL REQUIREMENT — THRESHOLD SCENARIO:
-After providing the study guide, generate a threshold scenario in Traditional Chinese, followed by a direct English translation.
+THRESHOLD SCENARIO — OUTPUT INSTRUCTIONS:
+Generate ONLY the threshold scenario and discussion questions as specified below. Do NOT generate the full study guide (no 啟發式提問, no 主題摘要, no Reflective Questions, no Theme Summary). The scenario and discussion questions are the complete and only output required. If you find yourself writing observation or interpretation questions, stop and delete them — they are not part of this output.
 
 BEFORE WRITING — TWO QUESTIONS:
 First: What is the specific tension this passage is diagnosing — not a general faith principle, but the precise shape of human failure the passage addresses? Let that determine the scenario's centre of gravity.
 
 Second: What rationale for inaction would a reasonable, thoughtful person actually defend? The protagonist's reason must be arguable, not obviously wrong. If a group would immediately agree the protagonist should act, the scenario has failed.
 
-PRINCIPLE 1 — THE RATIONALE MUST BE GENUINELY DEFENSIBLE.
+Third: Is the scenario's central tension the passage's diagnosis, or merely consistent with it? These are not the same thing. A scenario is consistent with a passage if it illustrates a general principle the passage touches on. A scenario carries the passage's diagnosis if the specific failure it depicts could not be fully understood without the passage — if the passage names exactly what is happening in the person's heart. Aim for the second.
+
+Test: Remove the passage from the equation. Could this scenario appear as a moral fable in a secular short story collection, teaching a general lesson about kindness or courage? If yes, the scenario is too generic — it has a moral, not a theological diagnosis. Rework the situation so that what the protagonist is missing is something only this passage surfaces.
+
+For passages about division and misplaced loyalty (e.g. 1 Corinthians 1:10-17), the scenario must show someone whose identity or allegiance has attached itself to a person, group, or cause in a way that is fracturing something — not merely someone who is unkind or passive. For passages about anxiety and trust (e.g. Philippians 4:6-7), the scenario must show the specific substitution the passage names — not generic worry, but worry that has displaced prayer and gratitude. For passages about faith and action (e.g. James 2:14-17), the scenario must show the specific gap the passage diagnoses — not general inertia, but the particular human habit of letting sincere belief become a substitute for the deed belief requires.
+
+PRINCIPLE 1 — THE RATIONALE MUST BE GENUINELY DEFENSIBLE, AND SINGULAR.
 The protagonist is not failing through laziness or obvious selfishness. Their reason for not acting should be one that some group members will instinctively defend — professional boundaries, respect for privacy, relational history, real and non-self-indulgent depletion, or a sincere belief that they have already done what they can. The debate happens because the group disagrees, not because the answer is obvious.
+ONE RATIONALE ONLY: Give the protagonist a single strong reason for inaction, not two or three stacked together. Multiple rationalisations weaken the debate — they let the reader dismiss the weakest one and feel they have answered the scenario. One well-chosen reason that a thoughtful person would genuinely defend is harder to dismiss than three weaker ones combined.
+SELF-CHECK BEFORE SUBMITTING: Count the distinct reasons the protagonist gives for not acting. If there are two or more, remove the weaker one. Common stacked pairs to watch for: "time constraints AND not my responsibility", "protecting dignity AND fear of dependence", "privacy AND others will help". Each of these should be one reason, not both.
 
 PRINCIPLE 2 — SHOW, DON'T DIAGNOSE.
 The passage's tension surfaces through specific, concrete detail — not through the protagonist quoting or paraphrasing Scripture, not through the narrator naming their failure, and not through a moment of obvious conviction. Faith vocabulary is permitted only where it occurs naturally. The reader should feel the gap before they can name it.
 
-PRINCIPLE 3 — STOP AT THE THRESHOLD.
-The scenario ends at the moment of decision — not after it. No resolution, no first step, no gesture toward change. The final image should place a person at the edge: a phone face-down on a desk, an elevator door open, a hand on a coffee cup. The reader is left inside the tension, not released from it. Do NOT include any transitional gestures or hesitation beats (深吸一口氣, 猶豫了一下, or any equivalent) — these are resolutions in disguise.
+PRINCIPLE 3 — END WHEN THE SITUATION IS FULLY SHOWN.
+The scenario ends when the situation has been fully established and nothing more needs to be said. Do not resolve it, explain it, or point toward change. The reader should be left inside the tension.
+
+The ending depends on the passage's type of tension:
+
+For ACTION-GAP passages (e.g. James 2:14-17) — where the tension is between seeing a need and doing something about it — a threshold image can earn its place: a specific physical detail that places the protagonist at the edge of acting (a hand on a door handle, a name not yet called, a cursor not yet clicked). Use this only when it arises naturally from the situation. Do NOT manufacture a pause or hesitation beat to create artificial suspense (深吸一口氣, 猶豫了一下, 她沒有立刻敲門 — these are resolutions in disguise).
+
+For IDENTITY or RELATIONAL passages (e.g. 1 Corinthians 1:10-17) — where the tension is an ongoing condition rather than a moment of decision — no threshold image is needed or appropriate. The scenario ends when the situation has been fully shown. Forcing a physical pause onto a relational condition feels manufactured because it is. End on the situation itself, not on a staged moment of hesitation.
 
 PRINCIPLE 4 — VARIETY.
 Vary setting (workplace, family, neighbourhood, community), protagonist gender, and the shape of inaction. Avoid the default: an exhausted professional noticing a struggling colleague. Draw from underrepresented but deeply real situations: estranged relationships, aging parents, chronic illness, marital conflict, financial shame, ambiguous or invisible needs, digital life. The deed the passage calls for is not always material — sometimes it is a conversation avoided for years, a message not yet sent, a relationship held at arm's length.
+NAME VARIETY: Do not default to 陳 (Chen) as a surname. Draw from a wide range of common surnames: 林, 吳, 張, 王, 黃, 劉, 楊, 許, 鄭, 謝, 周, 廖, 徐, 蔡, 李. Each scenario should use a different surname. Secondary characters should also have varied surnames distinct from the protagonist's.
+THRESHOLD IMAGE VARIETY: Avoid repeating the same threshold image across scenarios. Phone face-down on a surface has appeared frequently — find fresh equivalents: a hand on a door handle, a cursor hovering over a send button, a box sitting unopened, a name in a contact list not yet tapped, a light still on in a neighbour's window.
 
 STRUCTURE (2–3 paragraphs, 150–250 Traditional Chinese characters per scenario):
-- Establish the protagonist and their situation concretely — who they are, what the need is, what is stopping them
+- Establish the protagonist and their situation concretely — who they are, what the tension is, what is stopping them
 - (Optional) A specific moment or detail that sharpens the tension without resolving it
-- End at the threshold — the final image is a person at the edge of acting, no further
+- End when the situation is fully shown — for action-gap passages, a threshold image may fit naturally; for identity or relational passages, end on the situation itself
 
 TWO DISCUSSION QUESTIONS follow each scenario:
-- Question 1: Makes the group argue about the protagonist — is their reason for not acting legitimate?
-- Question 2: Makes the group argue about themselves — where do they recognise this in their own life?
+- Question 1: Makes the group argue about the protagonist — is their reason for not acting legitimate? Frame it around the specific detail that makes their rationale arguable, not as a general character judgment.
+- Question 2: Makes the group argue about themselves — but must be anchored to a specific element of this scenario, not a generic self-reflection formula. Do NOT open with "在你/我們的生活中，是否有過類似..." — this produces the same question every time. Instead, identify what is specific and irreplaceable about this scenario's tension and ask about that.
 
-Questions must NOT suggest the answer, name the passage's theme, or use faith vocabulary unless unavoidable. They should be open enough that group members genuinely disagree.
+Questions must NOT suggest the answer, name the passage's theme, or use faith vocabulary unless unavoidable. They should be open enough that group members genuinely disagree. A good test: if Question 2 could appear unchanged beneath any other scenario in this batch, rewrite it.
+BAN SOLUTION-SEEKING QUESTIONS: Do not ask "how should we/they handle this?", "how can we discern the right approach?", or any question that invites the group to step outside the scenario as advisors. Solution-seeking questions let the group avoid the tension by becoming experts. Keep both questions inside the tension — the group should be participants, not consultants.
 
 [THRESHOLD_SCENARIO_CHINESE]
 ### 情境案例
