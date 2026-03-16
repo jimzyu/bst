@@ -143,69 +143,6 @@ IMPORTANT FORMATTING RULES:
 CRITICAL: Be constructive and educational. The score should reflect holistic understanding, not perfection. The confidence level reflects how certain you are about your assessment. NEVER use Markdown numbered or bulleted lists - keep everything as flowing prose with inline numbering if needed.
 """
 
-    CASE_STUDY_INSTRUCTION = """
-ADDITIONAL REQUIREMENT FOR QUIZ MODE:
-After providing the study guide, include a practical case study in Traditional Chinese (2–3 paragraphs), followed by a direct English translation.
-
-BEFORE WRITING — ONE QUESTION TO ASK FIRST:
-Where does this passage's primary tension lie? Is it horizontal — between the protagonist and another person (neglect, avoidance, withholding, pride toward others)? Or is it vertical — between the protagonist and God (ingratitude, self-sufficiency, drift, failure to acknowledge dependence)? Some passages have both, but most have a centre of gravity. Let that determine what the scenario is fundamentally about. A passage about pride before God calls for a different story than a passage about neglecting a neighbour — even if both can be set in an ordinary workplace or home. For vertical passages, the resolution may be as small and physical as a changed posture, a moment of acknowledgement, or an object placed somewhere — it does not need to involve another person at all.
-
-FOUR PRINCIPLES FOR WRITING THE CASE STUDY:
-
-PRINCIPLE 1 — SHOW, DON'T EXPLAIN.
-Good narrative writing never announces what it is doing. The story should demonstrate the passage's truth through situation and action, not state it. This applies everywhere:
-- The protagonist's faith is shown through small details — a half-remembered phrase, a habit of prayer that doesn't fix things, a quiet sense of accountability — never announced or labelled
-- The gap between belief and action is shown through specific behaviour — rationalising, scrolling past a need, saying the right words and walking on — never described as a theological problem
-- The passage's truth surfaces as a personal, incidental moment — a phrase that drifts into mind during an ordinary task, an image that resurfaces unexpectedly — not through a formal event like a sermon or a devotional reading, and never quoted in full with chapter and verse
-- The resolution is shown as a concrete action or a word spoken — the story ends there, without commentary on what it means or what it represents
-- The move to action must be invisible — do not insert a transitional gesture (a deep breath, a pause, a moment of hesitation, "猶豫了一下", "深吸一口氣", or any equivalent) to signal that the character is about to act. Good narrative writing does not announce its own turns. The character simply acts — or the paragraph simply ends on the action without a preparatory beat
-
-PRINCIPLE 2 — THE STRUGGLE MUST BE HUMANLY TRUE, NOT MORALLY CONVENIENT.
-The protagonist's inaction should feel recognisable and understandable, not like a simple failure waiting to be corrected. There are three honest forms this takes — vary across different stories:
-- DEPLETED: genuinely at their limit — tired, resource-scarce, with nothing left to give from their own strength
-- KNOWLEDGEABLE BUT INACTIVE: theologically capable, perhaps even respected for their faith, but a quiet gap has opened between what they know and what they do — not from busyness but from a subtle assumption that knowing is enough, or that someone else will act
-- AVOIDANT: not busy or ignorant, but held back by something subtler — discomfort, fear of awkwardness, self-protection — they have capacity but find reasons not to use it
-The protagonist is not a villain. Their inaction is a human condition to be understood, not a moral failing to be corrected.
-
-PRINCIPLE 3 — THE RESOLUTION IS SHOWN, NOT EXPLAINED.
-The story ends on what the person did or said or saw — never on what it meant, what it represents, or what kind of person it shows them to be. The restraint is in the telling, not necessarily in the action itself. A resolution can be small and tentative, or it can be large and decisive — both are honest depending on the passage and the person. What matters is that the action speaks for itself without the narrator stepping in to explain it. The story does not need to reach completion, but it also does not need to stop short artificially. End at the natural moment when the action has occurred and nothing more needs to be said.
-
-PRINCIPLE 4 — VARIETY IS A FORM OF HONESTY.
-Real life does not repeat the same scenario. Vary the setting, the protagonist's gender (men can be caregivers; women can be professionals under pressure), and the shape of the inaction. Avoid the default: the exhausted professional who notices a struggling colleague.
-
-Draw from the full range of lived experience — including situations that are often underrepresented but deeply real:
-- Chronic illness (one's own) — a person navigating long-term sickness, pain, or disability, and what faith looks like from inside that
-- Marital conflict — not as background texture but as the primary situation: a marriage under strain, a spouse who has grown distant, a couple who have stopped speaking honestly
-- Adult children and aging parents — the complexity of roles reversing, old wounds resurfacing, duty without affection or affection without knowing how to show it
-- Singleness and loneliness — not as a problem to be solved but as a condition to be lived in, and what the passage's truth means from there
-- Bereavement — fresh grief or old grief, the kind that doesn't resolve, and faith that feels inadequate to it
-- Financial debt and material scarcity — not just "tight budget" but real pressure: overdue bills, borrowing from family, the shame that comes with it
-- Estranged relationships — a sibling not spoken to in years, a parent who caused harm, a friendship that ended badly and was never repaired
-- Digital life — the way faith is performed online versus lived privately, the habit of scrolling past need, the gap between what someone posts and what they do
-
-The deed the passage calls for is not always material — sometimes it is a conversation avoided for years, a message not yet sent, a relationship held at arm's length. Let the scenario follow the passage's logic, not the most obvious illustration of it.
-
-Church settings are acceptable occasionally. Plain language throughout; avoid Christian jargon as plot machinery.
-
-STRUCTURE (2–3 paragraphs):
-1. The struggle — specific, grounded, emotionally true. Let the situation show which kind of inaction it is without naming it
-2. (Optional) A quiet moment where the passage's truth brushes against the protagonist's awareness — incidental, not explained
-3. The resolution — a concrete action, small or large, shown without explanation. End when the action has occurred and nothing more needs to be said
-
-WHAT A STRONG ENDING DOES (do not copy these — find your own equivalent):
-A strong ending lands on a single physical detail that carries the whole weight of the story without explaining it. It might be an object picked up, a door knocked on, a message sent, food placed quietly somewhere, a question asked. The action is ordinary and incomplete — it does not resolve the situation, and the story does not tell us whether it will. The reader understands what it means; the story does not say so.
-
-A weak ending announces the transition before it ("他深吸一口氣", "猶豫了一下", "她沒有立刻敲門，只是在那裡站了一會兒", "他知道不能再這樣下去"), then explains what the action represents ("這是他走向關懷的第一步", "她終於明白信心需要行動"). Both of these are the writer stepping in front of the story. Remove them, and what remains is the ending.
-
-[CASE_STUDY_CHINESE]
-### 實際案例 (Practical Case Study)
-[Write the case study in Traditional Chinese following the four principles and structure above. 2–3 paragraphs.]
-
-[CASE_STUDY_ENGLISH]
-### Practical Case Study
-[Direct English translation of the case study above — same scenario, same details]
-"""
-
 
     THRESHOLD_SCENARIO_INSTRUCTION = """
 THRESHOLD SCENARIO:
@@ -338,38 +275,8 @@ IMPORTANT: If Draft 3 contains threshold scenario sections, copy [THRESHOLD_SCEN
     FOCUS_AREAS = {
         'standard': "Standard balanced evangelical theology with clear, accessible explanations.",
         'historical': "Deep historical, cultural, linguistic context. Include specific details about time period, cultural practices, original language nuances, and archaeological insights where relevant.",
-        'application': "Practical application for modern daily life. Focus on contemporary struggles, workplace challenges, family relationships, and personal spiritual growth. Make it actionable and specific. When writing the case study, ensure the scenario is rooted in the specific theological truth of this passage — the everyday situation should naturally surface what the text is actually teaching, not just a generic life problem."
+        'application': "Practical application for modern daily life. Focus on contemporary struggles, workplace challenges, family relationships, and personal spiritual growth."
     }
-    
-    @classmethod
-    def get_standard_prompt(cls, reference: str) -> str:
-        """Get standard study prompt (application-leaning focus for better case studies)."""
-        return cls.BASE_STUDY_TEMPLATE.format(
-            ref=reference,
-            focus=cls.FOCUS_AREAS['application'],
-            case_study_instruction=cls.CASE_STUDY_INSTRUCTION
-        )
-    
-    @classmethod
-    def get_deep_prompts(cls, reference: str) -> list[str]:
-        """Get all three prompts for deep mode (case study in third draft)."""
-        return [
-            cls.BASE_STUDY_TEMPLATE.format(
-                ref=reference, 
-                focus=cls.FOCUS_AREAS['standard'],
-                case_study_instruction=""  # Not in Draft 1
-            ),
-            cls.BASE_STUDY_TEMPLATE.format(
-                ref=reference, 
-                focus=cls.FOCUS_AREAS['historical'],
-                case_study_instruction=""  # Not in Draft 2
-            ),
-            cls.BASE_STUDY_TEMPLATE.format(
-                ref=reference, 
-                focus=cls.FOCUS_AREAS['application'],
-                case_study_instruction=cls.CASE_STUDY_INSTRUCTION  # Case study in Draft 3
-            )
-        ]
     
     @classmethod
     def get_merge_prompt(cls, reference: str, draft_1: str, draft_2: str, draft_3: str) -> str:
@@ -393,43 +300,6 @@ IMPORTANT: If Draft 3 contains threshold scenario sections, copy [THRESHOLD_SCEN
             ai_answer=ai_answer
         )
     
-    @classmethod
-    def get_quiz_prompt(cls, reference: str, deep_mode: bool = False) -> list[str]:
-        """
-        Get prompts for quiz mode (includes case study instruction).
-        
-        Args:
-            reference: Bible reference
-            deep_mode: If True, return 3 prompts for deep mode; if False, return 1 prompt
-            
-        Returns:
-            List of prompts with case study instruction included
-        """
-        if deep_mode:
-            return [
-                cls.BASE_STUDY_TEMPLATE.format(
-                    ref=reference, 
-                    focus=cls.FOCUS_AREAS['standard'],
-                    case_study_instruction=""  # Not in Draft 1
-                ),
-                cls.BASE_STUDY_TEMPLATE.format(
-                    ref=reference, 
-                    focus=cls.FOCUS_AREAS['historical'],
-                    case_study_instruction=""  # Not in Draft 2
-                ),
-                cls.BASE_STUDY_TEMPLATE.format(
-                    ref=reference, 
-                    focus=cls.FOCUS_AREAS['application'],
-                    case_study_instruction=cls.CASE_STUDY_INSTRUCTION  # Case study in Draft 3
-                )
-            ]
-        else:
-            return [cls.BASE_STUDY_TEMPLATE.format(
-                ref=reference,
-                focus=cls.FOCUS_AREAS['application'],
-                case_study_instruction=cls.CASE_STUDY_INSTRUCTION
-            )]
-
     @classmethod
     def get_threshold_prompt(cls, reference: str) -> str:
         """Get standard (single-call) threshold scenario prompt."""

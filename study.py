@@ -322,13 +322,13 @@ def display_results():
             labels=Config.LABELS
         )
         
-        # Display case study after study results (if present)
+        # Display discussion scenario after study results (if present)
         ch_case, en_case = QuizParser.extract_case_study(result)
         if ch_case or en_case:
             st.markdown("---")
-            st.markdown("### 💡 Practical Case Study (實際案例)")
+            st.markdown("### 💡 情境案例 (Discussion Scenario)")
             
-            with st.expander("📖 View Case Study / 查看案例", expanded=False):
+            with st.expander("📖 查看情境案例 / View Discussion Scenario", expanded=False):
                 if ch_case:
                     st.markdown("**中文:**")
                     st.markdown(ch_case)
@@ -351,7 +351,7 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
     from parsers import QuizParser
     
     with st.status("Generating quiz questions...", expanded=True) as status:
-        # Generate answer key with case study (using quiz-specific prompts)
+        # Generate answer key with threshold scenario
         if deep_mode:
             status.write("Generating comprehensive answer key with deep mode...")
             prompts = PromptTemplates.get_threshold_deep_prompts(reference)
@@ -512,14 +512,14 @@ def display_quiz_interface():
                 st.markdown("**English Feedback:**")
                 st.markdown(en_feedback)
         
-        # Show case study after Application question
+        # Show discussion scenario after Application question
         if question_type == "application":
             if st.session_state.quiz_case_study:
                 ch_case, en_case = st.session_state.quiz_case_study
                 if ch_case or en_case:
                     st.markdown("---")
-                    st.markdown("### 💡 Reflect on This Case Study")
-                    with st.expander("📖 實際案例 / Practical Case Study", expanded=True):
+                    st.markdown("### 💡 情境案例 (Discussion Scenario)")
+                    with st.expander("📖 查看情境案例 / View Discussion Scenario", expanded=True):
                         if ch_case:
                             st.markdown("**中文:**")
                             st.markdown(ch_case)
