@@ -208,8 +208,8 @@ A weak ending announces the transition before it ("他深吸一口氣", "猶豫�
 
 
     THRESHOLD_SCENARIO_INSTRUCTION = """
-THRESHOLD SCENARIO — OUTPUT INSTRUCTIONS:
-Generate ONLY the threshold scenario and discussion questions as specified below. Do NOT generate the full study guide (no 啟發式提問, no 主題摘要, no Reflective Questions, no Theme Summary). The scenario and discussion questions are the complete and only output required. If you find yourself writing observation or interpretation questions, stop and delete them — they are not part of this output.
+THRESHOLD SCENARIO:
+After completing the full study guide above, generate a threshold scenario in Traditional Chinese followed by a direct English translation. The scenario appears AFTER the [META_ASSESSMENT] section.
 
 BEFORE WRITING — TWO QUESTIONS:
 First: What is the specific tension this passage is diagnosing — not a general faith principle, but the precise shape of human failure the passage addresses? Let that determine the scenario's centre of gravity.
@@ -324,14 +324,14 @@ Instructions:
 3. Select the most challenging and practical "Application" question (or create a more actionable one)
 4. Combine the historical facts and theological meanings into a rich, comprehensive summary
 5. Ensure all content is cohesive and flows well together
-6. **CRITICAL FOR QUIZ MODE**: If Draft 3 contains [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] sections, copy them verbatim into your merged output. Do NOT rewrite, improve, or synthesize them with other drafts — the case study was intentionally written from an application-focused perspective and synthesis tends to introduce over-explanation. Preserve it exactly as written.
+6. **CRITICAL**: If Draft 3 contains [THRESHOLD_SCENARIO_CHINESE] and [THRESHOLD_SCENARIO_ENGLISH] sections, copy them verbatim into your merged output. Do NOT rewrite, improve, or synthesize them with other drafts — the threshold scenario was intentionally written from an application-focused perspective and synthesis tends to introduce over-explanation. Preserve it exactly as written.
 
 CRITICAL: Output STRICTLY in [CHINESE] and [ENGLISH] format as specified in your system instructions.
 The English section must be a direct translation of the Chinese section.
 
 IMPORTANT: You MUST include the [META_ASSESSMENT] section at the end with your Understanding Confidence percentage and reasoning based on your combined analysis of all three drafts.
 
-IMPORTANT: If Draft 3 contains case study sections, copy [CASE_STUDY_CHINESE] and [CASE_STUDY_ENGLISH] verbatim after the [META_ASSESSMENT] section.
+IMPORTANT: If Draft 3 contains threshold scenario sections, copy [THRESHOLD_SCENARIO_CHINESE] and [THRESHOLD_SCENARIO_ENGLISH] verbatim after the [META_ASSESSMENT] section.
 """
 
     # Focus areas for deep mode
