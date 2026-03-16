@@ -187,7 +187,7 @@ def process_standard_study(reference: str, client: GeminiClient, labels: dict):
     """
     with st.status(labels['status_standard'], expanded=True) as status:
         # Generate study guide
-        prompt = PromptTemplates.get_standard_prompt(reference)
+        prompt = PromptTemplates.get_threshold_prompt(reference)
         result = client.generate_standard_study(reference, prompt)
         
         # Save result and reference
@@ -222,7 +222,7 @@ def process_deep_study(reference: str, client: GeminiClient, labels: dict):
         update_status("Draft 2: Historical & Cultural Context...")
         update_status("Draft 3: Practical Life Application...")
         
-        prompts = PromptTemplates.get_deep_prompts(reference)
+        prompts = PromptTemplates.get_threshold_deep_prompts(reference)
         
         def build_merge_prompt(drafts: list) -> str:
             """Build the fully-formed merge prompt once drafts are available."""
@@ -354,7 +354,7 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
         # Generate answer key with case study (using quiz-specific prompts)
         if deep_mode:
             status.write("Generating comprehensive answer key with deep mode...")
-            prompts = PromptTemplates.get_quiz_prompt(reference, deep_mode=True)
+            prompts = PromptTemplates.get_threshold_deep_prompts(reference)
             
             def build_merge_prompt(drafts: list) -> str:
                 return PromptTemplates.get_merge_prompt(
@@ -372,7 +372,7 @@ def process_quiz_mode(reference: str, deep_mode: bool, client: GeminiClient, lab
             )
         else:
             status.write("Generating answer key...")
-            quiz_prompts = PromptTemplates.get_quiz_prompt(reference, deep_mode=False)
+            quiz_prompts = [PromptTemplates.get_threshold_prompt(reference)]
             answer_key = client.generate_standard_study(reference, quiz_prompts[0])
         
         # Check if invalid reference
