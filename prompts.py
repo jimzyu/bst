@@ -190,13 +190,38 @@ STRUCTURE (2–3 paragraphs, 150–250 Traditional Chinese characters per scenar
 - End when the situation is fully shown — for action-gap passages, a threshold image may fit naturally; for identity or relational passages, end on the situation itself
 
 TWO DISCUSSION QUESTIONS follow each scenario:
-- Question 1: Makes the group argue about the protagonist — is their reason for not acting legitimate? Frame it around the specific detail that makes their rationale arguable, not as a general character judgment.
-- Question 2: Makes the group argue about themselves — but must be anchored to a specific element of this scenario, not a generic self-reflection formula. Do NOT open with "在你/我們的生活中，是否有過類似..." — this produces the same question every time. Instead, identify what is specific and irreplaceable about this scenario's tension and ask about that.
+Q1 makes the group argue about the protagonist. Q2 makes the group argue about themselves.
 
-Questions must NOT suggest the answer, name the passage's theme, or use faith vocabulary unless unavoidable. They should be open enough that group members genuinely disagree. A good test: if Question 2 could appear unchanged beneath any other scenario in this batch, rewrite it.
-BAN SOLUTION-SEEKING QUESTIONS: Do not ask "how should we/they handle this?", "how can we discern the right approach?", or any question that invites the group to step outside the scenario as advisors. Solution-seeking questions let the group avoid the tension by becoming experts. Keep both questions inside the tension — the group should be participants, not consultants.
-BAN ANALYTICAL STEPPING-BACK: Do not ask "what causes this tendency?", "how do we understand X?", or "what are the challenges of Y?" — these move the group from feeling the tension to analysing it from a distance. Q2 should press personally, not academically.
-EXAMPLE OF A STRONG Q2 FOR INTERNAL-TENSION PASSAGES (e.g. James 1 — where the protagonist has stopped seeking or is doubting): "她心裡清楚自己應該怎麼做，卻發現自己做不到。你有沒有過這樣的時刻——不是不知道，而是知道了卻動不了？" This works because it names the specific texture of the scenario's failure, invites personal recognition without the generic formula, and ends with a question that creates genuine self-examination rather than theological discussion.
+WHAT NOT TO DO (all four patterns produce weak questions):
+- Verdict framing: "is this reasonable / understandable / aligned with the teaching?" — embedded answer, no debate
+- Generic formula: "have you experienced something similar?" or opening with "在你/我們的生活中，是否有過類似..." — too broad to anchor discussion
+- Analytical stepping-back: "what causes this tendency?" / "how do we understand X?" — moves group from feeling to analysing
+- Solution-seeking: "how should we handle this?" / "how can we discern?" — lets group become consultants instead of participants
+
+Q1 STRUCTURE: Name the protagonist's specific rationale, then offer a genuine either/or where both sides are defensible. The group should argue, not agree.
+Q2 STRUCTURE: Anchor to something specific and irreplaceable in this scenario. End with a question that creates genuine self-examination. If Q2 could appear unchanged beneath any other scenario, rewrite it.
+
+EXAMPLES BY PASSAGE TYPE — study the pattern, do not copy the content:
+
+INTERNAL-TENSION (James 1 — protagonist calculates before trusting):
+Q1: 張麗認為自己必須先把所有數字算清楚，才能負責任地做決定。這是謹慎，還是把「負責任」當作了不全心交託的理由？
+Q2: 她每次拿起聖經，思緒就飄回數字上。你有過這樣的時刻嗎——不是不想禱告，而是禱告的時候心根本靜不下來？
+
+INTERNAL-TENSION (James 1 — protagonist has stopped asking after repeated disappointment):
+Q1: 王芳不再向神求問該怎麼辦，因為她覺得已經試過一切。這是現實的認清，還是一種更深的放棄？
+Q2: 她對弟弟的問題不再開口求問，只是默默承受。你有沒有過這樣的時刻——不是不相信，而是相信了卻不再期待？
+
+ACTION-GAP (James 2 — protagonist sees need but finds reason not to act):
+Q1: 秀芬告訴自己：如果嘉慧需要傾訴，自然會找人說的。你認為這個想法是尊重對方，還是把責任轉移給了那個可能更難開口的人？
+Q2: 六年的同事關係，融洽但不親密。如果秀芬開口，她改變的不只是這一刻，而是兩人關係的性質。你有沒有過這樣的處境——開口的代價不是時間或金錢，而是一段關係的重新定義？
+
+IDENTITY/LOYALTY (1 Corinthians 1:10-17 — allegiance to person over community):
+Q1: 林美華不願參加「重建合一」的禱告小組，因為她覺得那等於認可了她不認同的方向。你認為她對「真正的合一」的理解，是否有道理？
+Q2: 她把對副牧師教導的忠誠，稱為對真理的堅守。你有沒有過一個時刻，後來才意識到，你以為是原則的東西，其實是對某個人的忠誠？
+
+WORLDLY-WISDOM (1 Corinthians 1:18-25 — gospel filtered through sophistication):
+Q1: 張偉認為要觸及受過高等教育的人，必須用嚴謹的邏輯和學術辯論。你認為他對「有效」的定義忽略了什麼——還是說他是對的？
+Q2: 你有沒有過這樣的時刻——在某些人面前，你對自己信仰的表達方式感到不自在，覺得它聽起來太簡單、太情緒化，或者不夠「有說服力」？
 
 [THRESHOLD_SCENARIO_CHINESE]
 ### 情境案例
