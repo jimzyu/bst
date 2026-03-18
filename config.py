@@ -9,7 +9,7 @@ class Config:
     """Application configuration constants."""
     
     # Model settings
-    MODEL_NAME = 'gemini-2.5-pro'
+    MODEL_NAME = 'gemini-3-flash'
     TEMPERATURE = 0.3
     MAX_RETRIES = 3
     
