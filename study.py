@@ -111,11 +111,13 @@ def render_ui():
     st.markdown(labels['input_prompt'])
     
     # Mode selection
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         deep_mode = st.checkbox(labels['deep_mode'])
     with col2:
         quiz_mode = st.checkbox('🎯 啟用問答學習模式 (Quiz Mode - Interactive Learning)')
+    with col3:
+        emphasis_mode = st.checkbox('📖 選擇學習重點 (Emphasis Study Mode)')
     
     st.markdown("---")
     
@@ -125,10 +127,10 @@ def render_ui():
         placeholder=labels['input_placeholder']
     )
     
-    return reference, deep_mode, quiz_mode
+    return reference, deep_mode, quiz_mode, emphasis_mode
 
 
-def process_study_request(reference: str, deep_mode: bool, quiz_mode: bool):
+def process_study_request(reference: str, deep_mode: bool, quiz_mode: bool, emphasis_mode: bool = False):
     """
     Process a study request.
     
@@ -136,6 +138,7 @@ def process_study_request(reference: str, deep_mode: bool, quiz_mode: bool):
         reference: Bible reference input
         deep_mode: Whether to use deep study mode
         quiz_mode: Whether to use quiz mode
+        emphasis_mode: Whether to use emphasis study mode
     """
     labels = Config.LABELS
     client = st.session_state.gemini_client
@@ -156,7 +159,9 @@ def process_study_request(reference: str, deep_mode: bool, quiz_mode: bool):
     
     # Process based on mode
     try:
-        if quiz_mode:
+        if emphasis_mode:
+            process_emphasis_selection(reference, client)
+        elif quiz_mode:
             process_quiz_mode(reference, deep_mode, client, labels)
         elif deep_mode:
             process_deep_study(reference, client, labels)
@@ -174,6 +179,125 @@ def process_study_request(reference: str, deep_mode: bool, quiz_mode: bool):
         SessionManager.record_error()
         st.error(f"發生錯誤 (Error): {str(e)}")
         st.exception(e)
+
+
+def process_emphasis_selection(reference: str, client):
+    """
+    Store the reference and show emphasis selection UI.
+    Generation happens after the user selects their emphasis.
+    """
+    st.session_state.emphasis_reference = reference
+    st.session_state.emphasis_active = True
+    st.session_state.emphasis_selected = None
+    st.session_state.emphasis_result = None
+    st.rerun()
+
+
+def process_emphasis_study(reference: str, emphasis: str, client):
+    """
+    Generate and display an emphasis-based question set.
+
+    Args:
+        reference: Bible reference
+        emphasis: One of 'explore', 'understand', 'apply'
+        client: GeminiClient instance
+    """
+    emphasis_labels = {
+        'explore': '探索 Explore',
+        'understand': '理解 Understand',
+        'apply': '應用 Apply',
+    }
+    label = emphasis_labels.get(emphasis, emphasis)
+
+    with st.status(f"正在生成「{label}」問題組...", expanded=True) as status:
+        prompt = PromptTemplates.get_emphasis_prompt(reference, emphasis)
+        result = client.generate_content(prompt)
+        SessionManager.start_emphasis(reference, emphasis, result)
+        status.update(label="完成！", state="complete", expanded=False)
+    st.rerun()
+
+
+def display_emphasis_interface():
+    """Display the emphasis study interface — selection screen or question set."""
+
+    EMPHASIS_OPTIONS = {
+        'explore': {
+            'label': '🔍 探索 Explore',
+            'desc': '讀讀看，注意你注意到什麼',
+            'desc_en': 'Read and notice what you notice',
+        },
+        'understand': {
+            'label': '💡 理解 Understand',
+            'desc': '挖深一點，問為什麼',
+            'desc_en': 'Dig deeper, ask why',
+        },
+        'apply': {
+            'label': '❤️ 應用 Apply',
+            'desc': '讓經文來問你',
+            'desc_en': 'Let the passage question you',
+        },
+    }
+
+    reference = st.session_state.emphasis_reference
+    selected = st.session_state.emphasis_selected
+    result = st.session_state.emphasis_result
+    client = st.session_state.gemini_client
+
+    st.title("📖 選擇學習重點")
+    st.markdown(f"**經文：** {reference}")
+    st.markdown("---")
+
+    # ── If no emphasis selected yet — show selection screen ──
+    if not selected or not result:
+        st.markdown("### 今天你想怎麼讀這段經文？")
+        st.markdown("*How do you want to approach this passage today?*")
+        st.markdown("")
+
+        cols = st.columns(3)
+        for i, (key, opt) in enumerate(EMPHASIS_OPTIONS.items()):
+            with cols[i]:
+                st.markdown(f"**{opt['label']}**")
+                st.markdown(f"*{opt['desc']}*")
+                st.markdown(f"<small>{opt['desc_en']}</small>", unsafe_allow_html=True)
+                if st.button(f"選擇 {opt['label']}", key=f"emphasis_{key}", use_container_width=True):
+                    st.session_state.emphasis_selected = key
+                    process_emphasis_study(reference, key, client)
+
+        st.markdown("---")
+        if st.button("← 返回 Back", type="secondary"):
+            SessionManager.end_emphasis()
+            st.rerun()
+        return
+
+    # ── Emphasis selected and result generated — show question set ──
+    opt = EMPHASIS_OPTIONS[selected]
+    st.markdown(f"### {opt['label']} — {opt['desc']}")
+    st.markdown("---")
+
+    # Parse and display Chinese section
+    ch_text, en_text = ResponseParser.parse_ai_response(result)
+
+    tab1, tab2, tab3 = st.tabs(["繁體中文", "简体中文", "English"])
+    with tab1:
+        ContentRenderer.render_study_content(ch_text or result, Config.LABELS)
+    with tab2:
+        sim_text = st.session_state.cc_converter.convert(ch_text or result)
+        ContentRenderer.render_study_content(sim_text, Config.LABELS)
+    with tab3:
+        ContentRenderer.render_study_content(en_text or "", Config.LABELS)
+
+    st.markdown("---")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("← 換一個重點 Try another emphasis", type="secondary"):
+            st.session_state.emphasis_selected = None
+            st.session_state.emphasis_result = None
+            st.rerun()
+    with col2:
+        if st.button("✅ 完成 Done", type="primary"):
+            SessionManager.end_emphasis()
+            st.rerun()
+
 
 
 def process_standard_study(reference: str, client: GeminiClient, labels: dict):
@@ -742,20 +866,23 @@ def main():
     # Initialize
     initialize_app()
     
+    # Check if emphasis mode is active
+    if st.session_state.emphasis_active:
+        display_emphasis_interface()
     # Check if quiz is active
-    if st.session_state.quiz_active:
+    elif st.session_state.quiz_active:
         # Display quiz interface
         display_quiz_interface()
     else:
         # Render UI and get inputs
-        reference, deep_mode, quiz_mode = render_ui()
+        reference, deep_mode, quiz_mode, emphasis_mode = render_ui()
         
         # Process button click
         if st.button(Config.LABELS['button_text'], type="primary"):
-            process_study_request(reference, deep_mode, quiz_mode)
+            process_study_request(reference, deep_mode, quiz_mode, emphasis_mode)
         
         # Display results (only in study mode)
-        if not quiz_mode:
+        if not quiz_mode and not emphasis_mode:
             display_results()
     
     # Optional: Debug info (comment out for production)

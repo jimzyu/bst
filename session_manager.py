@@ -81,6 +81,19 @@ class SessionManager:
 
         if 'quiz_subquestion_answers' not in st.session_state:
             st.session_state.quiz_subquestion_answers = {}  # {question_type: [answer1, answer2, ...]}
+
+        # Emphasis study mode state
+        if 'emphasis_active' not in st.session_state:
+            st.session_state.emphasis_active = False
+
+        if 'emphasis_selected' not in st.session_state:
+            st.session_state.emphasis_selected = None  # 'explore', 'understand', or 'apply'
+
+        if 'emphasis_reference' not in st.session_state:
+            st.session_state.emphasis_reference = None
+
+        if 'emphasis_result' not in st.session_state:
+            st.session_state.emphasis_result = None
     
     @staticmethod
     def can_make_request(cooldown_seconds: int) -> tuple[bool, float]:
@@ -176,6 +189,23 @@ class SessionManager:
                 for i, record in enumerate(reversed(st.session_state.study_history[-5:])):
                     st.write(f"{i+1}. {record.reference} - {record.get_datetime()} - Deep: {record.deep_mode}")
     
+
+    # Emphasis Study Mode Methods
+
+    @staticmethod
+    def start_emphasis(reference: str, emphasis: str, result: str):
+        st.session_state.emphasis_active = True
+        st.session_state.emphasis_selected = emphasis
+        st.session_state.emphasis_reference = reference
+        st.session_state.emphasis_result = result
+
+    @staticmethod
+    def end_emphasis():
+        st.session_state.emphasis_active = False
+        st.session_state.emphasis_selected = None
+        st.session_state.emphasis_reference = None
+        st.session_state.emphasis_result = None
+
     # Quiz Mode Methods
     
     @staticmethod

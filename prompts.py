@@ -301,6 +301,162 @@ IMPORTANT: You MUST include the [META_ASSESSMENT] section at the end with your U
 IMPORTANT: If Draft 3 contains threshold scenario sections, copy [THRESHOLD_SCENARIO_CHINESE] and [THRESHOLD_SCENARIO_ENGLISH] verbatim after the [META_ASSESSMENT] section.
 """
 
+    # ── EMPHASIS-BASED QUESTION TEMPLATES ─────────────────────────────────────
+
+    EMPHASIS_EXPLORE = """
+Generate a Bible study question set for: "{ref}"
+
+EMPHASIS: EXPLORE
+The user wants to explore what the text says before drawing conclusions.
+Questions should help them notice carefully, understand accessibly, and respond naturally.
+
+QUESTION-WRITING RULES (apply to all three):
+- Ask only what the student must discover themselves — no embedded answers
+- Do NOT pre-load theological terms or conclusions into the question
+- Keep questions open-ended: the student should think, not confirm
+- A good test: if someone could answer by re-reading the question itself, rewrite it
+
+CALIBRATION FOR EXPLORE:
+- Observation: The question must be answerable differently by different readers — because a good observation question has no single right answer, only richer or thinner ones. Do NOT describe the passage or name what to look for. Do NOT ask about the relationship between two concepts (e.g. faith and works) — that names the theme. Instead ask something open like "what word or phrase in this passage is hardest to move past?" or "is there a moment in this passage that surprises you?" Different readers will notice different things. That variety is the point. For passages longer than 10 verses, use 2-3 observation sub-questions to guide the reader across different parts of the passage — each staying at the surface, together covering the passage's arc. Each sub-question should point to a different section or element, not press deeper into the same one.
+- Interpretation: Ask one accessible question about meaning without theological jargon. Connect what the reader might have noticed to what it could mean. For passages longer than 10 verses, 2 sub-questions may cover different aspects of meaning.
+- Application: Keep it open and inviting. Ask how the passage connects to ordinary experience without specifying domains, actions, or outcomes. Avoid "what might you do differently" framing.
+
+CRITICAL: Your response MUST begin with the [CHINESE] tag and include the [ENGLISH] tag exactly as shown below. Do not omit these tags.
+
+OUTPUT FORMAT:
+
+[CHINESE]
+### 啟發式提問
+1. **觀察 (Observation)**: [Open observation question — close to the text surface]
+2. **解釋 (Interpretation)**: [Accessible interpretation question — no theological jargon]
+3. **應用 (Application)**: [Gentle application question — general, inviting, no specific domains]
+
+### 主題摘要
+- **主題名稱**: [4-8 traditional Chinese characters]
+- **神學意義說明**: [2-3 accessible sentences]
+- **歷史背景補充**: [Brief context if helpful]
+
+[ENGLISH]
+### Reflective Questions (Explore)
+1. **Observation**: [Direct English translation]
+2. **Interpretation**: [Direct English translation]
+3. **Application**: [Direct English translation]
+
+### Theme Summary
+- **Theme Title**: [English translation]
+- **Theological Significance**: [English translation]
+- **Historical Context**: [English translation]
+
+[META_ASSESSMENT]
+Understanding Confidence: [0-100]%
+Reasoning: [1-2 sentences]
+
+Reference: "{ref}"
+"""
+
+    EMPHASIS_UNDERSTAND = """
+Generate a Bible study question set for: "{ref}"
+
+EMPHASIS: UNDERSTAND
+The user wants to understand the passage more deeply — its argument, context, and theological weight.
+Questions should reward careful reading, press on the why behind the text, and connect to the reader's own reasoning.
+
+QUESTION-WRITING RULES (apply to all three):
+- Ask only what the student must discover themselves — no embedded answers
+- Do NOT pre-load theological terms or conclusions into the question
+- Keep questions open-ended: the student should think, not confirm
+- A good test: if someone could answer by re-reading the question itself, rewrite it
+
+CALIBRATION FOR UNDERSTAND:
+- Observation: Ask the reader to notice something that creates a question or tension — a word choice, a structural move, an unexpected element. Something worth explaining. For passages longer than 10 verses, use 2-3 observation sub-questions pointing to different parts of the passage — each noticing something different worth explaining, together mapping the passage's argumentative structure.
+- Interpretation: This is the centre of gravity. Press on the why — the argument being made, the historical or cultural weight behind the words, the theological claim embedded in the passage. For passages longer than 10 verses, 2-3 sub-questions may press progressively deeper: the first identifies what the passage claims, the second asks why, the third asks what that implies.
+- Application: Connect the interpretation to a condition the reader might recognise — communal as well as personal. Ask what the passage demands of a community or a way of thinking, not just an individual action.
+
+CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as shown below. Do not omit these tags.
+
+OUTPUT FORMAT:
+
+[CHINESE]
+### 啟發式提問
+1. **觀察 (Observation)**: [Observation question that notices something worth explaining]
+2. **解釋 (Interpretation)**: [Deeper interpretation question — may include 1-2 sub-questions if warranted]
+3. **應用 (Application)**: [Application connecting interpretation to a recognisable condition — communal or personal]
+
+### 主題摘要
+- **主題名稱**: [4-8 traditional Chinese characters]
+- **神學意義說明**: [2-3 sentences with appropriate theological depth]
+- **歷史背景補充**: [Specific historical or cultural context that illuminates the passage]
+
+[ENGLISH]
+### Reflective Questions (Understand)
+1. **Observation**: [Direct English translation]
+2. **Interpretation**: [Direct English translation]
+3. **Application**: [Direct English translation]
+
+### Theme Summary
+- **Theme Title**: [English translation]
+- **Theological Significance**: [English translation]
+- **Historical Context**: [English translation]
+
+[META_ASSESSMENT]
+Understanding Confidence: [0-100]%
+Reasoning: [1-2 sentences]
+
+Reference: "{ref}"
+"""
+
+    EMPHASIS_APPLY = """
+Generate a Bible study question set for: "{ref}"
+
+EMPHASIS: APPLY
+The user wants to be personally challenged by the passage.
+Questions should be specific, pressing, and honest — leading toward genuine self-examination rather than general reflection.
+
+QUESTION-WRITING RULES (apply to all three):
+- Ask only what the student must discover themselves — no embedded answers
+- Do NOT pre-load theological terms or conclusions into the question
+- Keep questions open-ended: the student should think, not confirm
+- A good test: if someone could answer by re-reading the question itself, rewrite it
+
+CALIBRATION FOR APPLY:
+- Observation: One compressed, pointed question about what is happening in the passage — the people, the actions, the words spoken — not what it concludes. The reader should be able to answer from looking at the text, not from knowing the theological point. A good Apply observation asks the reader to describe the scene, not interpret it. Example for James 2:14-17: "What is the person in verses 15-16 doing, and what are they not doing?" — this is answerable from the text without knowing the faith-works theme. Avoid "what results if...", "what does the passage say about...", or "what difference does the passage show between..." — all of these name the theme. For passages longer than 10 verses, 2-3 observation sub-questions may cover different scenes or characters in the passage — each describing what is happening in a specific section, together placing the reader inside the passage's full situation before interpreting it.
+- Interpretation: One question that connects the passage's diagnosis to a recognisable modern condition. Ask what the passage names that the reader might not have named themselves. No embedded answer.
+- Application: This is the centre of gravity. Ask something specific, personal, and honest. Can include 2 sub-questions pressing progressively deeper. The final question should require genuine self-examination — not "what might someone do?" but "where is this true of you?" Do NOT ask "what change are you prepared to make?" or "what will you do differently?" — these are solution-seeking and let the reader avoid the harder question of honest self-recognition.
+
+CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as shown below. Do not omit these tags.
+
+OUTPUT FORMAT:
+
+[CHINESE]
+### 啟發式提問
+1. **觀察 (Observation)**: [Focused observation — what is at stake in the passage]
+2. **解釋 (Interpretation)**: [Interpretation connecting the passage's diagnosis to a modern condition]
+3. **應用 (Application)**: [Specific, personal application — may include 2 sub-questions pressing progressively deeper]
+
+### 主題摘要
+- **主題名稱**: [4-8 traditional Chinese characters]
+- **神學意義說明**: [2-3 sentences naming the passage's specific human diagnosis]
+- **歷史背景補充**: [Context only if it directly sharpens the application]
+
+[ENGLISH]
+### Reflective Questions (Apply)
+1. **Observation**: [Direct English translation]
+2. **Interpretation**: [Direct English translation]
+3. **Application**: [Direct English translation]
+
+### Theme Summary
+- **Theme Title**: [English translation]
+- **Theological Significance**: [English translation]
+- **Historical Context**: [English translation]
+
+[META_ASSESSMENT]
+Understanding Confidence: [0-100]%
+Reasoning: [1-2 sentences]
+
+Reference: "{ref}"
+"""
+
+
     # Focus areas for deep mode
     FOCUS_AREAS = {
         'standard': "Standard balanced evangelical theology with clear, accessible explanations.",
@@ -377,3 +533,43 @@ IMPORTANT: If Draft 3 contains threshold scenario sections, copy [THRESHOLD_SCEN
             theology_summary=theology_summary,
             threshold_instruction=cls.THRESHOLD_SCENARIO_INSTRUCTION
         )
+
+    @classmethod
+    def get_emphasis_prompt(cls, reference: str, emphasis: str) -> str:
+        """
+        Get a question set prompt calibrated to a specific emphasis.
+
+        Args:
+            reference: Bible reference
+            emphasis: One of 'explore', 'understand', 'apply'
+
+        Returns:
+            Formatted prompt string
+        """
+        templates = {
+            'explore': cls.EMPHASIS_EXPLORE,
+            'understand': cls.EMPHASIS_UNDERSTAND,
+            'apply': cls.EMPHASIS_APPLY,
+        }
+        template = templates.get(emphasis.lower())
+        if not template:
+            raise ValueError(f"Unknown emphasis: {emphasis}. Must be one of: explore, understand, apply")
+        return template.format(ref=reference)
+
+    @classmethod
+    def get_all_emphasis_prompts(cls, reference: str) -> dict:
+        """
+        Get all three emphasis prompts for parallel generation.
+
+        Args:
+            reference: Bible reference
+
+        Returns:
+            Dict of {emphasis: prompt_string}
+        """
+        return {
+            'explore': cls.EMPHASIS_EXPLORE.format(ref=reference),
+            'understand': cls.EMPHASIS_UNDERSTAND.format(ref=reference),
+            'apply': cls.EMPHASIS_APPLY.format(ref=reference),
+        }
+
