@@ -94,6 +94,27 @@ class SessionManager:
 
         if 'emphasis_result' not in st.session_state:
             st.session_state.emphasis_result = None
+
+        if 'emphasis_quiz_active' not in st.session_state:
+            st.session_state.emphasis_quiz_active = False
+
+        if 'emphasis_quiz_question' not in st.session_state:
+            st.session_state.emphasis_quiz_question = 0  # 0=obs, 1=interp, 2=app
+
+        if 'emphasis_quiz_questions' not in st.session_state:
+            st.session_state.emphasis_quiz_questions = {}
+
+        if 'emphasis_quiz_answers' not in st.session_state:
+            st.session_state.emphasis_quiz_answers = {}
+
+        if 'emphasis_quiz_feedbacks' not in st.session_state:
+            st.session_state.emphasis_quiz_feedbacks = {}
+
+        if 'emphasis_quiz_subquestion' not in st.session_state:
+            st.session_state.emphasis_quiz_subquestion = 0
+
+        if 'emphasis_quiz_subquestion_answers' not in st.session_state:
+            st.session_state.emphasis_quiz_subquestion_answers = {}
     
     @staticmethod
     def can_make_request(cooldown_seconds: int) -> tuple[bool, float]:
@@ -198,6 +219,58 @@ class SessionManager:
         st.session_state.emphasis_selected = emphasis
         st.session_state.emphasis_reference = reference
         st.session_state.emphasis_result = result
+        # Reset quiz state when starting fresh
+        st.session_state.emphasis_quiz_active = False
+        st.session_state.emphasis_quiz_question = 0
+        st.session_state.emphasis_quiz_questions = {}
+        st.session_state.emphasis_quiz_answers = {}
+        st.session_state.emphasis_quiz_feedbacks = {}
+        st.session_state.emphasis_quiz_subquestion = 0
+        st.session_state.emphasis_quiz_subquestion_answers = {}
+
+    @staticmethod
+    def start_emphasis_quiz(questions: dict):
+        st.session_state.emphasis_quiz_active = True
+        st.session_state.emphasis_quiz_question = 0
+        st.session_state.emphasis_quiz_questions = questions
+        st.session_state.emphasis_quiz_answers = {}
+        st.session_state.emphasis_quiz_feedbacks = {}
+        st.session_state.emphasis_quiz_subquestion = 0
+        st.session_state.emphasis_quiz_subquestion_answers = {}
+
+    @staticmethod
+    def get_emphasis_question_type() -> str:
+        types = ["observation", "interpretation", "application"]
+        idx = st.session_state.emphasis_quiz_question
+        return types[idx] if idx < len(types) else None
+
+    @staticmethod
+    def is_emphasis_quiz_complete() -> bool:
+        return st.session_state.emphasis_quiz_question >= 3
+
+    @staticmethod
+    def advance_emphasis_question():
+        st.session_state.emphasis_quiz_question += 1
+        st.session_state.emphasis_quiz_subquestion = 0
+
+    @staticmethod
+    def advance_emphasis_subquestion():
+        st.session_state.emphasis_quiz_subquestion += 1
+
+    @staticmethod
+    def save_emphasis_subquestion_answer(question_type: str, answer: str):
+        if question_type not in st.session_state.emphasis_quiz_subquestion_answers:
+            st.session_state.emphasis_quiz_subquestion_answers[question_type] = []
+        st.session_state.emphasis_quiz_subquestion_answers[question_type].append(answer)
+
+    @staticmethod
+    def get_emphasis_subquestion_answers(question_type: str) -> list:
+        return st.session_state.emphasis_quiz_subquestion_answers.get(question_type, [])
+
+    @staticmethod
+    def save_emphasis_quiz_answer(question_type: str, user_answer: str, feedback: str):
+        st.session_state.emphasis_quiz_answers[question_type] = user_answer
+        st.session_state.emphasis_quiz_feedbacks[question_type] = feedback
 
     @staticmethod
     def end_emphasis():
@@ -205,6 +278,13 @@ class SessionManager:
         st.session_state.emphasis_selected = None
         st.session_state.emphasis_reference = None
         st.session_state.emphasis_result = None
+        st.session_state.emphasis_quiz_active = False
+        st.session_state.emphasis_quiz_question = 0
+        st.session_state.emphasis_quiz_questions = {}
+        st.session_state.emphasis_quiz_answers = {}
+        st.session_state.emphasis_quiz_feedbacks = {}
+        st.session_state.emphasis_quiz_subquestion = 0
+        st.session_state.emphasis_quiz_subquestion_answers = {}
 
     # Quiz Mode Methods
     

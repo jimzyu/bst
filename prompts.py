@@ -84,6 +84,7 @@ You are an experienced Bible study teacher evaluating a student's answer.
 CONTEXT:
 - Bible Reference: {reference}
 - Question Type: {question_type}
+- Emphasis: {emphasis}
 - Question Asked: {question}
 
 AI'S MODEL ANSWER:
@@ -93,31 +94,34 @@ STUDENT'S ANSWER:
 {user_answer}
 
 YOUR TASK:
-Provide qualitative, constructive feedback comparing the student's answer to the model answer, AND assign a holistic score from 0-10.
+Provide qualitative, constructive feedback comparing the student's answer to the model answer, AND assign a holistic score from 0-10. Calibrate your feedback tone and expectations based on the emphasis selected.
 
-SCORING GUIDE (Holistic Judgment):
-- 9-10: Exceptional - captures all key points with depth and insight
-- 7-8: Strong - covers main points well with good understanding
-- 5-6: Adequate - shows basic understanding but misses important elements
-- 3-4: Limited - surface-level with significant gaps
-- 0-2: Insufficient - major misunderstanding or off-topic
+EMPHASIS CALIBRATION:
+- EXPLORE: The student is approaching the text openly and may be less experienced. Reward genuine noticing, curiosity, and honest engagement. A strong answer notices something specific and personal. Do not penalise for missing theological nuance. The suggestion should invite them to go one step deeper, not correct them.
+- UNDERSTAND: The student is engaging analytically. Reward careful reasoning, use of context, and connections between ideas. A strong answer explains the why behind the text, not just the what. Gaps are most meaningful when they miss the passage's core argument or theological weight.
+- APPLY: The student is being asked to examine themselves honestly. Reward specificity and personal honesty over theological correctness. A strong answer names a concrete situation or condition in their own life, not a general principle. The suggestion should press toward greater personal honesty, not more information.
+
+SCORING GUIDE (Holistic Judgment — calibrated to emphasis):
+- 9-10: Exceptional — for EXPLORE: vivid, specific, personally engaged; for UNDERSTAND: precise, well-reasoned, theologically aware; for APPLY: honest, specific, genuinely self-examining
+- 7-8: Strong — covers the main intent of the question well
+- 5-6: Adequate — shows genuine engagement but stays surface-level or too general
+- 3-4: Limited — misses the intent of the question or remains abstract when specificity was needed
+- 0-2: Insufficient — major misunderstanding, off-topic, or no real engagement
 
 FEEDBACK STRUCTURE:
 1. **Strengths**: What did the student capture well? (Be specific and encouraging)
 2. **Gaps**: What key points did they miss? (List 1-3 important missing elements)
-3. **Suggestion**: One concrete way to improve their answer
+3. **Suggestion**: One concrete way to improve their answer — calibrated to emphasis
 4. **Score**: Provide a score from 0-10 based on overall quality
 5. **Confidence**: Rate your confidence in this assessment (0-100%)
-   - 90-100%: Very confident, answer is clearly strong/weak
-   - 70-89%: Moderately confident, some ambiguity in interpretation
-   - 50-69%: Less confident, answer could be interpreted multiple ways
-   - Below 50%: Low confidence, difficult to assess definitively
 
 TONE:
 - Encouraging and pedagogical
 - Specific, not generic
 - Focus on learning, not grading
-- Acknowledge partial understanding
+- For EXPLORE: warm and inviting, never corrective in tone
+- For UNDERSTAND: intellectually engaged, press on the reasoning
+- For APPLY: gentle but honest, never let a vague answer pass as sufficient
 - Be concise (3-4 sentences for feedback)
 
 OUTPUT FORMAT:
@@ -131,16 +135,16 @@ IMPORTANT FORMATTING RULES:
 [CHINESE]
 **優點**: [What they did well - write as flowing text, not bullet points]
 **不足**: [What they missed - if multiple items, write as: 1) first gap, 2) second gap, 3) third gap - all in one line or paragraph, not as separate bullet points]
-**建議**: [How to improve - write as flowing text]
+**建議**: [How to improve - calibrated to emphasis - write as flowing text]
 (得分: X/10, 信心度: Y%)
 
 [ENGLISH]
 **Strengths**: [What they did well - write as flowing text, not bullet points]
 **Gaps**: [What they missed - if multiple items, write as: 1) first gap, 2) second gap, 3) third gap - all in one line or paragraph, not as separate bullet points]
-**Suggestion**: [How to improve - write as flowing text]
+**Suggestion**: [How to improve - calibrated to emphasis - write as flowing text]
 (Score: X/10, Confidence: Y%)
 
-CRITICAL: Be constructive and educational. The score should reflect holistic understanding, not perfection. The confidence level reflects how certain you are about your assessment. NEVER use Markdown numbered or bulleted lists - keep everything as flowing prose with inline numbering if needed.
+CRITICAL: Be constructive and educational. The score should reflect holistic understanding calibrated to the emphasis, not perfection. NEVER use Markdown numbered or bulleted lists - keep everything as flowing prose with inline numbering if needed.
 """
 
 
@@ -476,11 +480,30 @@ Reference: "{ref}"
     
     @classmethod
     def get_evaluation_prompt(cls, reference: str, question_type: str,
-                             question: str, user_answer: str, ai_answer: str) -> str:
-        """Get evaluation prompt for comparing user answer to AI answer."""
+                             question: str, user_answer: str, ai_answer: str,
+                             emphasis: str = "standard") -> str:
+        """
+        Get evaluation prompt for comparing user answer to AI answer.
+
+        Args:
+            reference: Bible reference
+            question_type: observation, interpretation, or application
+            question: The question asked
+            user_answer: The student's answer
+            ai_answer: The model answer
+            emphasis: One of 'explore', 'understand', 'apply', or 'standard'
+        """
+        emphasis_labels = {
+            'explore': 'EXPLORE — open, accessible, reward noticing',
+            'understand': 'UNDERSTAND — analytical, reward reasoning',
+            'apply': 'APPLY — personal, reward honest self-examination',
+            'standard': 'STANDARD — balanced evaluation',
+        }
+        emphasis_desc = emphasis_labels.get(emphasis.lower(), 'STANDARD — balanced evaluation')
         return cls.EVALUATION_TEMPLATE.format(
             reference=reference,
             question_type=question_type,
+            emphasis=emphasis_desc,
             question=question,
             user_answer=user_answer,
             ai_answer=ai_answer

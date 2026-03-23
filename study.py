@@ -218,24 +218,13 @@ def process_emphasis_study(reference: str, emphasis: str, client):
 
 
 def display_emphasis_interface():
-    """Display the emphasis study interface — selection screen or question set."""
+    """Display the emphasis study interface — selection, question set, or quiz."""
+    from parsers import QuizParser
 
     EMPHASIS_OPTIONS = {
-        'explore': {
-            'label': '🔍 探索 Explore',
-            'desc': '讀讀看，注意你注意到什麼',
-            'desc_en': 'Read and notice what you notice',
-        },
-        'understand': {
-            'label': '💡 理解 Understand',
-            'desc': '挖深一點，問為什麼',
-            'desc_en': 'Dig deeper, ask why',
-        },
-        'apply': {
-            'label': '❤️ 應用 Apply',
-            'desc': '讓經文來問你',
-            'desc_en': 'Let the passage question you',
-        },
+        'explore': {'label': '🔍 探索 Explore', 'desc': '讀讀看，注意你注意到什麼', 'desc_en': 'Read and notice what you notice'},
+        'understand': {'label': '💡 理解 Understand', 'desc': '挖深一點，問為什麼', 'desc_en': 'Dig deeper, ask why'},
+        'apply': {'label': '❤️ 應用 Apply', 'desc': '讓經文來問你', 'desc_en': 'Let the passage question you'},
     }
 
     reference = st.session_state.emphasis_reference
@@ -247,12 +236,11 @@ def display_emphasis_interface():
     st.markdown(f"**經文：** {reference}")
     st.markdown("---")
 
-    # ── If no emphasis selected yet — show selection screen ──
+    # ── SCREEN 1: No emphasis selected yet ──
     if not selected or not result:
         st.markdown("### 今天你想怎麼讀這段經文？")
         st.markdown("*How do you want to approach this passage today?*")
         st.markdown("")
-
         cols = st.columns(3)
         for i, (key, opt) in enumerate(EMPHASIS_OPTIONS.items()):
             with cols[i]:
@@ -262,21 +250,149 @@ def display_emphasis_interface():
                 if st.button(f"選擇 {opt['label']}", key=f"emphasis_{key}", use_container_width=True):
                     st.session_state.emphasis_selected = key
                     process_emphasis_study(reference, key, client)
-
         st.markdown("---")
         if st.button("← 返回 Back", type="secondary"):
             SessionManager.end_emphasis()
             st.rerun()
         return
 
-    # ── Emphasis selected and result generated — show question set ──
     opt = EMPHASIS_OPTIONS[selected]
+
+    # ── SCREEN 2: Quiz interaction active ──
+    if st.session_state.emphasis_quiz_active:
+        st.markdown(f"### {opt['label']} — {opt['desc']}")
+        st.markdown("---")
+
+        # Quiz complete — show summary
+        if SessionManager.is_emphasis_quiz_complete():
+            st.success("🎉 完成！You've worked through all three sections.")
+            type_labels = {
+                "observation": "📖 觀察 Observation",
+                "interpretation": "🤔 解釋 Interpretation",
+                "application": "💡 應用 Application"
+            }
+            for qtype in ["observation", "interpretation", "application"]:
+                if qtype in st.session_state.emphasis_quiz_feedbacks:
+                    with st.expander(type_labels[qtype]):
+                        st.markdown(f"**Your answer:** {st.session_state.emphasis_quiz_answers.get(qtype, '')}")
+                        feedback_text = st.session_state.emphasis_quiz_feedbacks[qtype]
+                        ch_fb, _ = QuizParser.parse_evaluation_feedback(feedback_text)
+                        st.markdown("**Feedback:**")
+                        st.markdown(ch_fb)
+            st.markdown("---")
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("← 換一個重點 Try another emphasis", type="secondary"):
+                    st.session_state.emphasis_selected = None
+                    st.session_state.emphasis_result = None
+                    st.session_state.emphasis_quiz_active = False
+                    st.rerun()
+            with col2:
+                if st.button("✅ 完成 Done", type="primary"):
+                    SessionManager.end_emphasis()
+                    st.rerun()
+            return
+
+        # Current question
+        question_type = SessionManager.get_emphasis_question_type()
+        question_text = st.session_state.emphasis_quiz_questions.get(question_type, "")
+        subquestions = QuizParser.split_into_subquestions(question_text)
+        total_subquestions = len(subquestions)
+        current_sub_idx = st.session_state.emphasis_quiz_subquestion
+
+        type_labels = {
+            "observation": "📖 觀察 Observation",
+            "interpretation": "🤔 解釋 Interpretation",
+            "application": "💡 應用 Application"
+        }
+        st.markdown(f"### {type_labels.get(question_type, question_type)}")
+
+        # Already evaluated this question
+        if question_type in st.session_state.emphasis_quiz_feedbacks:
+            st.success("✅ Answered!")
+            collected = SessionManager.get_emphasis_subquestion_answers(question_type)
+            for i, sq in enumerate(subquestions):
+                with st.expander(f"Sub-question {i+1}" if total_subquestions > 1 else "Your Answer"):
+                    st.markdown(f"**Q:** {sq}")
+                    if i < len(collected):
+                        st.write(collected[i])
+            with st.expander("💬 Feedback"):
+                feedback_text = st.session_state.emphasis_quiz_feedbacks[question_type]
+                ch_fb, en_fb = QuizParser.parse_evaluation_feedback(feedback_text)
+                st.markdown(ch_fb)
+                if en_fb:
+                    st.markdown("---")
+                    st.markdown(en_fb)
+            if st.button("Continue ➡️", type="primary"):
+                SessionManager.advance_emphasis_question()
+                st.rerun()
+
+        # Collecting answers
+        elif current_sub_idx < total_subquestions:
+            collected = SessionManager.get_emphasis_subquestion_answers(question_type)
+            if total_subquestions > 1:
+                st.markdown("**Questions for this section:**")
+                for i, sq in enumerate(subquestions):
+                    if i < current_sub_idx:
+                        st.markdown(
+                            f"<div style='padding:8px 12px;border-left:3px solid #4CAF50;margin-bottom:8px;opacity:0.75;'>"
+                            f"<strong>{i+1}. {sq}</strong><br>"
+                            f"<em style='color:#555;'>Your answer: {collected[i]}</em></div>",
+                            unsafe_allow_html=True)
+                    elif i == current_sub_idx:
+                        st.markdown(
+                            f"<div style='padding:8px 12px;border-left:3px solid #2196F3;background:rgba(33,150,243,0.07);margin-bottom:8px;'>"
+                            f"<strong>{i+1}. {sq}</strong> ◀ <em>Answer this now</em></div>",
+                            unsafe_allow_html=True)
+                    else:
+                        st.markdown(
+                            f"<div style='padding:8px 12px;border-left:3px solid #ccc;margin-bottom:8px;opacity:0.5;'>"
+                            f"<strong>{i+1}. {sq}</strong></div>",
+                            unsafe_allow_html=True)
+            else:
+                st.info(subquestions[0])
+
+            user_answer = st.text_area(
+                "Your Answer (你的答案):",
+                height=150,
+                placeholder="Type your answer here... / 在此輸入你的答案...",
+                key=f"emph_answer_{question_type}_{current_sub_idx}"
+            )
+            is_last = (current_sub_idx == total_subquestions - 1)
+            btn_label = "Submit Answer 提交答案" if is_last else "Next Sub-question ➡️"
+
+            if st.button(btn_label, type="primary", disabled=not user_answer.strip()):
+                SessionManager.save_emphasis_subquestion_answer(question_type, user_answer)
+                if is_last:
+                    all_answers = SessionManager.get_emphasis_subquestion_answers(question_type)
+                    combined_answer = "\n\n".join(
+                        f"Sub-question {i+1}: {a}" for i, a in enumerate(all_answers)
+                    ) if total_subquestions > 1 else all_answers[0]
+                    combined_question = "\n".join(
+                        f"{i+1}. {sq}" for i, sq in enumerate(subquestions)
+                    ) if total_subquestions > 1 else subquestions[0]
+
+                    with st.spinner("Evaluating... 評估中..."):
+                        feedback = client.evaluate_answer(
+                            reference=reference,
+                            question_type=question_type,
+                            question=combined_question,
+                            user_answer=combined_answer,
+                            ai_answer=result,
+                            emphasis=selected
+                        )
+                        SessionManager.save_emphasis_quiz_answer(question_type, combined_answer, feedback)
+                    st.rerun()
+                else:
+                    SessionManager.advance_emphasis_subquestion()
+                    st.rerun()
+        return
+
+    # ── SCREEN 3: Question set displayed — offer to answer or move on ──
     st.markdown(f"### {opt['label']} — {opt['desc']}")
     st.markdown("---")
 
-    # Parse and display Chinese section
     ch_text, en_text = ResponseParser.parse_ai_response(result)
-
     tab1, tab2, tab3 = st.tabs(["繁體中文", "简体中文", "English"])
     with tab1:
         ContentRenderer.render_study_content(ch_text or result, Config.LABELS)
@@ -287,14 +403,22 @@ def display_emphasis_interface():
         ContentRenderer.render_study_content(en_text or "", Config.LABELS)
 
     st.markdown("---")
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("← 換一個重點 Try another emphasis", type="secondary"):
             st.session_state.emphasis_selected = None
             st.session_state.emphasis_result = None
             st.rerun()
     with col2:
-        if st.button("✅ 完成 Done", type="primary"):
+        if st.button("✍️ 回答問題 Answer Questions", type="primary"):
+            questions = QuizParser.extract_questions_from_study(result)
+            if questions:
+                SessionManager.start_emphasis_quiz(questions)
+                st.rerun()
+            else:
+                st.warning("Could not extract questions. Please try regenerating.")
+    with col3:
+        if st.button("✅ 完成 Done", type="secondary"):
             SessionManager.end_emphasis()
             st.rerun()
 

@@ -147,9 +147,11 @@ class SheetsLogger:
             understanding_conf            # AI Understanding Confidence
         ]
         
-        # Insert new row at position 2 (below header) so newest results appear first
-        self.sheet.insert_row(row, index=2)
-        logger.info(f"Standard study logged to Google Sheets for: {reference} (row 2, columns A-T)")
+        # Get next empty row and append using update instead of append_row
+        next_row = len(self.sheet.get_all_values()) + 1
+        cell_range = f'A{next_row}:T{next_row}'  # Explicitly columns A through T
+        self.sheet.update(cell_range, [row])
+        logger.info(f"Standard study logged to Google Sheets for: {reference} (row {next_row}, columns A-T)")
 
     def log_deep_study(self, reference: str, drafts: List[str], final_result: str):
         """
@@ -177,9 +179,11 @@ class SheetsLogger:
             understanding_conf            # AI Understanding Confidence
         ]
         
-        # Insert new row at position 2 (below header) so newest results appear first
-        self.sheet.insert_row(row, index=2)
-        logger.info(f"Deep study logged to Google Sheets for: {reference} (row 2, columns A-T)")
+        # Get next empty row and append using update instead of append_row
+        next_row = len(self.sheet.get_all_values()) + 1
+        cell_range = f'A{next_row}:T{next_row}'  # Explicitly columns A through T
+        self.sheet.update(cell_range, [row])
+        logger.info(f"Deep study logged to Google Sheets for: {reference} (row {next_row}, columns A-T)")
         logger.info(f"  - Draft 1: {len(drafts[0])} chars")
         logger.info(f"  - Draft 2: {len(drafts[1])} chars")
         logger.info(f"  - Draft 3: {len(drafts[2])} chars")
@@ -216,10 +220,12 @@ class SheetsLogger:
             understanding_conf            # AI Understanding Confidence
         ]
         
-        # Insert new row at position 2 (below header) so newest results appear first
-        self.sheet.insert_row(row, index=2)
-        logger.info(f"Quiz session initialized in Google Sheets for: {reference} (row 2, columns A-T)")
-        return 2
+        # Get next empty row and use update instead of append_row
+        next_row = len(self.sheet.get_all_values()) + 1
+        cell_range = f'A{next_row}:T{next_row}'  # Explicitly columns A through T
+        self.sheet.update(cell_range, [row])
+        logger.info(f"Quiz session initialized in Google Sheets for: {reference} (row {next_row}, columns A-T)")
+        return next_row
 
     def log_quiz_answer(self, row_number: int, question_type: str, 
                        user_answer: str, feedback: str):
@@ -522,7 +528,7 @@ class GeminiClient:
         return final_result
 
     def evaluate_answer(self, reference: str, question_type: str, question: str,
-                       user_answer: str, ai_answer: str) -> str:
+                       user_answer: str, ai_answer: str, emphasis: str = "standard") -> str:
         """
         Evaluate user's answer against AI's answer with qualitative feedback.
 
@@ -532,20 +538,22 @@ class GeminiClient:
             question: The question that was asked
             user_answer: User's submitted answer
             ai_answer: AI's answer key for comparison
+            emphasis: One of 'explore', 'understand', 'apply', or 'standard'
 
         Returns:
             Qualitative feedback text
         """
         from prompts import PromptTemplates
         
-        logger.info(f"Evaluating {question_type} answer for: {reference}")
+        logger.info(f"Evaluating {question_type} answer for: {reference} (emphasis: {emphasis})")
         
         evaluation_prompt = PromptTemplates.get_evaluation_prompt(
             reference=reference,
             question_type=question_type,
             question=question,
             user_answer=user_answer,
-            ai_answer=ai_answer
+            ai_answer=ai_answer,
+            emphasis=emphasis
         )
         
         feedback = self.generate_content(evaluation_prompt)
