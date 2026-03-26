@@ -95,6 +95,9 @@ class SessionManager:
         if 'emphasis_result' not in st.session_state:
             st.session_state.emphasis_result = None
 
+        if 'emphasis_all_results' not in st.session_state:
+            st.session_state.emphasis_all_results = {}  # {'explore': text, 'understand': text, 'apply': text}
+
         if 'emphasis_quiz_active' not in st.session_state:
             st.session_state.emphasis_quiz_active = False
 
@@ -214,12 +217,27 @@ class SessionManager:
     # Emphasis Study Mode Methods
 
     @staticmethod
-    def start_emphasis(reference: str, emphasis: str, result: str):
+    def start_emphasis(reference: str, all_results: dict):
         st.session_state.emphasis_active = True
-        st.session_state.emphasis_selected = emphasis
+        st.session_state.emphasis_selected = None
         st.session_state.emphasis_reference = reference
+        st.session_state.emphasis_result = None
+        st.session_state.emphasis_all_results = all_results
+        # Reset quiz state
+        st.session_state.emphasis_quiz_active = False
+        st.session_state.emphasis_quiz_question = 0
+        st.session_state.emphasis_quiz_questions = {}
+        st.session_state.emphasis_quiz_answers = {}
+        st.session_state.emphasis_quiz_feedbacks = {}
+        st.session_state.emphasis_quiz_subquestion = 0
+        st.session_state.emphasis_quiz_subquestion_answers = {}
+
+    @staticmethod
+    def select_emphasis(emphasis: str):
+        result = st.session_state.emphasis_all_results.get(emphasis)
+        st.session_state.emphasis_selected = emphasis
         st.session_state.emphasis_result = result
-        # Reset quiz state when starting fresh
+        # Reset quiz state for new emphasis selection
         st.session_state.emphasis_quiz_active = False
         st.session_state.emphasis_quiz_question = 0
         st.session_state.emphasis_quiz_questions = {}
@@ -278,6 +296,7 @@ class SessionManager:
         st.session_state.emphasis_selected = None
         st.session_state.emphasis_reference = None
         st.session_state.emphasis_result = None
+        st.session_state.emphasis_all_results = {}
         st.session_state.emphasis_quiz_active = False
         st.session_state.emphasis_quiz_question = 0
         st.session_state.emphasis_quiz_questions = {}

@@ -183,37 +183,17 @@ def process_study_request(reference: str, deep_mode: bool, quiz_mode: bool, emph
 
 def process_emphasis_selection(reference: str, client):
     """
-    Store the reference and show emphasis selection UI.
-    Generation happens after the user selects their emphasis.
+    Generate all three emphasis question sets in parallel upfront,
+    then show the selection screen. The user selects instantly with no wait.
     """
-    st.session_state.emphasis_reference = reference
-    st.session_state.emphasis_active = True
-    st.session_state.emphasis_selected = None
-    st.session_state.emphasis_result = None
-    st.rerun()
+    with st.status("正在準備三種學習重點的問題組... Preparing all question sets...",
+                   expanded=True) as status:
+        def cb(msg):
+            status.update(label=f"生成中... {msg}")
 
-
-def process_emphasis_study(reference: str, emphasis: str, client):
-    """
-    Generate and display an emphasis-based question set.
-
-    Args:
-        reference: Bible reference
-        emphasis: One of 'explore', 'understand', 'apply'
-        client: GeminiClient instance
-    """
-    emphasis_labels = {
-        'explore': '探索 Explore',
-        'understand': '理解 Understand',
-        'apply': '應用 Apply',
-    }
-    label = emphasis_labels.get(emphasis, emphasis)
-
-    with st.status(f"正在生成「{label}」問題組...", expanded=True) as status:
-        prompt = PromptTemplates.get_emphasis_prompt(reference, emphasis)
-        result = client.generate_content(prompt)
-        SessionManager.start_emphasis(reference, emphasis, result)
-        status.update(label="完成！", state="complete", expanded=False)
+        all_results = client.generate_all_emphasis_parallel(reference, status_callback=cb)
+        SessionManager.start_emphasis(reference, all_results)
+        status.update(label="✅ 準備完成！Ready.", state="complete", expanded=False)
     st.rerun()
 
 
@@ -248,8 +228,8 @@ def display_emphasis_interface():
                 st.markdown(f"*{opt['desc']}*")
                 st.markdown(f"<small>{opt['desc_en']}</small>", unsafe_allow_html=True)
                 if st.button(f"選擇 {opt['label']}", key=f"emphasis_{key}", use_container_width=True):
-                    st.session_state.emphasis_selected = key
-                    process_emphasis_study(reference, key, client)
+                    SessionManager.select_emphasis(key)
+                    st.rerun()
         st.markdown("---")
         if st.button("← 返回 Back", type="secondary"):
             SessionManager.end_emphasis()
@@ -286,6 +266,8 @@ def display_emphasis_interface():
                     st.session_state.emphasis_selected = None
                     st.session_state.emphasis_result = None
                     st.session_state.emphasis_quiz_active = False
+                    st.session_state.emphasis_quiz_question = 0
+                    st.session_state.emphasis_quiz_feedbacks = {}
                     st.rerun()
             with col2:
                 if st.button("✅ 完成 Done", type="primary"):
@@ -408,6 +390,9 @@ def display_emphasis_interface():
         if st.button("← 換一個重點 Try another emphasis", type="secondary"):
             st.session_state.emphasis_selected = None
             st.session_state.emphasis_result = None
+            st.session_state.emphasis_quiz_active = False
+            st.session_state.emphasis_quiz_question = 0
+            st.session_state.emphasis_quiz_feedbacks = {}
             st.rerun()
     with col2:
         if st.button("✍️ 回答問題 Answer Questions", type="primary"):
