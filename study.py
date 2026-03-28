@@ -239,6 +239,32 @@ def display_emphasis_interface():
                 if st.button(f"選擇 {opt['label']}", key=f"emphasis_{key}", use_container_width=True):
                     SessionManager.select_emphasis(key)
                     st.rerun()
+
+        st.markdown("---")
+
+        # ── Case Study section ──
+        case_study = st.session_state.emphasis_case_study
+        if case_study:
+            # Already generated — show it
+            ch_case, en_case = case_study
+            st.markdown("### 💡 情境案例 (Discussion Scenario)")
+            with st.expander("📖 查看情境案例 / View Discussion Scenario", expanded=True):
+                if ch_case:
+                    st.markdown("**中文:**")
+                    st.markdown(ch_case)
+                if en_case:
+                    st.markdown("**English:**")
+                    st.markdown(en_case)
+        else:
+            # Not yet generated — offer button
+            if st.button("💡 生成情境案例 Generate Discussion Scenario", type="secondary"):
+                with st.spinner("正在生成情境案例... Generating scenario..."):
+                    raw = client.generate_case_study(reference)
+                    from parsers import ResponseParser
+                    ch_case, en_case = ResponseParser.parse_case_study(raw)
+                    st.session_state.emphasis_case_study = (ch_case, en_case)
+                st.rerun()
+
         st.markdown("---")
         if st.button("← 返回 Back", type="secondary"):
             SessionManager.end_emphasis()

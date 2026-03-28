@@ -527,6 +527,24 @@ class GeminiClient:
         logger.info("Deep study generation complete")
         return final_result
 
+    def generate_case_study(self, reference: str) -> str:
+        """
+        Generate a threshold scenario (case study) for the given passage.
+
+        Args:
+            reference: Bible reference
+
+        Returns:
+            Generated text containing [THRESHOLD_SCENARIO_CHINESE] and
+            [THRESHOLD_SCENARIO_ENGLISH] sections
+        """
+        from prompts import PromptTemplates
+        logger.info(f"Generating case study for: {reference}")
+        prompt = PromptTemplates.get_threshold_prompt(reference)
+        result = self.generate_content(prompt)
+        logger.info(f"Case study generated ({len(result)} chars)")
+        return result
+
     def generate_all_emphasis_parallel(self, reference: str,
                                         status_callback=None) -> dict:
         """

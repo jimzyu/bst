@@ -98,6 +98,9 @@ class SessionManager:
         if 'emphasis_all_results' not in st.session_state:
             st.session_state.emphasis_all_results = {}  # {'explore': text, 'understand': text, 'apply': text}
 
+        if 'emphasis_case_study' not in st.session_state:
+            st.session_state.emphasis_case_study = None  # (chinese, english) tuple or None
+
         if 'emphasis_quiz_active' not in st.session_state:
             st.session_state.emphasis_quiz_active = False
 
@@ -223,6 +226,7 @@ class SessionManager:
         st.session_state.emphasis_reference = reference
         st.session_state.emphasis_result = None
         st.session_state.emphasis_all_results = all_results
+        st.session_state.emphasis_case_study = None
         # Reset quiz state
         st.session_state.emphasis_quiz_active = False
         st.session_state.emphasis_quiz_question = 0
@@ -297,6 +301,7 @@ class SessionManager:
         st.session_state.emphasis_reference = None
         st.session_state.emphasis_result = None
         st.session_state.emphasis_all_results = {}
+        st.session_state.emphasis_case_study = None
         st.session_state.emphasis_quiz_active = False
         st.session_state.emphasis_quiz_question = 0
         st.session_state.emphasis_quiz_questions = {}
