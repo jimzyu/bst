@@ -260,8 +260,8 @@ def display_emphasis_interface():
             if st.button("💡 生成情境案例 Generate Discussion Scenario", type="secondary"):
                 with st.spinner("正在生成情境案例... Generating scenario..."):
                     raw = client.generate_case_study(reference)
-                    from parsers import ResponseParser
-                    ch_case, en_case = ResponseParser.parse_case_study(raw)
+                    from parsers import QuizParser
+                    ch_case, en_case = QuizParser.extract_case_study(raw)
                     st.session_state.emphasis_case_study = (ch_case, en_case)
                 st.rerun()
 
