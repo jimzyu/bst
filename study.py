@@ -110,14 +110,9 @@ def render_ui():
     st.subheader(labels['subtitle'])
     st.markdown(labels['input_prompt'])
     
-    # Mode selection
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        deep_mode = st.checkbox(labels['deep_mode'])
-    with col2:
-        quiz_mode = st.checkbox('🎯 啟用問答學習模式 (Quiz Mode - Interactive Learning)')
-    with col3:
-        emphasis_mode = st.checkbox('📖 選擇學習重點 (Emphasis Study Mode)')
+    # Mode selection — Deep Study is the only option; Emphasis is the default
+    deep_mode = st.checkbox(labels['deep_mode'],
+                            help="運行三次平行分析以獲得更深入的問題組 / Run three parallel analyses for deeper question sets")
     
     st.markdown("---")
     
@@ -127,18 +122,17 @@ def render_ui():
         placeholder=labels['input_placeholder']
     )
     
-    return reference, deep_mode, quiz_mode, emphasis_mode
+    return reference, deep_mode
 
 
-def process_study_request(reference: str, deep_mode: bool, quiz_mode: bool, emphasis_mode: bool = False):
+def process_study_request(reference: str, deep_mode: bool):
     """
-    Process a study request.
+    Process a study request. Emphasis Study is always the default path.
+    Deep Study runs three parallel analyses before presenting emphasis selection.
     
     Args:
         reference: Bible reference input
-        deep_mode: Whether to use deep study mode
-        quiz_mode: Whether to use quiz mode
-        emphasis_mode: Whether to use emphasis study mode
+        deep_mode: Whether to use deep study mode for richer question generation
     """
     labels = Config.LABELS
     client = st.session_state.gemini_client
@@ -157,16 +151,9 @@ def process_study_request(reference: str, deep_mode: bool, quiz_mode: bool, emph
     # Record request
     SessionManager.record_request()
     
-    # Process based on mode
+    # Always route to emphasis selection (with optional deep mode)
     try:
-        if emphasis_mode:
-            process_emphasis_selection(reference, client)
-        elif quiz_mode:
-            process_quiz_mode(reference, deep_mode, client, labels)
-        elif deep_mode:
-            process_deep_study(reference, client, labels)
-        else:
-            process_standard_study(reference, client, labels)
+        process_emphasis_selection(reference, client, deep_mode=deep_mode)
             
     except GeminiAPIError as e:
         logger.error(f"API error: {str(e)}")
@@ -181,17 +168,39 @@ def process_study_request(reference: str, deep_mode: bool, quiz_mode: bool, emph
         st.exception(e)
 
 
-def process_emphasis_selection(reference: str, client):
+def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
     """
     Generate all three emphasis question sets in parallel upfront,
     then show the selection screen. The user selects instantly with no wait.
+    Deep mode runs three theological drafts first to inform richer questions.
     """
-    with st.status("正在準備三種學習重點的問題組... Preparing all question sets...",
-                   expanded=True) as status:
+    if deep_mode:
+        status_msg = "正在深度分析經文並準備問題組... Running deep analysis..."
+    else:
+        status_msg = "正在準備三種學習重點的問題組... Preparing all question sets..."
+
+    with st.status(status_msg, expanded=True) as status:
         def cb(msg):
             status.update(label=f"生成中... {msg}")
 
-        all_results = client.generate_all_emphasis_parallel(reference, status_callback=cb)
+        if deep_mode:
+            # Deep mode: run three theological drafts in parallel first,
+            # then use merged theology to generate richer emphasis questions
+            labels = Config.LABELS
+            prompts = PromptTemplates.get_threshold_deep_prompts(reference)
+            drafts = client.generate_drafts_parallel(prompts, cb)
+            theology_summary = "\n\n---\n\n".join(drafts)
+            # Now generate all three emphasis sets informed by the theology
+            from prompts import PromptTemplates as PT
+            all_results = {}
+            for emphasis in ['explore', 'understand', 'apply']:
+                prompt = PT.get_emphasis_prompt(reference, emphasis)
+                # Prepend theology context to each emphasis prompt
+                enriched = f"THEOLOGICAL CONTEXT FROM PRIOR ANALYSIS:\n{theology_summary[:3000]}\n\n---\n\n{prompt}"
+                all_results[emphasis] = client.generate_content(enriched)
+        else:
+            all_results = client.generate_all_emphasis_parallel(reference, status_callback=cb)
+
         SessionManager.start_emphasis(reference, all_results)
         status.update(label="✅ 準備完成！Ready.", state="complete", expanded=False)
     st.rerun()
@@ -978,21 +987,13 @@ def main():
     # Check if emphasis mode is active
     if st.session_state.emphasis_active:
         display_emphasis_interface()
-    # Check if quiz is active
-    elif st.session_state.quiz_active:
-        # Display quiz interface
-        display_quiz_interface()
     else:
         # Render UI and get inputs
-        reference, deep_mode, quiz_mode, emphasis_mode = render_ui()
+        reference, deep_mode = render_ui()
         
         # Process button click
         if st.button(Config.LABELS['button_text'], type="primary"):
-            process_study_request(reference, deep_mode, quiz_mode, emphasis_mode)
-        
-        # Display results (only in study mode)
-        if not quiz_mode and not emphasis_mode:
-            display_results()
+            process_study_request(reference, deep_mode)
     
     # Optional: Debug info (comment out for production)
     # SessionManager.show_debug_info()
