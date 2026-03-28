@@ -546,27 +546,34 @@ class GeminiClient:
         return result
 
     def generate_all_emphasis_parallel(self, reference: str,
-                                        status_callback=None) -> dict:
+                                        status_callback=None) -> tuple:
         """
-        Generate all three emphasis question sets in parallel.
+        Generate all three emphasis question sets and a passage summary in parallel.
 
         Args:
             reference: Bible reference
             status_callback: Optional callback for UI status updates
 
         Returns:
-            Dict of {emphasis: generated_text} for explore, understand, apply
+            Tuple of (emphasis_dict, summary_text) where emphasis_dict is
+            {emphasis: generated_text} for explore, understand, apply
         """
         from prompts import PromptTemplates
 
         prompts_dict = PromptTemplates.get_all_emphasis_prompts(reference)
         emphasis_keys = list(prompts_dict.keys())  # ['explore', 'understand', 'apply']
-        prompts_list = [prompts_dict[k] for k in emphasis_keys]
+        summary_prompt = PromptTemplates.get_summary_prompt(reference)
 
-        logger.info(f"Generating all 3 emphasis sets in parallel for: {reference}")
-        results_list = self.generate_drafts_parallel(prompts_list, status_callback)
+        # Run all four in parallel: 3 emphasis + 1 summary
+        all_prompts = [prompts_dict[k] for k in emphasis_keys] + [summary_prompt]
 
-        return {emphasis_keys[i]: results_list[i] for i in range(len(emphasis_keys))}
+        logger.info(f"Generating 3 emphasis sets + summary in parallel for: {reference}")
+        results_list = self.generate_drafts_parallel(all_prompts, status_callback)
+
+        emphasis_results = {emphasis_keys[i]: results_list[i] for i in range(len(emphasis_keys))}
+        summary_text = results_list[-1]
+
+        return emphasis_results, summary_text
 
     def evaluate_answer(self, reference: str, question_type: str, question: str,
                        user_answer: str, ai_answer: str, emphasis: str = "standard") -> str:

@@ -305,6 +305,30 @@ IMPORTANT: You MUST include the [META_ASSESSMENT] section at the end with your U
 IMPORTANT: If Draft 3 contains threshold scenario sections, copy [THRESHOLD_SCENARIO_CHINESE] and [THRESHOLD_SCENARIO_ENGLISH] verbatim after the [META_ASSESSMENT] section.
 """
 
+
+    SUMMARY_TEMPLATE = """
+Generate a concise passage summary for: "{ref}"
+
+Provide a theme summary in Traditional Chinese and English.
+Keep it accessible — this is reference context for readers before or after engaging with the passage.
+
+CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as shown.
+
+[CHINESE]
+### 主題摘要
+- **主題名稱**: [4-8 traditional Chinese characters summarizing the core theme]
+- **神學意義說明**: [2-3 sentences explaining the theological significance in accessible language]
+- **歷史背景補充**: [Specific historical or cultural context that illuminates the passage — 1-2 sentences]
+
+[ENGLISH]
+### Theme Summary
+- **Theme Title**: [English translation of theme title]
+- **Theological Significance**: [English translation]
+- **Historical Context**: [English translation]
+
+Reference: "{ref}"
+"""
+
     # ── EMPHASIS-BASED QUESTION TEMPLATES ─────────────────────────────────────
 
     EMPHASIS_EXPLORE = """
@@ -335,21 +359,11 @@ OUTPUT FORMAT:
 2. **解釋 (Interpretation)**: [Accessible interpretation question — no theological jargon]
 3. **應用 (Application)**: [Gentle application question — general, inviting, no specific domains]
 
-### 主題摘要
-- **主題名稱**: [4-8 traditional Chinese characters]
-- **神學意義說明**: [2-3 accessible sentences]
-- **歷史背景補充**: [Brief context if helpful]
-
 [ENGLISH]
 ### Reflective Questions (Explore)
 1. **Observation**: [Direct English translation]
 2. **Interpretation**: [Direct English translation]
 3. **Application**: [Direct English translation]
-
-### Theme Summary
-- **Theme Title**: [English translation]
-- **Theological Significance**: [English translation]
-- **Historical Context**: [English translation]
 
 [META_ASSESSMENT]
 Understanding Confidence: [0-100]%
@@ -386,21 +400,11 @@ OUTPUT FORMAT:
 2. **解釋 (Interpretation)**: [Deeper interpretation question — may include 1-2 sub-questions if warranted]
 3. **應用 (Application)**: [Application connecting interpretation to a recognisable condition — communal or personal]
 
-### 主題摘要
-- **主題名稱**: [4-8 traditional Chinese characters]
-- **神學意義說明**: [2-3 sentences with appropriate theological depth]
-- **歷史背景補充**: [Specific historical or cultural context that illuminates the passage]
-
 [ENGLISH]
 ### Reflective Questions (Understand)
 1. **Observation**: [Direct English translation]
 2. **Interpretation**: [Direct English translation]
 3. **Application**: [Direct English translation]
-
-### Theme Summary
-- **Theme Title**: [English translation]
-- **Theological Significance**: [English translation]
-- **Historical Context**: [English translation]
 
 [META_ASSESSMENT]
 Understanding Confidence: [0-100]%
@@ -437,21 +441,11 @@ OUTPUT FORMAT:
 2. **解釋 (Interpretation)**: [Interpretation connecting the passage's diagnosis to a modern condition]
 3. **應用 (Application)**: [Specific, personal application — may include 2 sub-questions pressing progressively deeper]
 
-### 主題摘要
-- **主題名稱**: [4-8 traditional Chinese characters]
-- **神學意義說明**: [2-3 sentences naming the passage's specific human diagnosis]
-- **歷史背景補充**: [Context only if it directly sharpens the application]
-
 [ENGLISH]
 ### Reflective Questions (Apply)
 1. **Observation**: [Direct English translation]
 2. **Interpretation**: [Direct English translation]
 3. **Application**: [Direct English translation]
-
-### Theme Summary
-- **Theme Title**: [English translation]
-- **Theological Significance**: [English translation]
-- **Historical Context**: [English translation]
 
 [META_ASSESSMENT]
 Understanding Confidence: [0-100]%
@@ -556,6 +550,11 @@ Reference: "{ref}"
             theology_summary=theology_summary,
             threshold_instruction=cls.THRESHOLD_SCENARIO_INSTRUCTION
         )
+
+    @classmethod
+    def get_summary_prompt(cls, reference: str) -> str:
+        """Get a standalone passage summary prompt."""
+        return cls.SUMMARY_TEMPLATE.format(ref=reference)
 
     @classmethod
     def get_emphasis_prompt(cls, reference: str, emphasis: str) -> str:

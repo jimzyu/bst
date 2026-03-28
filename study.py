@@ -186,22 +186,24 @@ def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
         if deep_mode:
             # Deep mode: run three theological drafts in parallel first,
             # then use merged theology to generate richer emphasis questions
-            labels = Config.LABELS
             prompts = PromptTemplates.get_threshold_deep_prompts(reference)
             drafts = client.generate_drafts_parallel(prompts, cb)
             theology_summary = "\n\n---\n\n".join(drafts)
-            # Now generate all three emphasis sets informed by the theology
+            # Generate all three emphasis sets + summary informed by theology
             from prompts import PromptTemplates as PT
             all_results = {}
             for emphasis in ['explore', 'understand', 'apply']:
                 prompt = PT.get_emphasis_prompt(reference, emphasis)
-                # Prepend theology context to each emphasis prompt
                 enriched = f"THEOLOGICAL CONTEXT FROM PRIOR ANALYSIS:\n{theology_summary[:3000]}\n\n---\n\n{prompt}"
                 all_results[emphasis] = client.generate_content(enriched)
+            # Generate summary separately in deep mode
+            summary_text = client.generate_content(PT.get_summary_prompt(reference))
         else:
-            all_results = client.generate_all_emphasis_parallel(reference, status_callback=cb)
+            all_results, summary_text = client.generate_all_emphasis_parallel(
+                reference, status_callback=cb)
 
         SessionManager.start_emphasis(reference, all_results)
+        st.session_state.emphasis_summary = summary_text
         status.update(label="✅ 準備完成！Ready.", state="complete", expanded=False)
     st.rerun()
 
@@ -241,6 +243,15 @@ def display_emphasis_interface():
                     st.rerun()
 
         st.markdown("---")
+
+        # ── Passage Summary (collapsible reference panel) ──
+        summary_raw = st.session_state.get('emphasis_summary')
+        if summary_raw:
+            ch_summary, _ = ResponseParser.parse_ai_response(summary_raw)
+            with st.expander("📚 經文摘要 Passage Summary", expanded=False):
+                ContentRenderer.render_study_content(ch_summary or summary_raw, Config.LABELS)
+
+        st.markdown("")
 
         # ── Case Study section ──
         case_study = st.session_state.emphasis_case_study
