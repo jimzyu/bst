@@ -244,23 +244,19 @@ def display_emphasis_interface():
 
         st.markdown("---")
 
-        # ── Passage Summary (collapsible reference panel) ──
+        # ── Passage Summary (collapsible reference panel with tabs) ──
         summary_raw = st.session_state.get('emphasis_summary')
         if summary_raw:
             ch_summary, en_summary = ResponseParser.parse_ai_response(summary_raw)
             with st.expander("📚 經文摘要 Passage Summary", expanded=False):
-                # Traditional Chinese
-                if ch_summary:
-                    st.markdown(ch_summary)
-                # Simplified Chinese
-                if ch_summary:
-                    sim_summary = st.session_state.cc_converter.convert(ch_summary)
-                    st.markdown("---")
+                stab1, stab2, stab3 = st.tabs(["繁體中文", "简体中文", "English"])
+                with stab1:
+                    st.markdown(ch_summary or summary_raw)
+                with stab2:
+                    sim_summary = st.session_state.cc_converter.convert(ch_summary or summary_raw)
                     st.markdown(sim_summary)
-                # English
-                if en_summary:
-                    st.markdown("---")
-                    st.markdown(en_summary)
+                with stab3:
+                    st.markdown(en_summary or "")
 
         st.markdown("")
 

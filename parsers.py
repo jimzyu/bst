@@ -288,7 +288,6 @@ class ContentRenderer:
         Used for emphasis mode where the summary is displayed separately.
         """
         questions, _ = ResponseParser.extract_sections(content)
-        st.subheader(labels['reflections_title'])
         st.markdown(questions or content)
 
     @staticmethod
