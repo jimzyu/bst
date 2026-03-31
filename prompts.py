@@ -349,6 +349,8 @@ CALIBRATION FOR EXPLORE:
 - Interpretation: Ask one accessible question about meaning without theological jargon. Connect what the reader might have noticed to what it could mean. For passages longer than 10 verses, 2 sub-questions may cover different aspects of meaning.
 - Application: Keep it open and inviting. Ask how the passage connects to ordinary experience without specifying domains, actions, or outcomes. Avoid "what might you do differently" framing.
 
+DO NOT generate a 主題摘要 / Theme Summary section. Questions only — the summary is generated separately.
+
 CRITICAL: Your response MUST begin with the [CHINESE] tag and include the [ENGLISH] tag exactly as shown below. Do not omit these tags.
 
 OUTPUT FORMAT:
@@ -390,6 +392,8 @@ CALIBRATION FOR UNDERSTAND:
 - Interpretation: This is the centre of gravity. Press on the why — the argument being made, the historical or cultural weight behind the words, the theological claim embedded in the passage. For passages longer than 10 verses, 2-3 sub-questions may press progressively deeper: the first identifies what the passage claims, the second asks why, the third asks what that implies.
 - Application: Connect the interpretation to a condition the reader might recognise — communal as well as personal. Ask what the passage demands of a community or a way of thinking, not just an individual action.
 
+DO NOT generate a 主題摘要 / Theme Summary section. Questions only — the summary is generated separately.
+
 CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as shown below. Do not omit these tags.
 
 OUTPUT FORMAT:
@@ -430,6 +434,8 @@ CALIBRATION FOR APPLY:
 - Observation: One compressed, pointed question about what is happening in the passage — the people, the actions, the words spoken — not what it concludes. The reader should be able to answer from looking at the text, not from knowing the theological point. A good Apply observation asks the reader to describe the scene, not interpret it. Example for James 2:14-17: "What is the person in verses 15-16 doing, and what are they not doing?" — this is answerable from the text without knowing the faith-works theme. Avoid "what results if...", "what does the passage say about...", or "what difference does the passage show between..." — all of these name the theme. For passages longer than 10 verses, 2-3 observation sub-questions may cover different scenes or characters in the passage — each describing what is happening in a specific section, together placing the reader inside the passage's full situation before interpreting it.
 - Interpretation: One question that connects the passage's diagnosis to a recognisable modern condition. Ask what the passage names that the reader might not have named themselves. No embedded answer.
 - Application: This is the centre of gravity. Ask something specific, personal, and honest. Can include 2 sub-questions pressing progressively deeper. The final question should require genuine self-examination — not "what might someone do?" but "where is this true of you?" Do NOT ask "what change are you prepared to make?" or "what will you do differently?" — these are solution-seeking and let the reader avoid the harder question of honest self-recognition.
+
+DO NOT generate a 主題摘要 / Theme Summary section. Questions only — the summary is generated separately.
 
 CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as shown below. Do not omit these tags.
 

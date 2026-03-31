@@ -282,6 +282,16 @@ class ContentRenderer:
                 st.markdown(summary)
     
     @staticmethod
+    def render_emphasis_content(content: str, labels: dict):
+        """
+        Render emphasis question set — questions only, no summary section.
+        Used for emphasis mode where the summary is displayed separately.
+        """
+        questions, _ = ResponseParser.extract_sections(content)
+        st.subheader(labels['reflections_title'])
+        st.markdown(questions or content)
+
+    @staticmethod
     def render_error(labels: dict):
         """Render error message for invalid references."""
         st.error(labels['error_invalid'])

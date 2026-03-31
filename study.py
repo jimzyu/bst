@@ -423,12 +423,12 @@ def display_emphasis_interface():
     ch_text, en_text = ResponseParser.parse_ai_response(result)
     tab1, tab2, tab3 = st.tabs(["繁體中文", "简体中文", "English"])
     with tab1:
-        ContentRenderer.render_study_content(ch_text or result, Config.LABELS)
+        ContentRenderer.render_emphasis_content(ch_text or result, Config.LABELS)
     with tab2:
         sim_text = st.session_state.cc_converter.convert(ch_text or result)
-        ContentRenderer.render_study_content(sim_text, Config.LABELS)
+        ContentRenderer.render_emphasis_content(sim_text, Config.LABELS)
     with tab3:
-        ContentRenderer.render_study_content(en_text or "", Config.LABELS)
+        ContentRenderer.render_emphasis_content(en_text or "", Config.LABELS)
 
     st.markdown("---")
     col1, col2, col3 = st.columns(3)
