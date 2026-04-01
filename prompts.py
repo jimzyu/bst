@@ -319,7 +319,7 @@ CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as
 - **主題名稱**: [4-8 traditional Chinese characters summarizing the core theme]
 - **神學意義說明**: [2-3 sentences explaining the theological significance in accessible language]
 - **歷史背景補充**: [Specific historical or cultural context that illuminates the passage — 1-2 sentences]
-- **經文的診斷**: [1-2 sentences naming the specific human condition this passage addresses — what does it call out in the reader that the reader might not have named themselves? Be precise rather than generic. Avoid "this passage challenges us to..." — instead name the specific tendency, pattern, or self-deception the passage diagnoses.]
+- **經文的診斷**: [1-2 sentences naming the specific human condition this passage addresses — what does it call out in the reader that the reader might not have named themselves? Be precise rather than generic. Do NOT simply paraphrase a verse. Avoid "this passage challenges us to..." or "people tend to..." — instead name the specific tendency, pattern, or self-deception with enough precision that a reader would recognise it in themselves.]
 
 [ENGLISH]
 ### Theme Summary
@@ -356,7 +356,7 @@ CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as
 - **主題名稱**: [4-8 traditional Chinese characters summarizing the core theme]
 - **神學意義說明**: [3-4 sentences explaining the theological significance — draw on all three drafts for precision and depth]
 - **歷史背景補充**: [2-3 sentences of specific historical or cultural context drawn from Draft 2 — name specific details: time period, cultural practices, original language nuances where relevant]
-- **經文的診斷**: [1-2 sentences naming the specific human condition this passage addresses — what does it call out in the reader that the reader might not have named themselves? Draw on Draft 3.]
+- **經文的診斷**: [1-2 sentences naming the specific human condition this passage addresses — what does it call out in the reader that the reader might not have named themselves? Draw on Draft 3 for the application insight. Be precise rather than generic. Do NOT simply paraphrase a verse. Avoid "this passage challenges us to..." or "people tend to..." — instead name the specific tendency, pattern, or self-deception with enough precision that a reader would recognise it in themselves.]
 
 [ENGLISH]
 ### Theme Summary
