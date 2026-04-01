@@ -184,20 +184,30 @@ def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
             status.update(label=f"生成中... {msg}")
 
         if deep_mode:
-            # Deep mode: run three theological drafts in parallel first,
-            # then use merged theology to generate richer emphasis questions
+            # Deep mode: run three theological drafts in parallel first
+            status.update(label="深度分析中 (1/3) — 標準神學分析...")
             prompts = PromptTemplates.get_threshold_deep_prompts(reference)
             drafts = client.generate_drafts_parallel(prompts, cb)
             theology_summary = "\n\n---\n\n".join(drafts)
-            # Generate all three emphasis sets + summary informed by theology
-            from prompts import PromptTemplates as PT
-            all_results = {}
-            for emphasis in ['explore', 'understand', 'apply']:
-                prompt = PT.get_emphasis_prompt(reference, emphasis)
-                enriched = f"THEOLOGICAL CONTEXT FROM PRIOR ANALYSIS:\n{theology_summary[:3000]}\n\n---\n\n{prompt}"
-                all_results[emphasis] = client.generate_content(enriched)
-            # Generate summary separately in deep mode
-            summary_text = client.generate_content(PT.get_summary_prompt(reference))
+
+            # Generate all three emphasis sets in parallel, enriched with theology
+            status.update(label="深度分析中 (2/3) — 生成問題組...")
+            emphasis_prompts = []
+            emphasis_keys = ['explore', 'understand', 'apply']
+            for emphasis in emphasis_keys:
+                base_prompt = PromptTemplates.get_emphasis_prompt(reference, emphasis)
+                enriched = f"THEOLOGICAL CONTEXT FROM PRIOR ANALYSIS:\n{theology_summary[:3000]}\n\n---\n\n{base_prompt}"
+                emphasis_prompts.append(enriched)
+
+            # Generate summary from drafts — all four in parallel
+            summary_prompt = PromptTemplates.get_summary_from_drafts_prompt(
+                reference, drafts[0], drafts[1], drafts[2])
+            all_prompts = emphasis_prompts + [summary_prompt]
+            all_results_list = client.generate_drafts_parallel(all_prompts, cb)
+
+            all_results = {emphasis_keys[i]: all_results_list[i] for i in range(3)}
+            summary_text = all_results_list[3]
+            status.update(label="深度分析中 (3/3) — 整合完成...")
         else:
             all_results, summary_text = client.generate_all_emphasis_parallel(
                 reference, status_callback=cb)

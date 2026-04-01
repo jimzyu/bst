@@ -329,6 +329,43 @@ CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as
 Reference: "{ref}"
 """
 
+
+    SUMMARY_FROM_DRAFTS_TEMPLATE = """
+Generate a comprehensive passage summary for: "{ref}"
+
+You have access to three theological analyses of this passage generated from different angles:
+
+DRAFT 1 — Standard theological analysis:
+{draft_1}
+
+DRAFT 2 — Historical and cultural context:
+{draft_2}
+
+DRAFT 3 — Practical application focus:
+{draft_3}
+
+Using all three analyses, produce a richer summary than any single draft could provide.
+Draw on Draft 1 for theological precision, Draft 2 for historical depth, and Draft 3 for the passage's specific diagnostic claim about the human condition.
+
+CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as shown.
+
+[CHINESE]
+### 主題摘要
+- **主題名稱**: [4-8 traditional Chinese characters summarizing the core theme]
+- **神學意義說明**: [3-4 sentences explaining the theological significance — draw on all three drafts for precision and depth]
+- **歷史背景補充**: [2-3 sentences of specific historical or cultural context drawn from Draft 2 — name specific details: time period, cultural practices, original language nuances where relevant]
+- **經文的診斷**: [1-2 sentences naming the specific human condition this passage addresses — what does it call out in the reader that the reader might not have named themselves? Draw on Draft 3.]
+
+[ENGLISH]
+### Theme Summary
+- **Theme Title**: [English translation of theme title]
+- **Theological Significance**: [English translation]
+- **Historical Context**: [English translation]
+- **Passage Diagnosis**: [English translation]
+
+Reference: "{ref}"
+"""
+
     # ── EMPHASIS-BASED QUESTION TEMPLATES ─────────────────────────────────────
 
     EMPHASIS_EXPLORE = """
@@ -561,6 +598,17 @@ Reference: "{ref}"
     def get_summary_prompt(cls, reference: str) -> str:
         """Get a standalone passage summary prompt."""
         return cls.SUMMARY_TEMPLATE.format(ref=reference)
+
+    @classmethod
+    def get_summary_from_drafts_prompt(cls, reference: str,
+                                       draft_1: str, draft_2: str, draft_3: str) -> str:
+        """Get a richer summary prompt informed by three theological drafts."""
+        return cls.SUMMARY_FROM_DRAFTS_TEMPLATE.format(
+            ref=reference,
+            draft_1=draft_1[:2000],  # Truncate to avoid token limits
+            draft_2=draft_2[:2000],
+            draft_3=draft_3[:2000],
+        )
 
     @classmethod
     def get_emphasis_prompt(cls, reference: str, emphasis: str) -> str:
