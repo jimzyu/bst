@@ -597,6 +597,32 @@ Reference: "{ref}"
         )
 
     @classmethod
+    def get_threshold_with_diagnosis_prompt(cls, reference: str, diagnosis: str) -> str:
+        """
+        Get a threshold scenario prompt informed by the passage's specific diagnosis.
+        The diagnosis is prepended to the scenario instruction so the model knows
+        precisely what human condition the scenario should embody.
+
+        Args:
+            reference: Bible reference
+            diagnosis: The 經文的診斷 text extracted from the summary
+        """
+        diagnosis_context = f"""PASSAGE DIAGNOSIS FOR THIS SCENARIO:
+The following is the specific human condition this passage diagnoses. The scenario you generate must embody this diagnosis — not merely be consistent with it:
+
+{diagnosis}
+
+Use this diagnosis to ensure the scenario shows a character whose specific failure matches what the passage names, not just a generic action-gap situation.
+
+"""
+        enriched_instruction = diagnosis_context + cls.THRESHOLD_SCENARIO_INSTRUCTION
+        return cls.BASE_STUDY_TEMPLATE.format(
+            ref=reference,
+            focus=cls.FOCUS_AREAS['application'],
+            case_study_instruction=enriched_instruction
+        )
+
+    @classmethod
     def get_summary_prompt(cls, reference: str) -> str:
         """Get a standalone passage summary prompt."""
         return cls.SUMMARY_TEMPLATE.format(ref=reference)
