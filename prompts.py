@@ -319,12 +319,14 @@ CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as
 - **主題名稱**: [4-8 traditional Chinese characters summarizing the core theme]
 - **神學意義說明**: [2-3 sentences explaining the theological significance in accessible language]
 - **歷史背景補充**: [Specific historical or cultural context that illuminates the passage — 1-2 sentences]
+- **經文的診斷**: [1-2 sentences naming the specific human condition this passage addresses — what does it call out in the reader that the reader might not have named themselves? Be precise rather than generic. Avoid "this passage challenges us to..." — instead name the specific tendency, pattern, or self-deception the passage diagnoses.]
 
 [ENGLISH]
 ### Theme Summary
 - **Theme Title**: [English translation of theme title]
 - **Theological Significance**: [English translation]
 - **Historical Context**: [English translation]
+- **Passage Diagnosis**: [English translation]
 
 Reference: "{ref}"
 """
