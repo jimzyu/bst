@@ -215,14 +215,6 @@ def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
         SessionManager.start_emphasis(reference, all_results)
         st.session_state.emphasis_summary = summary_text
 
-        # Log all three emphasis question sets to Google Sheets at generation time
-        if client.draft_logger:
-            for emph_key, emph_result in all_results.items():
-                try:
-                    client.draft_logger.log_emphasis_study(reference, emph_key, emph_result)
-                except Exception as log_err:
-                    logger.warning(f"Emphasis logging failed for {emph_key}: {log_err}")
-
         status.update(label="✅ 準備完成！Ready.", state="complete", expanded=False)
     st.rerun()
 
@@ -259,15 +251,18 @@ def display_emphasis_interface():
                 st.markdown(f"<small>{opt['desc_en']}</small>", unsafe_allow_html=True)
                 if st.button(f"選擇 {opt['label']}", key=f"emphasis_{key}", use_container_width=True):
                     SessionManager.select_emphasis(key)
-                    # Log question set to Google Sheets
+                    # Log selected question set to Google Sheets
                     selected_result = st.session_state.emphasis_all_results.get(key, '')
                     if selected_result and client.draft_logger:
                         try:
                             row_num = client.draft_logger.log_emphasis_study(
                                 reference, key, selected_result)
                             st.session_state.emphasis_sheets_row = row_num
+                            logger.info(f"Emphasis logged: {reference} / {key} -> row {row_num}")
                         except Exception as log_err:
-                            logger.warning(f"Emphasis logging failed: {log_err}")
+                            logger.error(f"Emphasis logging FAILED: {log_err}", exc_info=True)
+                    elif not client.draft_logger:
+                        logger.warning("Emphasis logging skipped: draft_logger is None")
                     st.rerun()
 
         st.markdown("---")
