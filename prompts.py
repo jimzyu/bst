@@ -306,6 +306,42 @@ IMPORTANT: If Draft 3 contains threshold scenario sections, copy [THRESHOLD_SCEN
 """
 
 
+
+    PASSAGE_MAPPING_TEMPLATE = """
+Analyse the following Bible passage and identify its distinct teaching points.
+
+PASSAGE: {ref}
+
+A "teaching point" is a specific claim, command, or diagnosis that is distinct enough to require its own scenario for a group study discussion. It must be:
+- Grounded in a specific verse or verse range within the passage
+- Distinct from other teaching points (not just a different way of saying the same thing)
+- Capable of being embodied in a concrete threshold scenario
+
+For each teaching point, provide:
+1. The verse range it comes from
+2. A one-sentence statement of the teaching
+3. The specific human condition it diagnoses — the tendency, pattern, or self-deception it names. Be precise. Do NOT write "this passage challenges us to..." — name the specific condition a reader would recognise in themselves.
+
+GUIDELINES ON NUMBER OF TEACHING POINTS:
+- 3-6 verses: typically 1 teaching point
+- 7-15 verses: typically 2-3 teaching points
+- 16+ verses: 3-4 teaching points maximum — do not over-divide
+
+CRITICAL: Respond ONLY in the following structured format. No preamble, no explanation.
+
+TEACHING_POINT_1
+Verses: [verse range]
+Teaching: [one sentence]
+Diagnosis: [specific human condition diagnosed]
+
+TEACHING_POINT_2
+Verses: [verse range]
+Teaching: [one sentence]
+Diagnosis: [specific human condition diagnosed]
+
+[Continue only if genuinely distinct teaching points exist — do not force additional points]
+"""
+
     SUMMARY_TEMPLATE = """
 Generate a concise passage summary for: "{ref}"
 
@@ -621,6 +657,11 @@ Use this diagnosis to ensure the scenario shows a character whose specific failu
             focus=cls.FOCUS_AREAS['application'],
             case_study_instruction=enriched_instruction
         )
+
+    @classmethod
+    def get_passage_mapping_prompt(cls, reference: str) -> str:
+        """Get a prompt that maps the passage's distinct teaching points."""
+        return cls.PASSAGE_MAPPING_TEMPLATE.format(ref=reference)
 
     @classmethod
     def get_summary_prompt(cls, reference: str) -> str:
