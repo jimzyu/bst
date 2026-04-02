@@ -250,6 +250,15 @@ def display_emphasis_interface():
                 st.markdown(f"<small>{opt['desc_en']}</small>", unsafe_allow_html=True)
                 if st.button(f"選擇 {opt['label']}", key=f"emphasis_{key}", use_container_width=True):
                     SessionManager.select_emphasis(key)
+                    # Log question set generation to Google Sheets
+                    selected_result = st.session_state.emphasis_all_results.get(key, '')
+                    if selected_result:
+                        try:
+                            row_num = client.draft_logger.log_emphasis_study(
+                                reference, key, selected_result)
+                            st.session_state.emphasis_sheets_row = row_num
+                        except Exception as log_err:
+                            logger.warning(f"Emphasis logging failed: {log_err}")
                     st.rerun()
 
         st.markdown("---")
@@ -302,7 +311,7 @@ def display_emphasis_interface():
                     if tp_idx is not None and tp_idx < len(teaching_points):
                         tp = teaching_points[tp_idx]
                         with st.spinner("正在重新生成情境案例... Regenerating..."):
-                            prefix = "請以繁體中文回應以下所有內容.\n\n"
+                            prefix = "請以繁體中文回應以下所有內容。\n\n"
                             raw = client.generate_content(
                                 prefix +
                                 PromptTemplates.get_threshold_with_diagnosis_prompt(
@@ -488,6 +497,14 @@ def display_emphasis_interface():
                             emphasis=selected
                         )
                         SessionManager.save_emphasis_quiz_answer(question_type, combined_answer, feedback)
+                        # Log quiz answer to Google Sheets
+                        try:
+                            sheets_row = st.session_state.get('emphasis_sheets_row')
+                            if sheets_row:
+                                client.draft_logger.log_emphasis_quiz_answer(
+                                    sheets_row, question_type, combined_answer, feedback)
+                        except Exception as log_err:
+                            logger.warning(f"Emphasis quiz answer logging failed: {log_err}")
                     st.rerun()
                 else:
                     SessionManager.advance_emphasis_subquestion()

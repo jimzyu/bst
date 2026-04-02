@@ -147,11 +147,9 @@ class SheetsLogger:
             understanding_conf            # AI Understanding Confidence
         ]
         
-        # Get next empty row and append using update instead of append_row
-        next_row = len(self.sheet.get_all_values()) + 1
-        cell_range = f'A{next_row}:T{next_row}'  # Explicitly columns A through T
-        self.sheet.update(cell_range, [row])
-        logger.info(f"Standard study logged to Google Sheets for: {reference} (row {next_row}, columns A-T)")
+        # Insert at row 2 so newest results appear at top; header stays at row 1
+        self.sheet.insert_row(row, index=2)
+        logger.info(f"Standard study logged to Google Sheets for: {reference} (inserted at row 2)")
 
     def log_deep_study(self, reference: str, drafts: List[str], final_result: str):
         """
@@ -179,11 +177,9 @@ class SheetsLogger:
             understanding_conf            # AI Understanding Confidence
         ]
         
-        # Get next empty row and append using update instead of append_row
-        next_row = len(self.sheet.get_all_values()) + 1
-        cell_range = f'A{next_row}:T{next_row}'  # Explicitly columns A through T
-        self.sheet.update(cell_range, [row])
-        logger.info(f"Deep study logged to Google Sheets for: {reference} (row {next_row}, columns A-T)")
+        # Insert at row 2 so newest results appear at top; header stays at row 1
+        self.sheet.insert_row(row, index=2)
+        logger.info(f"Deep study logged to Google Sheets for: {reference} (inserted at row 2)")
         logger.info(f"  - Draft 1: {len(drafts[0])} chars")
         logger.info(f"  - Draft 2: {len(drafts[1])} chars")
         logger.info(f"  - Draft 3: {len(drafts[2])} chars")
@@ -220,12 +216,10 @@ class SheetsLogger:
             understanding_conf            # AI Understanding Confidence
         ]
         
-        # Get next empty row and use update instead of append_row
-        next_row = len(self.sheet.get_all_values()) + 1
-        cell_range = f'A{next_row}:T{next_row}'  # Explicitly columns A through T
-        self.sheet.update(cell_range, [row])
-        logger.info(f"Quiz session initialized in Google Sheets for: {reference} (row {next_row}, columns A-T)")
-        return next_row
+        # Insert at row 2 so newest results appear at top; header stays at row 1
+        self.sheet.insert_row(row, index=2)
+        logger.info(f"Quiz session initialized in Google Sheets for: {reference} (inserted at row 2)")
+        return 2
 
     def log_quiz_answer(self, row_number: int, question_type: str, 
                        user_answer: str, feedback: str):
@@ -392,6 +386,35 @@ class GeminiClient:
         retry=retry_if_exception_type((GeminiAPIError, Exception)),
         reraise=True
     )
+
+    def log_emphasis_study(self, reference: str, emphasis: str, question_set: str):
+        """
+        Log an emphasis study session (question set generated, no quiz answers yet).
+        Mode stored as 'emphasis_explore', 'emphasis_understand', or 'emphasis_apply'.
+        """
+        understanding_conf = self._extract_understanding_confidence(question_set)
+        row = [
+            datetime.now().isoformat(),
+            reference,
+            f"emphasis_{emphasis}",
+            "", "", "",          # drafts not used
+            question_set,        # question set as final result
+            "", "", "", "", "", "",  # quiz answers/feedback empty
+            "", "", "",          # scores empty
+            "", "", "",          # confidence empty
+            understanding_conf
+        ]
+        self.sheet.insert_row(row, index=2)
+        logger.info(f"Emphasis study logged for: {reference} (emphasis: {emphasis}, inserted at row 2)")
+
+    def log_emphasis_quiz_answer(self, row_number: int, question_type: str,
+                                  user_answer: str, feedback: str):
+        """
+        Update an emphasis quiz row with answer, feedback, and score.
+        Reuses the same column mapping as log_quiz_answer.
+        """
+        self.log_quiz_answer(row_number, question_type, user_answer, feedback)
+
     def generate_content(self, prompt: str) -> str:
         """
         Generate content with retry logic.

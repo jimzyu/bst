@@ -110,6 +110,9 @@ class SessionManager:
         if 'emphasis_summary' not in st.session_state:
             st.session_state.emphasis_summary = None  # Raw summary text
 
+        if 'emphasis_sheets_row' not in st.session_state:
+            st.session_state.emphasis_sheets_row = None  # Google Sheets row for this session
+
         if 'emphasis_quiz_active' not in st.session_state:
             st.session_state.emphasis_quiz_active = False
 
@@ -237,6 +240,7 @@ class SessionManager:
         st.session_state.emphasis_all_results = all_results
         st.session_state.emphasis_case_study = None
         st.session_state.emphasis_summary = None
+        st.session_state.emphasis_sheets_row = None
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
         # Reset quiz state
@@ -315,6 +319,7 @@ class SessionManager:
         st.session_state.emphasis_all_results = {}
         st.session_state.emphasis_case_study = None
         st.session_state.emphasis_summary = None
+        st.session_state.emphasis_sheets_row = None
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
         st.session_state.emphasis_quiz_active = False
