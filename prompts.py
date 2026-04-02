@@ -331,13 +331,15 @@ CRITICAL: Respond ONLY in the following structured format. No preamble, no expla
 
 TEACHING_POINT_1
 Verses: [verse range]
-Teaching: [one sentence]
-Diagnosis: [specific human condition diagnosed]
+Teaching: [one sentence in English]
+Teaching_ZH: [same sentence in Traditional Chinese]
+Diagnosis: [specific human condition diagnosed — in English]
 
 TEACHING_POINT_2
 Verses: [verse range]
-Teaching: [one sentence]
-Diagnosis: [specific human condition diagnosed]
+Teaching: [one sentence in English]
+Teaching_ZH: [same sentence in Traditional Chinese]
+Diagnosis: [specific human condition diagnosed — in English]
 
 [Continue only if genuinely distinct teaching points exist — do not force additional points]
 """

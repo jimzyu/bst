@@ -577,11 +577,13 @@ class GeminiClient:
                 continue
             verses_m = re.search(r'Verses:\s*(.+)', block)
             teaching_m = re.search(r'Teaching:\s*(.+)', block)
+            teaching_zh_m = re.search(r'Teaching_ZH:\s*(.+)', block)
             diagnosis_m = re.search(r'Diagnosis:\s*(.+?)(?=\n[A-Z]|$)', block, re.DOTALL)
             if teaching_m:
                 points.append({
                     'verses': verses_m.group(1).strip() if verses_m else '',
                     'teaching': teaching_m.group(1).strip(),
+                    'teaching_zh': teaching_zh_m.group(1).strip() if teaching_zh_m else '',
                     'diagnosis': diagnosis_m.group(1).strip() if diagnosis_m else '',
                 })
 

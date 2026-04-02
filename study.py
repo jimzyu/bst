@@ -297,10 +297,13 @@ def display_emphasis_interface():
             if teaching_points and tp_idx is not None and tp_idx < len(teaching_points):
                 tp = teaching_points[tp_idx]
                 st.caption(f"📌 {tp['verses']} — {tp['teaching']}")
-            ctab1, ctab2 = st.tabs(["繁體中文", "English"])
+            ctab1, ctab2, ctab3 = st.tabs(["繁體中文", "简体中文", "English"])
             with ctab1:
                 st.markdown(ch_case or "")
             with ctab2:
+                sim_case = st.session_state.cc_converter.convert(ch_case or "")
+                st.markdown(sim_case)
+            with ctab3:
                 st.markdown(en_case or "")
             col_a, col_b = st.columns(2)
             with col_a:
@@ -334,9 +337,12 @@ def display_emphasis_interface():
             for i, tp in enumerate(teaching_points):
                 col_tp, col_btn = st.columns([4, 1])
                 with col_tp:
-                    st.markdown(f"**{tp['verses']}** — {tp['teaching']}")
+                    st.markdown(f"**教學重點 {i+1}** ({tp['verses']})")
+                    # Show Chinese label if available, fall back to English
+                    label = tp.get('teaching_zh') or tp.get('teaching', '')
+                    st.markdown(f"<small>{label}</small>", unsafe_allow_html=True)
                 with col_btn:
-                    if st.button("選擇", key=f"tp_{i}", type="primary"):
+                    if st.button(f"選擇\nSelect", key=f"tp_{i}", type="primary"):
                         with st.spinner("正在生成情境案例... Generating scenario..."):
                             prefix = "請以繁體中文回應以下所有內容。\n\n"
                             raw = client.generate_content(
@@ -393,9 +399,12 @@ def display_emphasis_interface():
                     with st.expander(type_labels[qtype]):
                         st.markdown(f"**Your answer:** {st.session_state.emphasis_quiz_answers.get(qtype, '')}")
                         feedback_text = st.session_state.emphasis_quiz_feedbacks[qtype]
-                        ch_fb, _ = QuizParser.parse_evaluation_feedback(feedback_text)
-                        st.markdown("**Feedback:**")
-                        st.markdown(ch_fb)
+                        ch_fb, en_fb = QuizParser.parse_evaluation_feedback(feedback_text)
+                        ftab1, ftab2 = st.tabs(["回饋 Feedback", "English Feedback"])
+                        with ftab1:
+                            st.markdown(ch_fb or "")
+                        with ftab2:
+                            st.markdown(en_fb or "")
             st.markdown("---")
             col1, col2 = st.columns(2)
             with col1:
