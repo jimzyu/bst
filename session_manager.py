@@ -133,6 +133,14 @@ class SessionManager:
 
         if 'emphasis_quiz_subquestion_answers' not in st.session_state:
             st.session_state.emphasis_quiz_subquestion_answers = {}
+
+        if 'emphasis_all_answers' not in st.session_state:
+            # Persistent store: {emphasis: {question_type: answer_text}}
+            st.session_state.emphasis_all_answers = {}
+
+        if 'emphasis_all_feedbacks' not in st.session_state:
+            # Persistent store: {emphasis: {question_type: feedback_text}}
+            st.session_state.emphasis_all_feedbacks = {}
     
     @staticmethod
     def can_make_request(cooldown_seconds: int) -> tuple[bool, float]:
@@ -241,6 +249,8 @@ class SessionManager:
         st.session_state.emphasis_case_study = None
         st.session_state.emphasis_summary = None
         st.session_state.emphasis_sheets_row = None
+        st.session_state.emphasis_all_answers = {}
+        st.session_state.emphasis_all_feedbacks = {}
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
         # Reset quiz state
@@ -257,14 +267,21 @@ class SessionManager:
         result = st.session_state.emphasis_all_results.get(emphasis)
         st.session_state.emphasis_selected = emphasis
         st.session_state.emphasis_result = result
-        # Reset quiz state for new emphasis selection
+        # Reset active quiz state
         st.session_state.emphasis_quiz_active = False
         st.session_state.emphasis_quiz_question = 0
         st.session_state.emphasis_quiz_questions = {}
-        st.session_state.emphasis_quiz_answers = {}
-        st.session_state.emphasis_quiz_feedbacks = {}
         st.session_state.emphasis_quiz_subquestion = 0
         st.session_state.emphasis_quiz_subquestion_answers = {}
+        # Restore previous answers/feedbacks for this emphasis if they exist
+        prev_answers = st.session_state.emphasis_all_answers.get(emphasis, {})
+        prev_feedbacks = st.session_state.emphasis_all_feedbacks.get(emphasis, {})
+        st.session_state.emphasis_quiz_answers = dict(prev_answers)
+        st.session_state.emphasis_quiz_feedbacks = dict(prev_feedbacks)
+        # Resume at first unanswered question
+        types = ["observation", "interpretation", "application"]
+        answered = [t for t in types if t in prev_answers]
+        st.session_state.emphasis_quiz_question = len(answered)
 
     @staticmethod
     def start_emphasis_quiz(questions: dict):
@@ -309,6 +326,14 @@ class SessionManager:
     def save_emphasis_quiz_answer(question_type: str, user_answer: str, feedback: str):
         st.session_state.emphasis_quiz_answers[question_type] = user_answer
         st.session_state.emphasis_quiz_feedbacks[question_type] = feedback
+        # Persist answers for this emphasis so they survive emphasis switches
+        emphasis = st.session_state.emphasis_selected
+        if emphasis:
+            if emphasis not in st.session_state.emphasis_all_answers:
+                st.session_state.emphasis_all_answers[emphasis] = {}
+                st.session_state.emphasis_all_feedbacks[emphasis] = {}
+            st.session_state.emphasis_all_answers[emphasis][question_type] = user_answer
+            st.session_state.emphasis_all_feedbacks[emphasis][question_type] = feedback
 
     @staticmethod
     def end_emphasis():
@@ -320,6 +345,8 @@ class SessionManager:
         st.session_state.emphasis_case_study = None
         st.session_state.emphasis_summary = None
         st.session_state.emphasis_sheets_row = None
+        st.session_state.emphasis_all_answers = {}
+        st.session_state.emphasis_all_feedbacks = {}
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
         st.session_state.emphasis_quiz_active = False

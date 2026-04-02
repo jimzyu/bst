@@ -471,8 +471,13 @@ def display_emphasis_interface():
             else:
                 st.info(subquestions[0])
 
+            # Pre-populate with previous answer if returning to this emphasis
+            prev_subq_answers = SessionManager.get_emphasis_subquestion_answers(question_type)
+            prev_value = prev_subq_answers[current_sub_idx] if current_sub_idx < len(prev_subq_answers) else ""
+
             user_answer = st.text_area(
                 "Your Answer (你的答案):",
+                value=prev_value,
                 height=150,
                 placeholder="Type your answer here... / 在此輸入你的答案...",
                 key=f"emph_answer_{question_type}_{current_sub_idx}"
