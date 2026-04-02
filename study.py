@@ -271,26 +271,75 @@ def display_emphasis_interface():
         st.markdown("")
 
         # ── Case Study section ──
+        from parsers import QuizParser
         case_study = st.session_state.emphasis_case_study
+        teaching_points = st.session_state.emphasis_teaching_points
+        tp_selected = st.session_state.emphasis_tp_selected
+
         if case_study:
-            # Already generated — show it
+            # ── State 3: Scenario already generated — show it ──
             ch_case, en_case = case_study
             st.markdown("### 💡 情境案例 (Discussion Scenario)")
-            with st.expander("📖 查看情境案例 / View Discussion Scenario", expanded=True):
-                if ch_case:
-                    st.markdown("**中文:**")
-                    st.markdown(ch_case)
-                if en_case:
-                    st.markdown("**English:**")
-                    st.markdown(en_case)
+            tp_idx = st.session_state.emphasis_tp_selected
+            if teaching_points and tp_idx is not None and tp_idx < len(teaching_points):
+                tp = teaching_points[tp_idx]
+                st.caption(f"📌 {tp['verses']} — {tp['teaching']}")
+            ctab1, ctab2 = st.tabs(["繁體中文", "English"])
+            with ctab1:
+                st.markdown(ch_case or "")
+            with ctab2:
+                st.markdown(en_case or "")
+            col_a, col_b = st.columns(2)
+            with col_a:
+                if st.button("🔄 換一個教學重點 Change teaching point", type="secondary"):
+                    st.session_state.emphasis_case_study = None
+                    st.session_state.emphasis_tp_selected = None
+                    st.rerun()
+            with col_b:
+                if st.button("↩️ 重新生成 Regenerate", type="secondary"):
+                    st.session_state.emphasis_case_study = None
+                    st.rerun()
+
+        elif teaching_points and tp_selected is None:
+            # ── State 2: Teaching points mapped — show selection ──
+            st.markdown("### 💡 情境案例 (Discussion Scenario)")
+            st.markdown("**選擇今天要聚焦的教學重點：**")
+            st.markdown("*Select the teaching point for today's session:*")
+            st.markdown("")
+            for i, tp in enumerate(teaching_points):
+                col_tp, col_btn = st.columns([4, 1])
+                with col_tp:
+                    st.markdown(f"**{tp['verses']}** — {tp['teaching']}")
+                with col_btn:
+                    if st.button("選擇", key=f"tp_{i}", type="primary"):
+                        with st.spinner("正在生成情境案例... Generating scenario..."):
+                            prefix = "請以繁體中文回應以下所有內容。\n\n"
+                            raw = client.generate_content(
+                                prefix +
+                                PromptTemplates.get_threshold_with_diagnosis_prompt(
+                                    reference, tp['diagnosis'])
+                            )
+                            ch_case, en_case = QuizParser.extract_case_study(raw)
+                            st.session_state.emphasis_case_study = (ch_case, en_case)
+                            st.session_state.emphasis_tp_selected = i
+                        st.rerun()
+            st.markdown("")
+            if st.button("✕ 取消 Cancel", type="secondary"):
+                st.session_state.emphasis_teaching_points = []
+                st.rerun()
+
         else:
-            # Not yet generated — offer button
+            # ── State 1: Not yet mapped — show initial button ──
             if st.button("💡 生成情境案例 Generate Discussion Scenario", type="secondary"):
-                with st.spinner("正在生成情境案例... Generating scenario..."):
-                    raw = client.generate_case_study(reference)
-                    from parsers import QuizParser
-                    ch_case, en_case = QuizParser.extract_case_study(raw)
-                    st.session_state.emphasis_case_study = (ch_case, en_case)
+                with st.spinner("正在分析教學重點... Mapping teaching points..."):
+                    points = client.map_passage_teaching_points(reference)
+                    if points:
+                        st.session_state.emphasis_teaching_points = points
+                    else:
+                        # Fallback: generate directly without mapping
+                        raw = client.generate_case_study(reference)
+                        ch_case, en_case = QuizParser.extract_case_study(raw)
+                        st.session_state.emphasis_case_study = (ch_case, en_case)
                 st.rerun()
 
         st.markdown("---")

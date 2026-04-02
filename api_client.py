@@ -527,6 +527,43 @@ class GeminiClient:
         logger.info("Deep study generation complete")
         return final_result
 
+    def map_passage_teaching_points(self, reference: str) -> list:
+        """
+        Map a passage's distinct teaching points using the passage mapping prompt.
+
+        Args:
+            reference: Bible reference
+
+        Returns:
+            List of dicts with keys: verses, teaching, diagnosis
+        """
+        import re
+        from prompts import PromptTemplates
+
+        logger.info(f"Mapping teaching points for: {reference}")
+        prompt = PromptTemplates.get_passage_mapping_prompt(reference)
+        raw = self.generate_content(prompt)
+
+        # Parse structured TEACHING_POINT_N blocks
+        points = []
+        blocks = re.split(r'TEACHING_POINT_\d+', raw)
+        for block in blocks:
+            block = block.strip()
+            if not block:
+                continue
+            verses_m = re.search(r'Verses:\s*(.+)', block)
+            teaching_m = re.search(r'Teaching:\s*(.+)', block)
+            diagnosis_m = re.search(r'Diagnosis:\s*(.+?)(?=\n[A-Z]|$)', block, re.DOTALL)
+            if teaching_m:
+                points.append({
+                    'verses': verses_m.group(1).strip() if verses_m else '',
+                    'teaching': teaching_m.group(1).strip(),
+                    'diagnosis': diagnosis_m.group(1).strip() if diagnosis_m else '',
+                })
+
+        logger.info(f"Found {len(points)} teaching point(s)")
+        return points
+
     def generate_case_study(self, reference: str) -> str:
         """
         Generate a threshold scenario (case study) for the given passage.
