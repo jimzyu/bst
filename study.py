@@ -297,7 +297,19 @@ def display_emphasis_interface():
                     st.rerun()
             with col_b:
                 if st.button("↩️ 重新生成 Regenerate", type="secondary"):
-                    st.session_state.emphasis_case_study = None
+                    # Keep tp_selected — regenerate same teaching point immediately
+                    tp_idx = st.session_state.emphasis_tp_selected
+                    if tp_idx is not None and tp_idx < len(teaching_points):
+                        tp = teaching_points[tp_idx]
+                        with st.spinner("正在重新生成情境案例... Regenerating..."):
+                            prefix = "請以繁體中文回應以下所有內容.\n\n"
+                            raw = client.generate_content(
+                                prefix +
+                                PromptTemplates.get_threshold_with_diagnosis_prompt(
+                                    reference, tp['diagnosis'])
+                            )
+                            ch_case, en_case = QuizParser.extract_case_study(raw)
+                            st.session_state.emphasis_case_study = (ch_case, en_case)
                     st.rerun()
 
         elif teaching_points and tp_selected is None:
