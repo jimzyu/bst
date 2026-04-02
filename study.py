@@ -252,7 +252,7 @@ def display_emphasis_interface():
                     SessionManager.select_emphasis(key)
                     # Log question set generation to Google Sheets
                     selected_result = st.session_state.emphasis_all_results.get(key, '')
-                    if selected_result:
+                    if selected_result and client.draft_logger:
                         try:
                             row_num = client.draft_logger.log_emphasis_study(
                                 reference, key, selected_result)

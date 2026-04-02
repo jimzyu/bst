@@ -406,6 +406,7 @@ class GeminiClient:
         ]
         self.sheet.insert_row(row, index=2)
         logger.info(f"Emphasis study logged for: {reference} (emphasis: {emphasis}, inserted at row 2)")
+        return 2
 
     def log_emphasis_quiz_answer(self, row_number: int, question_type: str,
                                   user_answer: str, feedback: str):
