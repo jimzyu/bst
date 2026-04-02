@@ -141,6 +141,10 @@ class SessionManager:
         if 'emphasis_all_feedbacks' not in st.session_state:
             # Persistent store: {emphasis: {question_type: feedback_text}}
             st.session_state.emphasis_all_feedbacks = {}
+
+        if 'emphasis_all_subquestion_answers' not in st.session_state:
+            # Persistent store: {emphasis: {question_type: [subq_answer, ...]}}
+            st.session_state.emphasis_all_subquestion_answers = {}
     
     @staticmethod
     def can_make_request(cooldown_seconds: int) -> tuple[bool, float]:
@@ -251,6 +255,7 @@ class SessionManager:
         st.session_state.emphasis_sheets_row = None
         st.session_state.emphasis_all_answers = {}
         st.session_state.emphasis_all_feedbacks = {}
+        st.session_state.emphasis_all_subquestion_answers = {}
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
         # Reset quiz state
@@ -286,12 +291,28 @@ class SessionManager:
     @staticmethod
     def start_emphasis_quiz(questions: dict):
         st.session_state.emphasis_quiz_active = True
-        st.session_state.emphasis_quiz_question = 0
         st.session_state.emphasis_quiz_questions = questions
-        st.session_state.emphasis_quiz_answers = {}
-        st.session_state.emphasis_quiz_feedbacks = {}
         st.session_state.emphasis_quiz_subquestion = 0
         st.session_state.emphasis_quiz_subquestion_answers = {}
+        # Preserve restored answers — do NOT clear if returning to a previously answered emphasis
+        emphasis = st.session_state.emphasis_selected
+        prev_answers = st.session_state.emphasis_all_answers.get(emphasis, {})
+        if prev_answers:
+            # Returning to answered emphasis — restore all answer state and resume position
+            st.session_state.emphasis_quiz_answers = dict(prev_answers)
+            st.session_state.emphasis_quiz_feedbacks = dict(
+                st.session_state.emphasis_all_feedbacks.get(emphasis, {}))
+            st.session_state.emphasis_quiz_subquestion_answers = dict(
+                st.session_state.emphasis_all_subquestion_answers.get(emphasis, {}))
+            types = ["observation", "interpretation", "application"]
+            answered = [t for t in types if t in prev_answers]
+            st.session_state.emphasis_quiz_question = len(answered)
+        else:
+            # Fresh start — clear answers
+            st.session_state.emphasis_quiz_answers = {}
+            st.session_state.emphasis_quiz_feedbacks = {}
+            st.session_state.emphasis_quiz_subquestion_answers = {}
+            st.session_state.emphasis_quiz_question = 0
 
     @staticmethod
     def get_emphasis_question_type() -> str:
@@ -317,6 +338,14 @@ class SessionManager:
         if question_type not in st.session_state.emphasis_quiz_subquestion_answers:
             st.session_state.emphasis_quiz_subquestion_answers[question_type] = []
         st.session_state.emphasis_quiz_subquestion_answers[question_type].append(answer)
+        # Persist subquestion answers for this emphasis
+        emphasis = st.session_state.emphasis_selected
+        if emphasis:
+            if emphasis not in st.session_state.emphasis_all_subquestion_answers:
+                st.session_state.emphasis_all_subquestion_answers[emphasis] = {}
+            if question_type not in st.session_state.emphasis_all_subquestion_answers[emphasis]:
+                st.session_state.emphasis_all_subquestion_answers[emphasis][question_type] = []
+            st.session_state.emphasis_all_subquestion_answers[emphasis][question_type].append(answer)
 
     @staticmethod
     def get_emphasis_subquestion_answers(question_type: str) -> list:
@@ -347,6 +376,7 @@ class SessionManager:
         st.session_state.emphasis_sheets_row = None
         st.session_state.emphasis_all_answers = {}
         st.session_state.emphasis_all_feedbacks = {}
+        st.session_state.emphasis_all_subquestion_answers = {}
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
         st.session_state.emphasis_quiz_active = False
