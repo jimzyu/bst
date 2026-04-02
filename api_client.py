@@ -309,6 +309,35 @@ class SheetsLogger:
         match = re.search(pattern, text)
         return match.group(1) if match else ""
 
+    def log_emphasis_study(self, reference: str, emphasis: str, question_set: str):
+        """
+        Log an emphasis study session when user selects an emphasis.
+        Mode stored as 'emphasis_explore', 'emphasis_understand', or 'emphasis_apply'.
+        """
+        understanding_conf = self._extract_understanding_confidence(question_set)
+        row = [
+            datetime.now().isoformat(),
+            reference,
+            f"emphasis_{emphasis}",
+            "", "", "",           # drafts not used
+            question_set,         # question set as final result
+            "", "", "", "", "", "",  # quiz answers/feedback empty
+            "", "", "",           # scores empty
+            "", "", "",           # evaluation confidence empty
+            understanding_conf
+        ]
+        self.sheet.insert_row(row, index=2)
+        logger.info(f"Emphasis study logged for: {reference} (emphasis: {emphasis}, inserted at row 2)")
+        return 2
+
+    def log_emphasis_quiz_answer(self, row_number: int, question_type: str,
+                                  user_answer: str, feedback: str):
+        """
+        Update an emphasis quiz row with answer, feedback, and score.
+        Reuses the same column mapping as log_quiz_answer.
+        """
+        self.log_quiz_answer(row_number, question_type, user_answer, feedback)
+
 
 class GeminiClient:
     """Client for interacting with Google Gemini API."""
@@ -386,35 +415,6 @@ class GeminiClient:
         retry=retry_if_exception_type((GeminiAPIError, Exception)),
         reraise=True
     )
-
-    def log_emphasis_study(self, reference: str, emphasis: str, question_set: str):
-        """
-        Log an emphasis study session (question set generated, no quiz answers yet).
-        Mode stored as 'emphasis_explore', 'emphasis_understand', or 'emphasis_apply'.
-        """
-        understanding_conf = self._extract_understanding_confidence(question_set)
-        row = [
-            datetime.now().isoformat(),
-            reference,
-            f"emphasis_{emphasis}",
-            "", "", "",          # drafts not used
-            question_set,        # question set as final result
-            "", "", "", "", "", "",  # quiz answers/feedback empty
-            "", "", "",          # scores empty
-            "", "", "",          # confidence empty
-            understanding_conf
-        ]
-        self.sheet.insert_row(row, index=2)
-        logger.info(f"Emphasis study logged for: {reference} (emphasis: {emphasis}, inserted at row 2)")
-        return 2
-
-    def log_emphasis_quiz_answer(self, row_number: int, question_type: str,
-                                  user_answer: str, feedback: str):
-        """
-        Update an emphasis quiz row with answer, feedback, and score.
-        Reuses the same column mapping as log_quiz_answer.
-        """
-        self.log_quiz_answer(row_number, question_type, user_answer, feedback)
 
     def generate_content(self, prompt: str) -> str:
         """
