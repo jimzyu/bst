@@ -477,11 +477,12 @@ def display_emphasis_interface():
                     'INACCURATE': ('🔴', '#f8d7da', '#721c24'),
                 }
                 emoji, bg, fg = flag_colours.get(flag, ('⚪', '#f8f9fa', '#333'))
+                note_label = 'Missing' if flag == 'INCOMPLETE' else 'Correction' if flag == 'INACCURATE' else ''
                 st.markdown(
                     f"<div style='padding:8px 12px;border-radius:4px;"
                     f"background:{bg};color:{fg};margin:8px 0'>"
                     f"{emoji} <strong>Classification:</strong> {flag}"
-                    + (f"<br><strong>Missing:</strong> {missing_note}" if missing_note else "")
+                    + (f"<br><strong>{note_label}:</strong> {missing_note}" if missing_note and note_label else "")
                     + "</div>",
                     unsafe_allow_html=True)
 

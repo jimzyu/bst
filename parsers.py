@@ -157,16 +157,17 @@ class QuizParser:
     @staticmethod
     def parse_evaluation_flags(feedback_text: str) -> tuple:
         """
-        Extract classification flag and missing note from evaluation output.
+        Extract classification flag and diagnostic note from evaluation output.
 
         Returns:
-            Tuple of (flag, missing_note) where:
+            Tuple of (flag, note) where:
               - flag: 'COMPLETE', 'INCOMPLETE', 'INACCURATE', or None if not found
-              - missing_note: English description of what was missed, or '' if not present
+              - note: For INCOMPLETE: what was missed. For INACCURATE: what was wrong.
+                      Empty string if not present.
         """
         import re
         flag = None
-        missing_note = ''
+        note = ''
 
         if '[COMPLETE]' in feedback_text:
             flag = 'COMPLETE'
@@ -179,9 +180,14 @@ class QuizParser:
             match = re.search(r'\[MISSING\]:\s*(.+?)(?=\n\[|\n\n|$)',
                               feedback_text, re.DOTALL)
             if match:
-                missing_note = match.group(1).strip()
+                note = match.group(1).strip()
+        elif flag == 'INACCURATE':
+            match = re.search(r'\[CORRECTION\]:\s*(.+?)(?=\n\[|\n\n|$)',
+                              feedback_text, re.DOTALL)
+            if match:
+                note = match.group(1).strip()
 
-        return flag, missing_note
+        return flag, note
 
     @staticmethod
     def parse_evaluation_feedback(feedback_text: str) -> Tuple[Optional[str], Optional[str]]:
