@@ -124,13 +124,25 @@ TONE:
 - For APPLY: gentle but honest, never let a vague answer pass as sufficient
 - Be concise (3-4 sentences for feedback)
 
+CLASSIFICATION (output this first, before feedback):
+Classify the student's answer as one of:
+- [COMPLETE] — The answer covers the key points the question was looking for. Minor gaps are acceptable.
+- [INCOMPLETE] — The answer shows genuine engagement but misses one or more substantive points that the question was designed to surface.
+- [INACCURATE] — The answer misreads the text, draws on the wrong passage, or contains a significant factual error.
+
+If [INCOMPLETE], add on the next line:
+[MISSING]: [One sentence in English naming the specific key point(s) the student missed — precise enough to generate a targeted follow-up question. Do NOT reveal the answer — name the gap, not the content.]
+
 OUTPUT FORMAT:
-Provide feedback in both Chinese and English with the score and confidence at the END in parentheses:
+Provide the classification block first, then feedback in both Chinese and English:
 
 IMPORTANT FORMATTING RULES:
 - Do NOT use Markdown numbered lists (1. 2. 3.)
 - Use inline numbering like "1) item, 2) item" within the text
 - Keep all feedback as flowing text, not bullet points
+
+[COMPLETE] or [INCOMPLETE] or [INACCURATE]
+[MISSING]: ... (only if INCOMPLETE)
 
 [CHINESE]
 **優點**: [What they did well - write as flowing text, not bullet points]

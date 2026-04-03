@@ -466,6 +466,25 @@ def display_emphasis_interface():
                 if en_fb:
                     st.markdown("---")
                     st.markdown(en_fb)
+
+            # ── Phase 1 testing: show classification flag and missing note ──
+            feedback_text = st.session_state.emphasis_quiz_feedbacks[question_type]
+            flag, missing_note = QuizParser.parse_evaluation_flags(feedback_text)
+            if flag:
+                flag_colours = {
+                    'COMPLETE': ('🟢', '#d4edda', '#155724'),
+                    'INCOMPLETE': ('🟡', '#fff3cd', '#856404'),
+                    'INACCURATE': ('🔴', '#f8d7da', '#721c24'),
+                }
+                emoji, bg, fg = flag_colours.get(flag, ('⚪', '#f8f9fa', '#333'))
+                st.markdown(
+                    f"<div style='padding:8px 12px;border-radius:4px;"
+                    f"background:{bg};color:{fg};margin:8px 0'>"
+                    f"{emoji} <strong>Classification:</strong> {flag}"
+                    + (f"<br><strong>Missing:</strong> {missing_note}" if missing_note else "")
+                    + "</div>",
+                    unsafe_allow_html=True)
+
             if st.button("Continue ➡️", type="primary"):
                 SessionManager.advance_emphasis_question()
                 st.rerun()
