@@ -443,18 +443,23 @@ class GeminiClient:
         logger.info(f"Case study generated ({len(result)} chars)")
         return result
 
-    def generate_all_emphasis_parallel(self, reference: str,
-                                        status_callback=None) -> tuple:
+    def generate_all_emphasis_parallel(
+            self,
+            reference: str,
+            status_callback=None
+        ) -> tuple[dict[str, str], str]:
         """
         Generate all three emphasis question sets and a passage summary in parallel.
+        Runs four API calls concurrently: Explore, Understand, Apply, and Summary.
 
         Args:
-            reference: Bible reference
-            status_callback: Optional callback for UI status updates
+            reference: Bible reference (e.g. '雅各書1:19-27')
+            status_callback: Optional callable for UI status updates during generation
 
         Returns:
-            Tuple of (emphasis_dict, summary_text) where emphasis_dict is
-            {emphasis: generated_text} for explore, understand, apply
+            Tuple of (emphasis_dict, summary_text):
+              - emphasis_dict: {'explore': text, 'understand': text, 'apply': text}
+              - summary_text: Raw summary text containing [CHINESE] and [ENGLISH] sections
         """
         from prompts import PromptTemplates
 
