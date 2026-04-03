@@ -338,9 +338,15 @@ def display_emphasis_interface():
                 col_tp, col_btn = st.columns([4, 1])
                 with col_tp:
                     st.markdown(f"**教學重點 {i+1}** ({tp['verses']})")
-                    # Show Chinese label if available, fall back to English
-                    label = tp.get('teaching_zh') or tp.get('teaching', '')
-                    st.markdown(f"<small>{label}</small>", unsafe_allow_html=True)
+                    zh_label = tp.get('teaching_zh', '')
+                    en_label = tp.get('teaching', '')
+                    if zh_label:
+                        st.markdown(
+                            f"<div style='margin:2px 0'>{zh_label}</div>"
+                            f"<div style='font-size:0.85em;color:#888;font-style:italic'>{en_label}</div>",
+                            unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<small>{en_label}</small>", unsafe_allow_html=True)
                 with col_btn:
                     if st.button(f"選擇\nSelect", key=f"tp_{i}", type="primary"):
                         with st.spinner("正在生成情境案例... Generating scenario..."):
