@@ -157,6 +157,10 @@ class SessionManager:
         if 'emphasis_followup_done' not in st.session_state:
             # {question_type: bool} — whether follow-up has been completed
             st.session_state.emphasis_followup_done = {}
+
+        if 'emphasis_all_followup_done' not in st.session_state:
+            # Persistent: {emphasis: {question_type: bool}}
+            st.session_state.emphasis_all_followup_done = {}
     
     @staticmethod
     def can_make_request(cooldown_seconds: int) -> tuple[bool, float]:
@@ -271,6 +275,7 @@ class SessionManager:
         st.session_state.emphasis_followup_questions = {}
         st.session_state.emphasis_followup_answers = {}
         st.session_state.emphasis_followup_done = {}
+        st.session_state.emphasis_all_followup_done = {}
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
         # Reset quiz state
@@ -319,6 +324,8 @@ class SessionManager:
                 st.session_state.emphasis_all_feedbacks.get(emphasis, {}))
             st.session_state.emphasis_quiz_subquestion_answers = dict(
                 st.session_state.emphasis_all_subquestion_answers.get(emphasis, {}))
+            st.session_state.emphasis_followup_done = dict(
+                st.session_state.emphasis_all_followup_done.get(emphasis, {}))
             types = ["observation", "interpretation", "application"]
             answered = [t for t in types if t in prev_answers]
             st.session_state.emphasis_quiz_question = len(answered)
@@ -331,6 +338,7 @@ class SessionManager:
             st.session_state.emphasis_followup_questions = {}
             st.session_state.emphasis_followup_answers = {}
             st.session_state.emphasis_followup_done = {}
+            st.session_state.emphasis_all_followup_done = {}
 
     @staticmethod
     def get_emphasis_question_type() -> str:
@@ -383,6 +391,17 @@ class SessionManager:
             st.session_state.emphasis_all_feedbacks[emphasis][question_type] = feedback
 
     @staticmethod
+    @staticmethod
+    def save_emphasis_followup_done(question_type: str):
+        """Persist that follow-up was completed for this emphasis and question type."""
+        emphasis = st.session_state.emphasis_selected
+        st.session_state.emphasis_followup_done[question_type] = True
+        if emphasis:
+            if emphasis not in st.session_state.emphasis_all_followup_done:
+                st.session_state.emphasis_all_followup_done[emphasis] = {}
+            st.session_state.emphasis_all_followup_done[emphasis][question_type] = True
+
+    @staticmethod
     def end_emphasis():
         st.session_state.emphasis_active = False
         st.session_state.emphasis_selected = None
@@ -398,6 +417,7 @@ class SessionManager:
         st.session_state.emphasis_followup_questions = {}
         st.session_state.emphasis_followup_answers = {}
         st.session_state.emphasis_followup_done = {}
+        st.session_state.emphasis_all_followup_done = {}
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
         st.session_state.emphasis_quiz_active = False
