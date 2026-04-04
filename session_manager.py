@@ -145,6 +145,18 @@ class SessionManager:
         if 'emphasis_all_subquestion_answers' not in st.session_state:
             # Persistent store: {emphasis: {question_type: [subq_answer, ...]}}
             st.session_state.emphasis_all_subquestion_answers = {}
+
+        if 'emphasis_followup_questions' not in st.session_state:
+            # {question_type: (ch_question, en_question)} — generated follow-up
+            st.session_state.emphasis_followup_questions = {}
+
+        if 'emphasis_followup_answers' not in st.session_state:
+            # {question_type: answer_text} — user's follow-up answer
+            st.session_state.emphasis_followup_answers = {}
+
+        if 'emphasis_followup_done' not in st.session_state:
+            # {question_type: bool} — whether follow-up has been completed
+            st.session_state.emphasis_followup_done = {}
     
     @staticmethod
     def can_make_request(cooldown_seconds: int) -> tuple[bool, float]:
@@ -256,6 +268,9 @@ class SessionManager:
         st.session_state.emphasis_all_answers = {}
         st.session_state.emphasis_all_feedbacks = {}
         st.session_state.emphasis_all_subquestion_answers = {}
+        st.session_state.emphasis_followup_questions = {}
+        st.session_state.emphasis_followup_answers = {}
+        st.session_state.emphasis_followup_done = {}
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
         # Reset quiz state
@@ -313,6 +328,9 @@ class SessionManager:
             st.session_state.emphasis_quiz_feedbacks = {}
             st.session_state.emphasis_quiz_subquestion_answers = {}
             st.session_state.emphasis_quiz_question = 0
+            st.session_state.emphasis_followup_questions = {}
+            st.session_state.emphasis_followup_answers = {}
+            st.session_state.emphasis_followup_done = {}
 
     @staticmethod
     def get_emphasis_question_type() -> str:
@@ -377,6 +395,9 @@ class SessionManager:
         st.session_state.emphasis_all_answers = {}
         st.session_state.emphasis_all_feedbacks = {}
         st.session_state.emphasis_all_subquestion_answers = {}
+        st.session_state.emphasis_followup_questions = {}
+        st.session_state.emphasis_followup_answers = {}
+        st.session_state.emphasis_followup_done = {}
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
         st.session_state.emphasis_quiz_active = False

@@ -78,6 +78,32 @@ Output: [Full study guide in format above]
 CRITICAL: The English section must be a DIRECT TRANSLATION of the Chinese section, not new content.
 """
 
+
+    FOLLOWUP_QUESTION_TEMPLATE = """
+A student answered a Bible study question but missed a key point. Generate one targeted follow-up question to guide them toward what they missed — without revealing the answer.
+
+CONTEXT:
+- Bible Reference: {reference}
+- Question Type: {question_type} (observation / interpretation / application)
+- Emphasis: {emphasis}
+- Original Question: {original_question}
+- Student's Answer: {user_answer}
+- What was missed: {missing_note}
+
+YOUR TASK:
+Write ONE follow-up question in both Traditional Chinese and English that:
+1. Points toward what was missed without stating it
+2. Is answerable from the text — direct the student back to a specific part of the passage
+3. Feels like a natural next step, not a correction
+4. Matches the question type: for observation — ask them to look again at something specific; for interpretation — ask them to explain something they may have skimmed; for application — ask them to be more specific about their own situation
+
+TONE: Curious and inviting, never corrective. Like a good teacher asking "what do you make of verse X?" not "you forgot verse X."
+
+OUTPUT FORMAT (two lines only, no preamble):
+[CHINESE]: [Follow-up question in Traditional Chinese]
+[ENGLISH]: [Follow-up question in English]
+"""
+
     EVALUATION_TEMPLATE = """
 You are an experienced Bible study teacher evaluating a student's answer.
 

@@ -486,9 +486,59 @@ def display_emphasis_interface():
                     + "</div>",
                     unsafe_allow_html=True)
 
-            if st.button("Continue ➡️", type="primary"):
-                SessionManager.advance_emphasis_question()
-                st.rerun()
+            # ── Phase 2: Follow-up question for INCOMPLETE answers ──
+            followup_done = st.session_state.emphasis_followup_done.get(question_type, False)
+            followup_q = st.session_state.emphasis_followup_questions.get(question_type)
+
+            if flag == 'INCOMPLETE' and not followup_done:
+                st.markdown("---")
+                # Generate follow-up question if not yet generated
+                if not followup_q:
+                    with st.spinner("思考一個跟進問題... Generating follow-up question..."):
+                        original_q = st.session_state.emphasis_quiz_questions.get(question_type, '')
+                        user_ans = st.session_state.emphasis_quiz_answers.get(question_type, '')
+                        ch_q, en_q = client.generate_followup_question(
+                            reference=reference,
+                            question_type=question_type,
+                            emphasis=selected,
+                            original_question=original_q,
+                            user_answer=user_ans,
+                            missing_note=missing_note
+                        )
+                        st.session_state.emphasis_followup_questions[question_type] = (ch_q, en_q)
+                        st.rerun()
+                else:
+                    ch_q, en_q = followup_q
+                    st.markdown("### 🔍 跟進問題 Follow-up Question")
+                    st.info(ch_q)
+                    if en_q:
+                        st.caption(en_q)
+                    followup_answer = st.text_area(
+                        "Your response (你的回應):",
+                        height=120,
+                        placeholder="Type your response here... / 在此輸入你的回應...",
+                        key=f"followup_{question_type}"
+                    )
+                    if st.button("提交跟進答案 Submit Follow-up", type="primary",
+                                 disabled=not followup_answer.strip()):
+                        st.session_state.emphasis_followup_answers[question_type] = followup_answer
+                        st.session_state.emphasis_followup_done[question_type] = True
+                        st.rerun()
+            elif flag == 'INCOMPLETE' and followup_done:
+                # Show the follow-up answer with brief acknowledgment
+                fu_ans = st.session_state.emphasis_followup_answers.get(question_type, '')
+                if fu_ans:
+                    st.markdown("---")
+                    st.success("✅ 跟進回應已記錄 Follow-up noted.")
+                    with st.expander("跟進回應 Your follow-up response"):
+                        st.write(fu_ans)
+                if st.button("Continue ➡️", type="primary"):
+                    SessionManager.advance_emphasis_question()
+                    st.rerun()
+            else:
+                if st.button("Continue ➡️", type="primary"):
+                    SessionManager.advance_emphasis_question()
+                    st.rerun()
 
         # Collecting answers
         elif current_sub_idx < total_subquestions:

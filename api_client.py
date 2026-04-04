@@ -478,6 +478,41 @@ class GeminiClient:
 
         return emphasis_results, summary_text
 
+    def generate_followup_question(self, reference: str, question_type: str,
+                                    emphasis: str, original_question: str,
+                                    user_answer: str, missing_note: str) -> tuple:
+        """
+        Generate a targeted follow-up question when the student's answer was incomplete.
+
+        Args:
+            reference: Bible reference
+            question_type: 'observation', 'interpretation', or 'application'
+            emphasis: 'explore', 'understand', or 'apply'
+            original_question: The question the student answered
+            user_answer: The student's original answer
+            missing_note: The [MISSING] note from the evaluation — what was not covered
+
+        Returns:
+            Tuple of (chinese_question, english_question)
+        """
+        from prompts import PromptTemplates
+        prompt = PromptTemplates.FOLLOWUP_QUESTION_TEMPLATE.format(
+            reference=reference,
+            question_type=question_type,
+            emphasis=emphasis,
+            original_question=original_question,
+            user_answer=user_answer,
+            missing_note=missing_note
+        )
+        raw = self.generate_content(prompt)
+        # Parse [CHINESE]: ... and [ENGLISH]: ... lines
+        import re
+        ch_match = re.search(r'\[CHINESE\]:\s*(.+?)(?=\[ENGLISH\]|$)', raw, re.DOTALL)
+        en_match = re.search(r'\[ENGLISH\]:\s*(.+?)$', raw, re.DOTALL)
+        ch_q = ch_match.group(1).strip() if ch_match else raw.strip()
+        en_q = en_match.group(1).strip() if en_match else ''
+        return ch_q, en_q
+
     def evaluate_answer(self, reference: str, question_type: str, question: str,
                        user_answer: str, ai_answer: str, emphasis: str = "standard") -> str:
         """
