@@ -9,7 +9,7 @@ class Config:
     """Application configuration constants."""
 
     # ── API provider: set USE_GLOO = True to route through Gloo AI Studio ──
-    USE_GLOO = True  # Switch to True to use Gloo instead of Gemini directly
+    USE_GLOO = False  # Switch to True to use Gloo instead of Gemini directly
 
     # Model settings
     MODEL_NAME = 'gemini-2.5-flash'           # Google Gemini direct
