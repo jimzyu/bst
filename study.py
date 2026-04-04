@@ -431,10 +431,11 @@ def display_emphasis_interface():
                             st.write(fu_ans)
 
                         st.markdown("---")
-                        # Full evaluation
+                        # Evaluation (combined if follow-up was done)
                         feedback_text = st.session_state.emphasis_quiz_feedbacks[qtype]
                         ch_fb, en_fb = QuizParser.parse_evaluation_feedback(feedback_text)
-                        ftab1, ftab2 = st.tabs(["回饋 Feedback", "English Feedback"])
+                        eval_tab_label = "綜合回饋" if fu_ans else "回饋"
+                        ftab1, ftab2 = st.tabs([eval_tab_label, "English Feedback"])
                         with ftab1:
                             st.markdown(ch_fb or "")
                         with ftab2:
@@ -525,11 +526,30 @@ def display_emphasis_interface():
                     if st.button("提交回應 Submit Response", type="primary",
                                  disabled=not followup_answer.strip()):
                         st.session_state.emphasis_followup_answers[question_type] = followup_answer
-                        SessionManager.save_emphasis_followup_done(question_type)
+                        # Run second evaluation combining original + follow-up answer
+                        with st.spinner("重新評估... Re-evaluating..."):
+                            original_ans = st.session_state.emphasis_quiz_answers.get(question_type, '')
+                            fu_label = "follow-up" if flag == 'INCOMPLETE' else "re-read response"
+                            combined_answer = (
+                                f"Initial answer: {original_ans}\n\n"
+                                f"After {fu_label} question — additional response: {followup_answer}"
+                            )
+                            original_q = st.session_state.emphasis_quiz_questions.get(question_type, '')
+                            new_feedback = client.evaluate_answer(
+                                reference=reference,
+                                question_type=question_type,
+                                question=original_q,
+                                user_answer=combined_answer,
+                                ai_answer=result,
+                                emphasis=selected
+                            )
+                            # Replace the first evaluation with the combined one
+                            st.session_state.emphasis_quiz_feedbacks[question_type] = new_feedback
+                            SessionManager.save_emphasis_followup_done(question_type)
                         st.rerun()
 
             else:
-                # ── Show full evaluation + follow-up answer if present ──
+                # ── Show answers + combined evaluation ──
                 st.success("✅ Answered!")
                 collected = SessionManager.get_emphasis_subquestion_answers(question_type)
                 for i, sq in enumerate(subquestions):
@@ -538,7 +558,7 @@ def display_emphasis_interface():
                         if i < len(collected):
                             st.write(collected[i])
 
-                # Show follow-up Q&A if one was done
+                # Show follow-up Q&A if present
                 fu_q = st.session_state.emphasis_followup_questions.get(question_type)
                 fu_ans = st.session_state.emphasis_followup_answers.get(question_type, '')
                 if fu_q and fu_ans:
@@ -546,12 +566,14 @@ def display_emphasis_interface():
                     fu_label = "跟進問題 Follow-up" if flag == 'INCOMPLETE' else "再看看經文 Look Again"
                     with st.expander(f"{icon} {fu_label}"):
                         ch_q, en_q = fu_q
-                        st.markdown(f"**{fu_label}:** {ch_q}")
+                        st.markdown(f"**問題:** {ch_q}")
                         if en_q:
                             st.caption(en_q)
                         st.markdown(f"**你的回應:** {fu_ans}")
 
-                with st.expander("💬 回饋 Feedback"):
+                # Combined evaluation (replaces first evaluation after follow-up)
+                eval_label = "💬 綜合回饋 Combined Feedback" if fu_ans else "💬 回饋 Feedback"
+                with st.expander(eval_label):
                     ch_fb, en_fb = QuizParser.parse_evaluation_feedback(feedback_text)
                     ftab1, ftab2 = st.tabs(["中文", "English"])
                     with ftab1:
