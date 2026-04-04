@@ -391,7 +391,14 @@ class GeminiClient:
             },
             timeout=120
         )
-        response.raise_for_status()
+        if not response.ok:
+            error_body = ""
+            try:
+                error_body = response.json()
+            except Exception:
+                error_body = response.text
+            logger.error(f"Gloo API error {response.status_code}: {error_body}")
+            raise GeminiAPIError(f"Gloo {response.status_code}: {error_body}")
         return response.json()["choices"][0]["message"]["content"]
 
     # ── Response validation (Gemini path only) ──────────────────────────────
