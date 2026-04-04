@@ -316,7 +316,7 @@ class GeminiClient:
         if self._use_gloo:
             client_id, client_secret = Config.get_gloo_credentials()
             self._gloo_token_mgr = GlooTokenManager(client_id, client_secret)
-            logger.info(f"Initialized Gloo client with model: {Config.MODEL_NAME}")
+            logger.info(f"Initialized Gloo client with model: {Config.GLOO_MODEL_NAME}")
         else:
             genai.configure(api_key=api_key)
             generation_config = genai.types.GenerationConfig(
@@ -481,7 +481,7 @@ class GeminiClient:
                 "Authorization": f"Bearer {token}"
             },
             json={
-                "model": Config.MODEL_NAME,
+                "model": Config.GLOO_MODEL_NAME,
                 "messages": [
                     {"role": "system", "content": self.system_instruction},
                     {"role": "user",   "content": prompt}
@@ -490,7 +490,13 @@ class GeminiClient:
             },
             timeout=120
         )
-        response.raise_for_status()
+        if not response.ok:
+            try:
+                error_body = response.json()
+            except Exception:
+                error_body = response.text
+            logger.error(f"Gloo API error {response.status_code}: {error_body}")
+            raise GeminiAPIError(f"Gloo {response.status_code}: {error_body}")
         data = response.json()
         text = data["choices"][0]["message"]["content"]
         if not text:
