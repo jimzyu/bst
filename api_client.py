@@ -513,6 +513,33 @@ class GeminiClient:
         en_q = en_match.group(1).strip() if en_match else ''
         return ch_q, en_q
 
+    def generate_redirect_question(self, reference: str, question_type: str,
+                                    emphasis: str, original_question: str,
+                                    user_answer: str, correction_note: str) -> tuple:
+        """
+        Generate a gentle redirect question when the student's answer was inaccurate.
+        Guides them back to re-read a specific part of the text without signalling error.
+
+        Returns:
+            Tuple of (chinese_question, english_question)
+        """
+        from prompts import PromptTemplates
+        prompt = PromptTemplates.REDIRECT_QUESTION_TEMPLATE.format(
+            reference=reference,
+            question_type=question_type,
+            emphasis=emphasis,
+            original_question=original_question,
+            user_answer=user_answer,
+            correction_note=correction_note
+        )
+        raw = self.generate_content(prompt)
+        import re
+        ch_match = re.search(r'\[CHINESE\]:\s*(.+?)(?=\[ENGLISH\]|$)', raw, re.DOTALL)
+        en_match = re.search(r'\[ENGLISH\]:\s*(.+?)$', raw, re.DOTALL)
+        ch_q = ch_match.group(1).strip() if ch_match else raw.strip()
+        en_q = en_match.group(1).strip() if en_match else ''
+        return ch_q, en_q
+
     def evaluate_answer(self, reference: str, question_type: str, question: str,
                        user_answer: str, ai_answer: str, emphasis: str = "standard") -> str:
         """

@@ -104,6 +104,32 @@ OUTPUT FORMAT (two lines only, no preamble):
 [ENGLISH]: [Follow-up question in English]
 """
 
+
+    REDIRECT_QUESTION_TEMPLATE = """
+A student gave an inaccurate answer to a Bible study question. Generate one gentle redirect question that guides them back to re-read a specific part of the text — without revealing the correct answer or signalling that they were wrong.
+
+CONTEXT:
+- Bible Reference: {reference}
+- Question Type: {question_type} (observation / interpretation / application)
+- Emphasis: {emphasis}
+- Original Question: {original_question}
+- Student's Answer: {user_answer}
+- What was wrong: {correction_note}
+
+YOUR TASK:
+Write ONE redirect question in both Traditional Chinese and English that:
+1. Directs the student back to a specific verse, phrase, or section of the text
+2. Is phrased as genuine curiosity, not correction — "what do you notice about..." not "look again at..."
+3. Does not signal that their previous answer was wrong
+4. Is short and simple — one clear question only
+
+TONE: Warm and curious. Like a teacher who finds the text genuinely interesting and wants the student to look more closely — not a teacher pointing out an error.
+
+OUTPUT FORMAT (two lines only, no preamble):
+[CHINESE]: [Redirect question in Traditional Chinese]
+[ENGLISH]: [Redirect question in English]
+"""
+
     EVALUATION_TEMPLATE = """
 You are an experienced Bible study teacher evaluating a student's answer.
 

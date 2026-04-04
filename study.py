@@ -412,7 +412,26 @@ def display_emphasis_interface():
             for qtype in ["observation", "interpretation", "application"]:
                 if qtype in st.session_state.emphasis_quiz_feedbacks:
                     with st.expander(type_labels[qtype]):
-                        st.markdown(f"**Your answer:** {st.session_state.emphasis_quiz_answers.get(qtype, '')}")
+                        # Original answer
+                        st.markdown(f"**你的答案 Your answer:**")
+                        st.write(st.session_state.emphasis_quiz_answers.get(qtype, ''))
+
+                        # Follow-up Q&A if present
+                        fu_q = st.session_state.emphasis_followup_questions.get(qtype)
+                        fu_ans = st.session_state.emphasis_followup_answers.get(qtype, '')
+                        if fu_q and fu_ans:
+                            feedback_text_for_flag = st.session_state.emphasis_quiz_feedbacks[qtype]
+                            flag_for_q, _ = QuizParser.parse_evaluation_flags(feedback_text_for_flag)
+                            icon = "🔍" if flag_for_q == 'INCOMPLETE' else "📖"
+                            fu_label = "跟進問題 Follow-up" if flag_for_q == 'INCOMPLETE' else "再看看經文 Look Again"
+                            st.markdown(f"**{icon} {fu_label}:**")
+                            ch_q, en_q = fu_q
+                            st.markdown(f"_{ch_q}_")
+                            st.markdown(f"**你的跟進回應 Your follow-up response:**")
+                            st.write(fu_ans)
+
+                        st.markdown("---")
+                        # Full evaluation
                         feedback_text = st.session_state.emphasis_quiz_feedbacks[qtype]
                         ch_fb, en_fb = QuizParser.parse_evaluation_feedback(feedback_text)
                         ftab1, ftab2 = st.tabs(["回饋 Feedback", "English Feedback"])
@@ -429,6 +448,9 @@ def display_emphasis_interface():
                     st.session_state.emphasis_quiz_active = False
                     st.session_state.emphasis_quiz_question = 0
                     st.session_state.emphasis_quiz_feedbacks = {}
+                    st.session_state.emphasis_followup_questions = {}
+                    st.session_state.emphasis_followup_answers = {}
+                    st.session_state.emphasis_followup_done = {}
                     st.rerun()
             with col2:
                 if st.button("✅ 完成 Done", type="primary"):
@@ -452,64 +474,45 @@ def display_emphasis_interface():
 
         # Already evaluated this question
         if question_type in st.session_state.emphasis_quiz_feedbacks:
-            st.success("✅ Answered!")
-            collected = SessionManager.get_emphasis_subquestion_answers(question_type)
-            for i, sq in enumerate(subquestions):
-                with st.expander(f"Sub-question {i+1}" if total_subquestions > 1 else "Your Answer"):
-                    st.markdown(f"**Q:** {sq}")
-                    if i < len(collected):
-                        st.write(collected[i])
-            with st.expander("💬 Feedback"):
-                feedback_text = st.session_state.emphasis_quiz_feedbacks[question_type]
-                ch_fb, en_fb = QuizParser.parse_evaluation_feedback(feedback_text)
-                st.markdown(ch_fb)
-                if en_fb:
-                    st.markdown("---")
-                    st.markdown(en_fb)
-
-            # ── Phase 1 testing: show classification flag and missing note ──
             feedback_text = st.session_state.emphasis_quiz_feedbacks[question_type]
-            flag, missing_note = QuizParser.parse_evaluation_flags(feedback_text)
-            if flag:
-                flag_colours = {
-                    'COMPLETE': ('🟢', '#d4edda', '#155724'),
-                    'INCOMPLETE': ('🟡', '#fff3cd', '#856404'),
-                    'INACCURATE': ('🔴', '#f8d7da', '#721c24'),
-                }
-                emoji, bg, fg = flag_colours.get(flag, ('⚪', '#f8f9fa', '#333'))
-                note_label = 'Missing' if flag == 'INCOMPLETE' else 'Correction' if flag == 'INACCURATE' else ''
-                st.markdown(
-                    f"<div style='padding:8px 12px;border-radius:4px;"
-                    f"background:{bg};color:{fg};margin:8px 0'>"
-                    f"{emoji} <strong>Classification:</strong> {flag}"
-                    + (f"<br><strong>{note_label}:</strong> {missing_note}" if missing_note and note_label else "")
-                    + "</div>",
-                    unsafe_allow_html=True)
-
-            # ── Phase 2: Follow-up question for INCOMPLETE answers ──
+            flag, note = QuizParser.parse_evaluation_flags(feedback_text)
             followup_done = st.session_state.emphasis_followup_done.get(question_type, False)
             followup_q = st.session_state.emphasis_followup_questions.get(question_type)
+            needs_followup = flag in ('INCOMPLETE', 'INACCURATE') and not followup_done
 
-            if flag == 'INCOMPLETE' and not followup_done:
-                st.markdown("---")
-                # Generate follow-up question if not yet generated
+            if needs_followup:
+                # ── Follow-up / Redirect pending: hide evaluation, show question only ──
                 if not followup_q:
-                    with st.spinner("思考一個跟進問題... Generating follow-up question..."):
+                    # Generate follow-up or redirect question
+                    label = "思考一個跟進問題..." if flag == 'INCOMPLETE' else "回到經文看看..."
+                    with st.spinner(f"{label}"):
                         original_q = st.session_state.emphasis_quiz_questions.get(question_type, '')
                         user_ans = st.session_state.emphasis_quiz_answers.get(question_type, '')
-                        ch_q, en_q = client.generate_followup_question(
-                            reference=reference,
-                            question_type=question_type,
-                            emphasis=selected,
-                            original_question=original_q,
-                            user_answer=user_ans,
-                            missing_note=missing_note
-                        )
+                        if flag == 'INCOMPLETE':
+                            ch_q, en_q = client.generate_followup_question(
+                                reference=reference,
+                                question_type=question_type,
+                                emphasis=selected,
+                                original_question=original_q,
+                                user_answer=user_ans,
+                                missing_note=note
+                            )
+                        else:  # INACCURATE
+                            ch_q, en_q = client.generate_redirect_question(
+                                reference=reference,
+                                question_type=question_type,
+                                emphasis=selected,
+                                original_question=original_q,
+                                user_answer=user_ans,
+                                correction_note=note
+                            )
                         st.session_state.emphasis_followup_questions[question_type] = (ch_q, en_q)
                         st.rerun()
                 else:
+                    icon = "🔍" if flag == 'INCOMPLETE' else "📖"
+                    label = "跟進問題 Follow-up Question" if flag == 'INCOMPLETE' else "再看看經文 Look Again"
+                    st.markdown(f"### {icon} {label}")
                     ch_q, en_q = followup_q
-                    st.markdown("### 🔍 跟進問題 Follow-up Question")
                     st.info(ch_q)
                     if en_q:
                         st.caption(en_q)
@@ -519,23 +522,43 @@ def display_emphasis_interface():
                         placeholder="Type your response here... / 在此輸入你的回應...",
                         key=f"followup_{question_type}"
                     )
-                    if st.button("提交跟進答案 Submit Follow-up", type="primary",
+                    if st.button("提交回應 Submit Response", type="primary",
                                  disabled=not followup_answer.strip()):
                         st.session_state.emphasis_followup_answers[question_type] = followup_answer
-                        st.session_state.emphasis_followup_done[question_type] = True
+                        SessionManager.save_emphasis_followup_done(question_type)
                         st.rerun()
-            elif flag == 'INCOMPLETE' and followup_done:
-                # Show the follow-up answer with brief acknowledgment
-                fu_ans = st.session_state.emphasis_followup_answers.get(question_type, '')
-                if fu_ans:
-                    st.markdown("---")
-                    st.success("✅ 跟進回應已記錄 Follow-up noted.")
-                    with st.expander("跟進回應 Your follow-up response"):
-                        st.write(fu_ans)
-                if st.button("Continue ➡️", type="primary"):
-                    SessionManager.advance_emphasis_question()
-                    st.rerun()
+
             else:
+                # ── Show full evaluation + follow-up answer if present ──
+                st.success("✅ Answered!")
+                collected = SessionManager.get_emphasis_subquestion_answers(question_type)
+                for i, sq in enumerate(subquestions):
+                    with st.expander(f"Sub-question {i+1}" if total_subquestions > 1 else "你的答案 Your Answer"):
+                        st.markdown(f"**Q:** {sq}")
+                        if i < len(collected):
+                            st.write(collected[i])
+
+                # Show follow-up Q&A if one was done
+                fu_q = st.session_state.emphasis_followup_questions.get(question_type)
+                fu_ans = st.session_state.emphasis_followup_answers.get(question_type, '')
+                if fu_q and fu_ans:
+                    icon = "🔍" if flag == 'INCOMPLETE' else "📖"
+                    fu_label = "跟進問題 Follow-up" if flag == 'INCOMPLETE' else "再看看經文 Look Again"
+                    with st.expander(f"{icon} {fu_label}"):
+                        ch_q, en_q = fu_q
+                        st.markdown(f"**{fu_label}:** {ch_q}")
+                        if en_q:
+                            st.caption(en_q)
+                        st.markdown(f"**你的回應:** {fu_ans}")
+
+                with st.expander("💬 回饋 Feedback"):
+                    ch_fb, en_fb = QuizParser.parse_evaluation_feedback(feedback_text)
+                    ftab1, ftab2 = st.tabs(["中文", "English"])
+                    with ftab1:
+                        st.markdown(ch_fb or "")
+                    with ftab2:
+                        st.markdown(en_fb or "")
+
                 if st.button("Continue ➡️", type="primary"):
                     SessionManager.advance_emphasis_question()
                     st.rerun()
@@ -637,6 +660,9 @@ def display_emphasis_interface():
             st.session_state.emphasis_quiz_active = False
             st.session_state.emphasis_quiz_question = 0
             st.session_state.emphasis_quiz_feedbacks = {}
+            st.session_state.emphasis_followup_questions = {}
+            st.session_state.emphasis_followup_answers = {}
+            st.session_state.emphasis_followup_done = {}
             st.rerun()
     with col2:
         if st.button("✍️ 回答問題 Answer Questions", type="primary"):
