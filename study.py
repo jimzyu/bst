@@ -80,14 +80,24 @@ def initialize_app():
     if 'cc_converter' not in st.session_state:
         st.session_state.cc_converter = OpenCC('t2s')
     
-    # Initialize Gemini client
+    # Initialize API client (Gemini or Gloo depending on Config.USE_GLOO)
     if 'gemini_client' not in st.session_state:
-        api_key = Config.get_api_key()
-        st.session_state.gemini_client = GeminiClient(
-            api_key=api_key,
-            system_instruction=PromptTemplates.SYSTEM_INSTRUCTION
-        )
-        logger.info("Application initialized successfully")
+        if Config.USE_GLOO:
+            client_id, client_secret = Config.get_gloo_credentials()
+            st.session_state.gemini_client = GeminiClient(
+                api_key=None,
+                system_instruction=PromptTemplates.SYSTEM_INSTRUCTION,
+                gloo_client_id=client_id,
+                gloo_client_secret=client_secret
+            )
+            logger.info("Application initialised with Gloo AI Studio")
+        else:
+            api_key = Config.get_api_key()
+            st.session_state.gemini_client = GeminiClient(
+                api_key=api_key,
+                system_instruction=PromptTemplates.SYSTEM_INSTRUCTION
+            )
+            logger.info("Application initialised with Google Gemini")
     
     # Initialize Bible API client
     if 'bible_client' not in st.session_state:

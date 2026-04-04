@@ -1,11 +1,13 @@
 """
 API client for Google Gemini with retry logic and parallel execution.
 """
+import base64
 import logging
 import time
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
+from datetime import datetime, timezone
+import requests
 import google.generativeai as genai
 import gspread
 from google.oauth2.service_account import Credentials
@@ -240,35 +242,98 @@ class SheetsLogger:
         self.log_quiz_answer(row_number, question_type, user_answer, feedback)
 
 
+class GlooTokenManager:
+    """
+    Manages OAuth2 client credentials token exchange for Gloo AI Studio.
+    Caches the access token and refreshes it when expired.
+    Token endpoint: https://platform.ai.gloo.com/oauth2/token
+    Tokens expire after 3600 seconds (1 hour).
+    """
+
+    def __init__(self, client_id: str, client_secret: str):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self._token: Optional[str] = None
+        self._token_expiry: float = 0.0
+
+    def get_token(self) -> str:
+        """Return a valid access token, refreshing if expired."""
+        import time
+        # Refresh 60 seconds before expiry to avoid race conditions
+        if self._token and time.time() < self._token_expiry - 60:
+            return self._token
+        self._refresh_token()
+        return self._token
+
+    def _refresh_token(self):
+        """Exchange client credentials for a new access token."""
+        import base64
+        import time
+        import requests as req
+
+        auth = base64.b64encode(
+            f"{self.client_id}:{self.client_secret}".encode()
+        ).decode()
+
+        response = req.post(
+            Config.GLOO_TOKEN_URL,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": f"Basic {auth}"
+            },
+            data={
+                "grant_type": "client_credentials",
+                "scope": "api/access"
+            },
+            timeout=30
+        )
+        response.raise_for_status()
+        data = response.json()
+        self._token = data["access_token"]
+        expires_in = data.get("expires_in", 3600)
+        self._token_expiry = time.time() + expires_in
+        logger.info("Gloo access token refreshed successfully")
+
+
+
 class GeminiClient:
     """Client for interacting with Google Gemini API."""
     
     def __init__(self, api_key: str, system_instruction: str):
         """
-        Initialize Gemini client.
-        
+        Initialize the AI client. Uses Gloo AI Studio if Config.USE_GLOO is True,
+        otherwise uses Google Gemini directly.
+
         Args:
-            api_key: Google API key
+            api_key: Gemini API key (ignored when USE_GLOO is True)
             system_instruction: System instruction for the model
         """
-        genai.configure(api_key=api_key)
-        
-        generation_config = genai.types.GenerationConfig(
-            temperature=Config.TEMPERATURE
-        )
-        
-        self.model = genai.GenerativeModel(
-            model_name=Config.MODEL_NAME,
-            generation_config=generation_config,
-            system_instruction=system_instruction
-        )
-        
+        self.system_instruction = system_instruction
+        self._use_gloo = Config.USE_GLOO
+        self.model = None          # Gemini GenerativeModel (non-Gloo only)
+        self._gloo_token_mgr = None  # GlooTokenManager (Gloo only)
+
+        if self._use_gloo:
+            client_id, client_secret = Config.get_gloo_credentials()
+            self._gloo_token_mgr = GlooTokenManager(client_id, client_secret)
+            logger.info(f"Initialized Gloo client with model: {Config.MODEL_NAME}")
+        else:
+            genai.configure(api_key=api_key)
+            generation_config = genai.types.GenerationConfig(
+                temperature=Config.TEMPERATURE
+            )
+            self.model = genai.GenerativeModel(
+                model_name=Config.MODEL_NAME,
+                generation_config=generation_config,
+                system_instruction=system_instruction
+            )
+            logger.info(f"Initialized Gemini client with model: {Config.MODEL_NAME}")
+
         # Initialize sheets logger if enabled
         self.draft_logger = None
         if Config.ENABLE_DRAFT_LOGGING:
             sheets_id = Config.get_google_sheets_id()
             service_account = Config.get_google_service_account()
-
             if sheets_id and service_account:
                 self.draft_logger = SheetsLogger(service_account, sheets_id)
             else:
@@ -276,10 +341,61 @@ class GeminiClient:
                     "Draft logging enabled but Google Sheets credentials are missing. "
                     "Check GOOGLE_SHEETS_ID and google_service_account in Streamlit secrets."
                 )
-        
-        logger.info(f"Initialized Gemini client with model: {Config.MODEL_NAME}")
         logger.info(f"Draft logging: {'Enabled' if self.draft_logger else 'Disabled'}")
     
+    # ── Gloo token management ──────────────────────────────────────────────────
+
+    def _refresh_gloo_token(self):
+        """Fetch a new Gloo access token using client credentials OAuth2 flow."""
+        auth = base64.b64encode(
+            f"{self._gloo_client_id}:{self._gloo_client_secret}".encode()
+        ).decode()
+        response = requests.post(
+            Config.GLOO_TOKEN_URL,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": f"Basic {auth}"
+            },
+            data={"grant_type": "client_credentials", "scope": "api/access"},
+            timeout=15
+        )
+        response.raise_for_status()
+        data = response.json()
+        self._gloo_token = data["access_token"]
+        # expires_in is in seconds; subtract 60s buffer
+        self._gloo_token_expiry = time.time() + data.get("expires_in", 3600) - 60
+        logger.info("Gloo access token refreshed")
+
+    def _get_gloo_token(self) -> str:
+        """Return a valid Gloo access token, refreshing if expired."""
+        if time.time() >= self._gloo_token_expiry:
+            self._refresh_gloo_token()
+        return self._gloo_token
+
+    def _call_gloo(self, prompt: str) -> str:
+        """Make a single chat completion call via Gloo REST API."""
+        token = self._get_gloo_token()
+        response = requests.post(
+            f"{Config.GLOO_API_BASE}/chat/completions",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {token}"
+            },
+            json={
+                "model": Config.MODEL_NAME,
+                "temperature": Config.TEMPERATURE,
+                "messages": [
+                    {"role": "system", "content": self.system_instruction},
+                    {"role": "user",   "content": prompt}
+                ]
+            },
+            timeout=120
+        )
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+
+    # ── Response validation (Gemini path only) ──────────────────────────────
+
     @staticmethod
     def validate_response(response) -> str:
         """
@@ -320,26 +436,59 @@ class GeminiClient:
     def generate_content(self, prompt: str) -> str:
         """
         Generate content with retry logic.
-        
+        Routes to Gloo AI Studio or Gemini depending on Config.USE_GLOO.
+
         Args:
             prompt: Input prompt
-            
+
         Returns:
             Generated text
-            
+
         Raises:
             GeminiAPIError: If generation fails after retries
         """
         try:
             logger.info(f"Generating content (prompt length: {len(prompt)} chars)")
-            response = self.model.generate_content(prompt)
-            text = self.validate_response(response)
+
+            if self._use_gloo:
+                text = self._generate_via_gloo(prompt)
+            else:
+                response = self.model.generate_content(prompt)
+                text = self.validate_response(response)
+
             logger.info(f"Successfully generated content (response length: {len(text)} chars)")
             return text
-            
+
         except Exception as e:
             logger.error(f"Error generating content: {str(e)}")
             raise GeminiAPIError(f"Content generation failed: {str(e)}") from e
+
+    def _generate_via_gloo(self, prompt: str) -> str:
+        """Call Gloo's OpenAI-compatible completions endpoint."""
+        import requests as req
+        token = self._gloo_token_mgr.get_token()
+        response = req.post(
+            f"{Config.GLOO_API_BASE}/chat/completions",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {token}"
+            },
+            json={
+                "model": Config.MODEL_NAME,
+                "messages": [
+                    {"role": "system", "content": self.system_instruction},
+                    {"role": "user",   "content": prompt}
+                ],
+                "temperature": Config.TEMPERATURE
+            },
+            timeout=120
+        )
+        response.raise_for_status()
+        data = response.json()
+        text = data["choices"][0]["message"]["content"]
+        if not text:
+            raise GeminiAPIError("Gloo returned empty response")
+        return text
     
     def generate_drafts_parallel(self, prompts: List[str], 
                                  status_callback=None) -> List[str]:

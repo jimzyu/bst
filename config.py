@@ -7,11 +7,18 @@ from typing import Optional
 
 class Config:
     """Application configuration constants."""
-    
-    # Model settings
+
+    # ── API provider: set USE_GLOO = True to route through Gloo AI Studio ──
+    USE_GLOO = True  # Switch to True to use Gloo instead of Gemini directly
+
+    # Model settings — model name is the same for both providers
     MODEL_NAME = 'gemini-2.5-flash'
     TEMPERATURE = 0.3
     MAX_RETRIES = 3
+
+    # Gloo endpoints
+    GLOO_TOKEN_URL = 'https://platform.ai.gloo.com/oauth2/token'
+    GLOO_API_BASE  = 'https://platform.ai.gloo.com/ai/v2'
     
     # Rate limiting
     REQUEST_COOLDOWN_SECONDS = 5
@@ -47,11 +54,23 @@ class Config:
     
     @staticmethod
     def get_api_key() -> Optional[str]:
-        """Safely retrieve Gemini API key from Streamlit secrets."""
+        """Retrieve active API key — Gemini key or Gloo credentials depending on USE_GLOO."""
         try:
+            if Config.USE_GLOO:
+                return st.secrets.get("GLOO_CLIENT_ID")
             return st.secrets["GEMINI_API_KEY"]
         except Exception:
             return None
+
+    @staticmethod
+    def get_gloo_credentials() -> tuple:
+        """Retrieve Gloo Client ID and Client Secret from Streamlit secrets."""
+        try:
+            client_id = st.secrets["GLOO_CLIENT_ID"]
+            client_secret = st.secrets["GLOO_CLIENT_SECRET"]
+            return client_id, client_secret
+        except Exception:
+            return None, None
 
     @staticmethod
     def get_google_sheets_id() -> Optional[str]:
@@ -95,9 +114,15 @@ class Config:
 
     @staticmethod
     def validate_api_key() -> bool:
-        """Validate that API key exists and stop execution if not."""
-        api_key = Config.get_api_key()
-        if not api_key:
-            st.error("⚠️ API Key not found. Please set 'GEMINI_API_KEY' in your Streamlit Secrets.")
-            st.stop()
+        """Validate that API credentials exist and stop execution if not."""
+        if Config.USE_GLOO:
+            client_id, client_secret = Config.get_gloo_credentials()
+            if not client_id or not client_secret:
+                st.error("⚠️ Gloo credentials not found. Please set 'GLOO_CLIENT_ID' and 'GLOO_CLIENT_SECRET' in your Streamlit Secrets.")
+                st.stop()
+        else:
+            api_key = Config.get_api_key()
+            if not api_key:
+                st.error("⚠️ API Key not found. Please set 'GEMINI_API_KEY' in your Streamlit Secrets.")
+                st.stop()
         return True
