@@ -382,7 +382,7 @@ class GeminiClient:
                 "Authorization": f"Bearer {token}"
             },
             json={
-                "model": Config.MODEL_NAME,
+                "model": Config.GLOO_MODEL_NAME,
                 "temperature": Config.TEMPERATURE,
                 "messages": [
                     {"role": "system", "content": self.system_instruction},

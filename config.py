@@ -11,8 +11,9 @@ class Config:
     # ── API provider: set USE_GLOO = True to route through Gloo AI Studio ──
     USE_GLOO = True  # Switch to True to use Gloo instead of Gemini directly
 
-    # Model settings — model name is the same for both providers
-    MODEL_NAME = 'gemini-2.5-flash'
+    # Model settings
+    MODEL_NAME = 'gemini-2.5-flash'           # Google Gemini direct
+    GLOO_MODEL_NAME = 'gloo-google-gemini-2.5-flash'  # Gloo AI Studio
     TEMPERATURE = 0.3
     MAX_RETRIES = 3
 
