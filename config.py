@@ -10,7 +10,7 @@ class Config:
 
     # ── API provider — set exactly one to True ──────────────────────────────
     USE_GLOO = False        # Route through Gloo AI Studio (OAuth2)
-    USE_ANTHROPIC = True    # Use Anthropic Claude directly
+    USE_ANTHROPIC = False    # Use Anthropic Claude directly
 
     # Model settings
     MODEL_NAME = 'gemini-2.5-flash'                    # Google Gemini direct
