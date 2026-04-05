@@ -8,12 +8,14 @@ from typing import Optional
 class Config:
     """Application configuration constants."""
 
-    # ── API provider: set USE_GLOO = True to route through Gloo AI Studio ──
-    USE_GLOO = False  # Switch to True to use Gloo instead of Gemini directly
+    # ── API provider — set exactly one to True ──────────────────────────────
+    USE_GLOO = False        # Route through Gloo AI Studio (OAuth2)
+    USE_ANTHROPIC = True    # Use Anthropic Claude directly
 
     # Model settings
-    MODEL_NAME = 'gemini-2.5-flash'           # Google Gemini direct
-    GLOO_MODEL_NAME = 'gloo-google-gemini-2.5-flash'  # Gloo AI Studio
+    MODEL_NAME = 'gemini-2.5-flash'                    # Google Gemini direct
+    GLOO_MODEL_NAME = 'gloo-google-gemini-2.5-flash'   # Gloo AI Studio
+    ANTHROPIC_MODEL_NAME = 'claude-sonnet-4-5'         # Anthropic Claude
     TEMPERATURE = 0.3
     MAX_RETRIES = 3
 
@@ -60,6 +62,14 @@ class Config:
             if Config.USE_GLOO:
                 return st.secrets.get("GLOO_CLIENT_ID")
             return st.secrets["GEMINI_API_KEY"]
+        except Exception:
+            return None
+
+    @staticmethod
+    def get_anthropic_api_key() -> Optional[str]:
+        """Retrieve Anthropic API key from Streamlit secrets."""
+        try:
+            return st.secrets["ANTHROPIC_API_KEY"]
         except Exception:
             return None
 
@@ -116,7 +126,12 @@ class Config:
     @staticmethod
     def validate_api_key() -> bool:
         """Validate that API credentials exist and stop execution if not."""
-        if Config.USE_GLOO:
+        if Config.USE_ANTHROPIC:
+            key = Config.get_anthropic_api_key()
+            if not key:
+                st.error("⚠️ Anthropic API key not found. Please set 'ANTHROPIC_API_KEY' in your Streamlit Secrets.")
+                st.stop()
+        elif Config.USE_GLOO:
             client_id, client_secret = Config.get_gloo_credentials()
             if not client_id or not client_secret:
                 st.error("⚠️ Gloo credentials not found. Please set 'GLOO_CLIENT_ID' and 'GLOO_CLIENT_SECRET' in your Streamlit Secrets.")

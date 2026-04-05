@@ -9,6 +9,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 import requests
 import google.generativeai as genai
+try:
+    import anthropic as anthropic_sdk
+except ImportError:
+    anthropic_sdk = None
 import gspread
 from google.oauth2.service_account import Credentials
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -313,7 +317,15 @@ class GeminiClient:
         self.model = None          # Gemini GenerativeModel (non-Gloo only)
         self._gloo_token_mgr = None  # GlooTokenManager (Gloo only)
 
-        if self._use_gloo:
+        self._use_anthropic = Config.USE_ANTHROPIC
+
+        if self._use_anthropic:
+            if anthropic_sdk is None:
+                raise ImportError("anthropic package not installed. Run: pip install anthropic")
+            anthropic_key = Config.get_anthropic_api_key()
+            self._anthropic_client = anthropic_sdk.Anthropic(api_key=anthropic_key)
+            logger.info(f"Initialized Anthropic client with model: {Config.ANTHROPIC_MODEL_NAME}")
+        elif self._use_gloo:
             client_id, client_secret = Config.get_gloo_credentials()
             self._gloo_token_mgr = GlooTokenManager(client_id, client_secret)
             logger.info(f"Initialized Gloo client with model: {Config.GLOO_MODEL_NAME}")
@@ -389,7 +401,7 @@ class GeminiClient:
                     {"role": "user",   "content": prompt}
                 ]
             },
-            timeout=120
+            timeout=180
         )
         if not response.ok:
             error_body = ""
@@ -457,7 +469,9 @@ class GeminiClient:
         try:
             logger.info(f"Generating content (prompt length: {len(prompt)} chars)")
 
-            if self._use_gloo:
+            if self._use_anthropic:
+                text = self._generate_via_anthropic(prompt)
+            elif self._use_gloo:
                 text = self._generate_via_gloo(prompt)
             else:
                 response = self.model.generate_content(prompt)
@@ -469,6 +483,20 @@ class GeminiClient:
         except Exception as e:
             logger.error(f"Error generating content: {str(e)}")
             raise GeminiAPIError(f"Content generation failed: {str(e)}") from e
+
+    def _generate_via_anthropic(self, prompt: str) -> str:
+        """Call Anthropic Claude API."""
+        message = self._anthropic_client.messages.create(
+            model=Config.ANTHROPIC_MODEL_NAME,
+            max_tokens=4096,
+            temperature=Config.TEMPERATURE,
+            system=self.system_instruction,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = message.content[0].text
+        if not text:
+            raise GeminiAPIError("Anthropic returned empty response")
+        return text
 
     def _generate_via_gloo(self, prompt: str) -> str:
         """Call Gloo's OpenAI-compatible completions endpoint."""
@@ -488,7 +516,7 @@ class GeminiClient:
                 ],
                 "temperature": Config.TEMPERATURE
             },
-            timeout=120
+            timeout=180
         )
         if not response.ok:
             try:
