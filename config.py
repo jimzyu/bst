@@ -8,14 +8,37 @@ from typing import Optional
 class Config:
     """Application configuration constants."""
 
-    # ── API provider — set exactly one to True ──────────────────────────────
-    USE_GLOO = False        # Route through Gloo AI Studio (OAuth2)
-    USE_ANTHROPIC = False    # Use Anthropic Claude directly
+    # ── API mode — choose ONE ────────────────────────────────────────────────
+    #
+    # OPTION 1: Gemini direct (development/testing — fast and cheap)
+    #   USE_GLOO = False, USE_ANTHROPIC = False
+    #
+    # OPTION 2: Anthropic direct mixed (quality output, no proxy overhead)
+    #   USE_GLOO = False, USE_ANTHROPIC = True
+    #   Fast tasks → Haiku 4.5 | Quality tasks → Sonnet 4.6
+    #
+    # OPTION 3: Gloo mixed (cross-provider, one credential, proxy overhead)
+    #   USE_GLOO = True, USE_ANTHROPIC = False
+    #   Fast tasks → gloo-google-gemini-2.5-flash | Quality → gloo-anthropic-claude-sonnet-4.6
+    #
+    USE_GLOO = False
+    USE_ANTHROPIC = False
 
-    # Model settings
-    MODEL_NAME = 'gemini-2.5-flash'                    # Google Gemini direct
-    GLOO_MODEL_NAME = 'gloo-google-gemini-2.5-flash'   # Gloo AI Studio
-    ANTHROPIC_MODEL_NAME = 'claude-sonnet-4-5'         # Anthropic Claude
+    # ── Model names ───────────────────────────────────────────────────────────
+
+    # Option 1 — Gemini direct
+    MODEL_NAME = 'gemini-2.5-flash'
+
+    # Option 2 — Anthropic direct (mixed)
+    ANTHROPIC_MODEL_QUALITY = 'claude-sonnet-4-6'   # scenario, eval, follow-up
+    ANTHROPIC_MODEL_FAST    = 'claude-haiku-4-5'    # summary, mapping, questions
+
+    # Option 3 — Gloo mixed (cross-provider)
+    GLOO_MODEL_QUALITY = 'gloo-anthropic-claude-sonnet-4.6'  # quality tasks
+    GLOO_MODEL_FAST    = 'gloo-google-gemini-2.5-flash'      # fast tasks
+
+    # Legacy single-model Gloo name (kept for reference)
+    GLOO_MODEL_NAME = GLOO_MODEL_FAST
     TEMPERATURE = 0.3
     MAX_RETRIES = 3
 

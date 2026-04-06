@@ -323,7 +323,10 @@ class GeminiClient:
             if anthropic_sdk is None:
                 raise ImportError("anthropic package not installed. Run: pip install anthropic")
             anthropic_key = Config.get_anthropic_api_key()
-            self._anthropic_client = anthropic_sdk.Anthropic(api_key=anthropic_key)
+            self._anthropic_client = anthropic_sdk.Anthropic(
+                api_key=anthropic_key,
+                timeout=180.0
+            )
             logger.info(f"Initialized Anthropic client with model: {Config.ANTHROPIC_MODEL_NAME}")
         elif self._use_gloo:
             client_id, client_secret = Config.get_gloo_credentials()
@@ -452,6 +455,30 @@ class GeminiClient:
         reraise=True
     )
 
+    def generate_content_quality(self, prompt: str) -> str:
+        """
+        Generate content using the quality model for the active provider.
+        Use for: scenario generation, evaluation, follow-up/redirect questions.
+        Falls back to standard generate_content for Option 1 (Gemini direct).
+        """
+        try:
+            logger.info(f"Generating quality content (prompt length: {len(prompt)} chars)")
+            if self._use_anthropic:
+                text = self._generate_via_anthropic(prompt,
+                                                     model=Config.ANTHROPIC_MODEL_QUALITY)
+            elif self._use_gloo:
+                text = self._generate_via_gloo(prompt,
+                                               model=Config.GLOO_MODEL_QUALITY)
+            else:
+                # Option 1: Gemini direct — no quality/fast distinction
+                response = self.model.generate_content(prompt)
+                text = self.validate_response(response)
+            logger.info(f"Quality content generated ({len(text)} chars)")
+            return text
+        except Exception as e:
+            logger.error(f"Error generating quality content: {str(e)}")
+            raise GeminiAPIError(f"Quality content generation failed: {str(e)}") from e
+
     def generate_content(self, prompt: str) -> str:
         """
         Generate content with retry logic.
@@ -484,10 +511,16 @@ class GeminiClient:
             logger.error(f"Error generating content: {str(e)}")
             raise GeminiAPIError(f"Content generation failed: {str(e)}") from e
 
-    def _generate_via_anthropic(self, prompt: str) -> str:
-        """Call Anthropic Claude API."""
+    def _generate_via_anthropic(self, prompt: str,
+                                model: str = None) -> str:
+        """Call Anthropic Claude API.
+        Args:
+            prompt: Input prompt
+            model: Model override; defaults to ANTHROPIC_MODEL_FAST
+        """
+        model = model or Config.ANTHROPIC_MODEL_FAST
         message = self._anthropic_client.messages.create(
-            model=Config.ANTHROPIC_MODEL_NAME,
+            model=model,
             max_tokens=4096,
             temperature=Config.TEMPERATURE,
             system=self.system_instruction,
@@ -498,9 +531,15 @@ class GeminiClient:
             raise GeminiAPIError("Anthropic returned empty response")
         return text
 
-    def _generate_via_gloo(self, prompt: str) -> str:
-        """Call Gloo's OpenAI-compatible completions endpoint."""
+    def _generate_via_gloo(self, prompt: str,
+                            model: str = None) -> str:
+        """Call Gloo's OpenAI-compatible completions endpoint.
+        Args:
+            prompt: Input prompt
+            model: Model override; defaults to GLOO_MODEL_FAST
+        """
         import requests as req
+        model = model or Config.GLOO_MODEL_FAST
         token = self._gloo_token_mgr.get_token()
         response = req.post(
             f"{Config.GLOO_API_BASE}/chat/completions",
@@ -509,7 +548,7 @@ class GeminiClient:
                 "Authorization": f"Bearer {token}"
             },
             json={
-                "model": Config.GLOO_MODEL_NAME,
+                "model": model,
                 "messages": [
                     {"role": "system", "content": self.system_instruction},
                     {"role": "user",   "content": prompt}
@@ -618,18 +657,12 @@ class GeminiClient:
     def generate_case_study(self, reference: str) -> str:
         """
         Generate a threshold scenario (case study) for the given passage.
-
-        Args:
-            reference: Bible reference
-
-        Returns:
-            Generated text containing [THRESHOLD_SCENARIO_CHINESE] and
-            [THRESHOLD_SCENARIO_ENGLISH] sections
+        Uses quality model — scenario generation benefits most from it.
         """
         from prompts import PromptTemplates
         logger.info(f"Generating case study for: {reference}")
         prompt = PromptTemplates.get_threshold_prompt(reference)
-        result = self.generate_content(prompt)
+        result = self.generate_content_quality(prompt)
         logger.info(f"Case study generated ({len(result)} chars)")
         return result
 
@@ -694,7 +727,7 @@ class GeminiClient:
             user_answer=user_answer,
             missing_note=missing_note
         )
-        raw = self.generate_content(prompt)
+        raw = self.generate_content_quality(prompt)
         # Parse [CHINESE]: ... and [ENGLISH]: ... lines
         import re
         ch_match = re.search(r'\[CHINESE\]:\s*(.+?)(?=\[ENGLISH\]|$)', raw, re.DOTALL)
@@ -759,7 +792,7 @@ class GeminiClient:
             emphasis=emphasis
         )
         
-        feedback = self.generate_content(evaluation_prompt)
+        feedback = self.generate_content_quality(evaluation_prompt)
         logger.info(f"Evaluation complete ({len(feedback)} chars)")
         
         return feedback
