@@ -34,8 +34,8 @@ class Config:
     ANTHROPIC_MODEL_FAST    = 'claude-haiku-4-5'    # summary, mapping, questions
 
     # Option 3 — Gloo mixed (cross-provider)
-    GLOO_MODEL_QUALITY = 'gloo-google-gemini-2.5-pro'      # quality tasks
-    GLOO_MODEL_FAST    = 'gloo-google-gemini-2.5-flash'    # fast tasks
+    GLOO_MODEL_QUALITY = 'gloo-anthropic-claude-sonnet-4.6'      # quality tasks
+    GLOO_MODEL_FAST    = 'gloo-google-gemini-2.5-flash'          # fast tasks
 
     # Legacy single-model Gloo name (kept for reference)
     GLOO_MODEL_NAME = GLOO_MODEL_FAST
