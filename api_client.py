@@ -426,13 +426,6 @@ class GeminiClient:
         
         return response.text
     
-    @retry(
-        stop=stop_after_attempt(Config.MAX_RETRIES),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type((GeminiAPIError, Exception)),
-        reraise=True
-    )
-
     def generate_content_quality(self, prompt: str) -> str:
         """
         Generate content using the quality model for the active provider.
@@ -455,6 +448,13 @@ class GeminiClient:
         except Exception as e:
             logger.error(f"Error generating quality content: {str(e)}")
             raise GeminiAPIError(f"Quality content generation failed: {str(e)}") from e
+
+    @retry(
+        stop=stop_after_attempt(Config.MAX_RETRIES),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        retry=retry_if_exception_type((GeminiAPIError, Exception)),
+        reraise=True
+    )
 
     def generate_content(self, prompt: str) -> str:
         """
