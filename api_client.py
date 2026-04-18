@@ -9,10 +9,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 import requests
 import google.generativeai as genai
-try:
-    import anthropic as anthropic_sdk
-except ImportError:
-    anthropic_sdk = None
 import gspread
 from google.oauth2.service_account import Credentials
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -317,21 +313,10 @@ class GeminiClient:
         self.model = None          # Gemini GenerativeModel (non-Gloo only)
         self._gloo_token_mgr = None  # GlooTokenManager (Gloo only)
 
-        self._use_anthropic = Config.USE_ANTHROPIC
-
-        if self._use_anthropic:
-            if anthropic_sdk is None:
-                raise ImportError("anthropic package not installed. Run: pip install anthropic")
-            anthropic_key = Config.get_anthropic_api_key()
-            self._anthropic_client = anthropic_sdk.Anthropic(
-                api_key=anthropic_key,
-                timeout=180.0
-            )
-            logger.info(f"Initialized Anthropic client with model: {Config.ANTHROPIC_MODEL_NAME}")
-        elif self._use_gloo:
+        if self._use_gloo:
             client_id, client_secret = Config.get_gloo_credentials()
             self._gloo_token_mgr = GlooTokenManager(client_id, client_secret)
-            logger.info(f"Initialized Gloo client with model: {Config.GLOO_MODEL_NAME}")
+            logger.info(f"Initialized Gloo client with model: {Config.MODEL_NAME}")
         else:
             genai.configure(api_key=api_key)
             generation_config = genai.types.GenerationConfig(
@@ -397,23 +382,16 @@ class GeminiClient:
                 "Authorization": f"Bearer {token}"
             },
             json={
-                "model": Config.GLOO_MODEL_NAME,
+                "model": Config.MODEL_NAME,
                 "temperature": Config.TEMPERATURE,
                 "messages": [
                     {"role": "system", "content": self.system_instruction},
                     {"role": "user",   "content": prompt}
                 ]
             },
-            timeout=180
+            timeout=120
         )
-        if not response.ok:
-            error_body = ""
-            try:
-                error_body = response.json()
-            except Exception:
-                error_body = response.text
-            logger.error(f"Gloo API error {response.status_code}: {error_body}")
-            raise GeminiAPIError(f"Gloo {response.status_code}: {error_body}")
+        response.raise_for_status()
         return response.json()["choices"][0]["message"]["content"]
 
     # ── Response validation (Gemini path only) ──────────────────────────────
@@ -470,7 +448,6 @@ class GeminiClient:
                 text = self._generate_via_gloo(prompt,
                                                model=Config.GLOO_MODEL_QUALITY)
             else:
-                # Option 1: Gemini direct — no quality/fast distinction
                 response = self.model.generate_content(prompt)
                 text = self.validate_response(response)
             logger.info(f"Quality content generated ({len(text)} chars)")
@@ -496,9 +473,7 @@ class GeminiClient:
         try:
             logger.info(f"Generating content (prompt length: {len(prompt)} chars)")
 
-            if self._use_anthropic:
-                text = self._generate_via_anthropic(prompt)
-            elif self._use_gloo:
+            if self._use_gloo:
                 text = self._generate_via_gloo(prompt)
             else:
                 response = self.model.generate_content(prompt)
@@ -511,28 +486,7 @@ class GeminiClient:
             logger.error(f"Error generating content: {str(e)}")
             raise GeminiAPIError(f"Content generation failed: {str(e)}") from e
 
-    def _generate_via_anthropic(self, prompt: str,
-                                model: str = None) -> str:
-        """Call Anthropic Claude API.
-        Args:
-            prompt: Input prompt
-            model: Model override; defaults to ANTHROPIC_MODEL_FAST
-        """
-        model = model or Config.ANTHROPIC_MODEL_FAST
-        message = self._anthropic_client.messages.create(
-            model=model,
-            max_tokens=4096,
-            temperature=Config.TEMPERATURE,
-            system=self.system_instruction,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        text = message.content[0].text
-        if not text:
-            raise GeminiAPIError("Anthropic returned empty response")
-        return text
-
-    def _generate_via_gloo(self, prompt: str,
-                            model: str = None) -> str:
+    def _generate_via_gloo(self, prompt: str, model: str = None) -> str:
         """Call Gloo's OpenAI-compatible completions endpoint.
         Args:
             prompt: Input prompt
@@ -657,7 +611,13 @@ class GeminiClient:
     def generate_case_study(self, reference: str) -> str:
         """
         Generate a threshold scenario (case study) for the given passage.
-        Uses quality model — scenario generation benefits most from it.
+
+        Args:
+            reference: Bible reference
+
+        Returns:
+            Generated text containing [THRESHOLD_SCENARIO_CHINESE] and
+            [THRESHOLD_SCENARIO_ENGLISH] sections
         """
         from prompts import PromptTemplates
         logger.info(f"Generating case study for: {reference}")
