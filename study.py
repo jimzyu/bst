@@ -80,14 +80,17 @@ def initialize_app():
     if 'cc_converter' not in st.session_state:
         st.session_state.cc_converter = OpenCC('t2s')
     
-    # Initialize API client (Gemini or Gloo depending on Config.USE_GLOO)
-    if 'gemini_client' not in st.session_state:
+    # Initialize API client — reinitialise if provider has changed
+    provider_key = f"gloo={Config.USE_GLOO}_anthropic={Config.USE_ANTHROPIC}"
+    if ('gemini_client' not in st.session_state or
+            st.session_state.get('api_provider_key') != provider_key):
         api_key = Config.get_api_key()
         st.session_state.gemini_client = GeminiClient(
             api_key=api_key,
             system_instruction=PromptTemplates.SYSTEM_INSTRUCTION
         )
-        provider = "Gloo AI Studio" if Config.USE_GLOO else "Google Gemini"
+        st.session_state.api_provider_key = provider_key
+        provider = "Gloo" if Config.USE_GLOO else "Anthropic" if Config.USE_ANTHROPIC else "Gemini"
         logger.info(f"Application initialised with {provider}")
     
     # Initialize Bible API client
@@ -320,7 +323,7 @@ def display_emphasis_interface():
                         tp = teaching_points[tp_idx]
                         with st.spinner("正在重新生成情境案例... Regenerating..."):
                             prefix = "請以繁體中文回應以下所有內容。\n\n"
-                            raw = client.generate_content_quality(
+                            raw = client.generate_content(
                                 prefix +
                                 PromptTemplates.get_threshold_with_diagnosis_prompt(
                                     reference, tp['diagnosis'])
@@ -361,7 +364,7 @@ def display_emphasis_interface():
                     if st.button(f"選擇\nSelect", key=f"tp_{i}", type="primary"):
                         with st.spinner("正在生成情境案例... Generating scenario..."):
                             prefix = "請以繁體中文回應以下所有內容。\n\n"
-                            raw = client.generate_content_quality(
+                            raw = client.generate_content(
                                 prefix +
                                 PromptTemplates.get_threshold_with_diagnosis_prompt(
                                     reference, tp['diagnosis'])
