@@ -310,6 +310,7 @@ class GeminiClient:
         """
         self.system_instruction = system_instruction
         self._use_gloo = Config.USE_GLOO
+        self._use_anthropic = Config.USE_ANTHROPIC
         self.model = None          # Gemini GenerativeModel (non-Gloo only)
         self._gloo_token_mgr = None  # GlooTokenManager (Gloo only)
 
