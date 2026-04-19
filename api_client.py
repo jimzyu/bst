@@ -18,6 +18,12 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 
 from config import Config
 
+# Anthropic SDK — optional, only needed for Option 2 (Anthropic direct)
+try:
+    import anthropic as anthropic_sdk
+except ImportError:
+    anthropic_sdk = None
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
