@@ -8,7 +8,10 @@ from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 import requests
-import google.generativeai as genai
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", FutureWarning)
+    import google.generativeai as genai
 import gspread
 from google.oauth2.service_account import Credentials
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -317,7 +320,7 @@ class GeminiClient:
         if self._use_gloo:
             client_id, client_secret = Config.get_gloo_credentials()
             self._gloo_token_mgr = GlooTokenManager(client_id, client_secret)
-            logger.info(f"Initialized Gloo client with model: {Config.MODEL_NAME}")
+            logger.info(f"Initialized Gloo client — quality: {Config.GLOO_MODEL_QUALITY} | fast: {Config.GLOO_MODEL_FAST}")
         else:
             genai.configure(api_key=api_key)
             generation_config = genai.types.GenerationConfig(
