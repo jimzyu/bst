@@ -342,11 +342,11 @@ class GeminiClient:
                 temperature=Config.TEMPERATURE
             )
             self.model = genai.GenerativeModel(
-                model_name=Config.MODEL_NAME,
+                model_name=Config.GEMINI_MODEL_FAST,
                 generation_config=generation_config,
                 system_instruction=system_instruction
             )
-            logger.info(f"Initialized Gemini client with model: {Config.MODEL_NAME}")
+            logger.info(f"Initialized Gemini client — quality: {Config.GEMINI_MODEL_QUALITY} | fast: {Config.GEMINI_MODEL_FAST}")
 
         # Initialize sheets logger if enabled
         self.draft_logger = None
@@ -401,7 +401,7 @@ class GeminiClient:
                 "Authorization": f"Bearer {token}"
             },
             json={
-                "model": Config.MODEL_NAME,
+                "model": Config.GEMINI_MODEL_FAST,
                 "temperature": Config.TEMPERATURE,
                 "messages": [
                     {"role": "system", "content": self.system_instruction},
@@ -460,7 +460,15 @@ class GeminiClient:
                 text = self._generate_via_gloo(prompt,
                                                model=Config.GLOO_MODEL_QUALITY)
             else:
-                response = self.model.generate_content(prompt)
+                # Option 1: Gemini direct — use quality model
+                quality_model = genai.GenerativeModel(
+                    model_name=Config.GEMINI_MODEL_QUALITY,
+                    generation_config=genai.types.GenerationConfig(
+                        temperature=Config.TEMPERATURE
+                    ),
+                    system_instruction=self.system_instruction
+                )
+                response = quality_model.generate_content(prompt)
                 text = self.validate_response(response)
             logger.info(f"Quality content generated ({len(text)} chars)")
             return text

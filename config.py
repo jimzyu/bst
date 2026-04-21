@@ -26,8 +26,9 @@ class Config:
 
     # ── Model names ───────────────────────────────────────────────────────────
 
-    # Option 1 — Gemini direct
-    MODEL_NAME = 'gemini-2.5-flash'
+    # Option 1 — Gemini direct (mixed)
+    GEMINI_MODEL_FAST    = 'gemini-2.5-flash'   # summary, mapping, questions
+    GEMINI_MODEL_QUALITY = 'gemini-2.5-pro'     # scenario, eval, follow-up
 
     # Option 2 — Anthropic direct (mixed)
     ANTHROPIC_MODEL_QUALITY = 'claude-sonnet-4-6'   # scenario, eval, follow-up
