@@ -153,42 +153,6 @@ class QuizParser:
         
         return questions
     
-
-    @staticmethod
-    def parse_evaluation_flags(feedback_text: str) -> tuple:
-        """
-        Extract classification flag and diagnostic note from evaluation output.
-
-        Returns:
-            Tuple of (flag, note) where:
-              - flag: 'COMPLETE', 'INCOMPLETE', 'INACCURATE', or None if not found
-              - note: For INCOMPLETE: what was missed. For INACCURATE: what was wrong.
-                      Empty string if not present.
-        """
-        import re
-        flag = None
-        note = ''
-
-        if '[COMPLETE]' in feedback_text:
-            flag = 'COMPLETE'
-        elif '[INCOMPLETE]' in feedback_text:
-            flag = 'INCOMPLETE'
-        elif '[INACCURATE]' in feedback_text:
-            flag = 'INACCURATE'
-
-        if flag == 'INCOMPLETE':
-            match = re.search(r'\[MISSING\]:\s*(.+?)(?=\n\[|\n\n|$)',
-                              feedback_text, re.DOTALL)
-            if match:
-                note = match.group(1).strip()
-        elif flag == 'INACCURATE':
-            match = re.search(r'\[CORRECTION\]:\s*(.+?)(?=\n\[|\n\n|$)',
-                              feedback_text, re.DOTALL)
-            if match:
-                note = match.group(1).strip()
-
-        return flag, note
-
     @staticmethod
     def parse_evaluation_feedback(feedback_text: str) -> Tuple[Optional[str], Optional[str]]:
         """
@@ -290,6 +254,15 @@ class QuizParser:
 
         ch_scenario = ch_match.group(1).strip() if ch_match else None
         en_scenario = en_match.group(1).strip() if en_match else None
+
+        # Fallback: if tags not found but content exists, return full response as Chinese
+        if not ch_scenario and answer_key and answer_key.strip():
+            import logging
+            logging.getLogger(__name__).warning(
+                "extract_case_study: scenario tags not found — using full response as fallback"
+            )
+            ch_scenario = answer_key.strip()
+            en_scenario = None
 
         return ch_scenario, en_scenario
 

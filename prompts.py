@@ -246,6 +246,8 @@ WORLDLY-WISDOM (1 Corinthians 1:18-25 — gospel filtered through sophistication
 Q1: 張偉認為要觸及受過高等教育的人，必須用嚴謹的邏輯和學術辯論。你認為他對「有效」的定義忽略了什麼——還是說他是對的？
 Q2: 你有沒有過這樣的時刻——在某些人面前，你對自己信仰的表達方式感到不自在，覺得它聽起來太簡單、太情緒化，或者不夠「有說服力」？
 
+CRITICAL FORMAT REQUIREMENT: Your response MUST begin with the exact tag [THRESHOLD_SCENARIO_CHINESE] and include [THRESHOLD_SCENARIO_ENGLISH] exactly as shown. Do not use markdown headers, code blocks, or any other formatting in place of these tags. The parser depends on these exact tags.
+
 [THRESHOLD_SCENARIO_CHINESE]
 ### 情境案例
 [Write the scenario in Traditional Chinese following the principles and structure above. 2–3 paragraphs.]
