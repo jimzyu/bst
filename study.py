@@ -323,7 +323,7 @@ def display_emphasis_interface():
                         tp = teaching_points[tp_idx]
                         with st.spinner("正在重新生成情境案例... Regenerating..."):
                             prefix = "請以繁體中文回應以下所有內容。\n\n"
-                            raw = client.generate_content(
+                            raw = client.generate_content_quality(
                                 prefix +
                                 PromptTemplates.get_threshold_with_diagnosis_prompt(
                                     reference, tp['diagnosis'])
@@ -364,7 +364,7 @@ def display_emphasis_interface():
                     if st.button(f"選擇\nSelect", key=f"tp_{i}", type="primary"):
                         with st.spinner("正在生成情境案例... Generating scenario..."):
                             prefix = "請以繁體中文回應以下所有內容。\n\n"
-                            raw = client.generate_content(
+                            raw = client.generate_content_quality(
                                 prefix +
                                 PromptTemplates.get_threshold_with_diagnosis_prompt(
                                     reference, tp['diagnosis'])
