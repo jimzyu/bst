@@ -336,6 +336,7 @@ class GeminiClient:
             client_id, client_secret = Config.get_gloo_credentials()
             self._gloo_token_mgr = GlooTokenManager(client_id, client_secret)
             logger.info(f"Initialized Gloo client — quality: {Config.GLOO_MODEL_QUALITY} | fast: {Config.GLOO_MODEL_FAST}")
+            self._warmup_gloo()
         else:
             genai.configure(api_key=api_key)
             generation_config = genai.types.GenerationConfig(
@@ -533,6 +534,40 @@ class GeminiClient:
         if not text:
             raise GeminiAPIError("Anthropic returned empty response")
         return text
+
+    def _warmup_gloo(self):
+        """
+        Send a minimal request to Gloo immediately after initialisation to warm up
+        the proxy connection and avoid cold-start timeout on the first real request.
+        Only called for Gloo sessions. Failures are silently ignored — warmup is
+        best-effort and should not block initialisation.
+        """
+        try:
+            import requests as req
+            token = self._gloo_token_mgr.get_token()
+            response = req.post(
+                f"{Config.GLOO_API_BASE}/chat/completions",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {token}"
+                },
+                json={
+                    "model": Config.GLOO_MODEL_QUALITY,
+                    "messages": [
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "user", "content": "Hi"}
+                    ],
+                    "max_tokens": 5,
+                    "temperature": 0
+                },
+                timeout=30
+            )
+            if response.ok:
+                logger.info("Gloo warmup successful")
+            else:
+                logger.warning(f"Gloo warmup returned {response.status_code} — continuing anyway")
+        except Exception as e:
+            logger.warning(f"Gloo warmup failed (non-critical): {str(e)}")
 
     def _generate_via_gloo(self, prompt: str, model: str = None) -> str:
         """Call Gloo's OpenAI-compatible completions endpoint.
