@@ -8,6 +8,7 @@ import logging
 
 # Local imports
 from config import Config
+from name_generator import generate_name, build_context_paragraph
 from prompts import PromptTemplates
 from parsers import ResponseParser, ContentRenderer, QuizParser
 from api_client import GeminiClient, GeminiAPIError
@@ -223,6 +224,24 @@ def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
     st.rerun()
 
 
+
+def _build_scenario_prompt(reference, diagnosis, context, used_names):
+    """Build a scenario prompt enriched with context and a randomised protagonist name."""
+    import random
+    gender = random.choice(["male", "female"])
+    name = generate_name(
+        gender=gender,
+        setting=context.get('setting', '灣區教會'),
+        used_names=used_names,
+        relationship_context=context.get('relationship_context', '')
+    )
+    ctx_with_name = {**context, 'protagonist_name': name, 'protagonist_gender': gender}
+    context_para = build_context_paragraph(ctx_with_name)
+    from prompts import PromptTemplates
+    prefix = "請以繁體中文回應以下所有內容。\n\n"
+    base = PromptTemplates.get_threshold_with_diagnosis_prompt(reference, diagnosis)
+    return prefix + context_para + base
+
 def display_emphasis_interface():
     """Display the emphasis study interface — selection, question set, or quiz."""
     from parsers import QuizParser
@@ -322,12 +341,12 @@ def display_emphasis_interface():
                     if tp_idx is not None and tp_idx < len(teaching_points):
                         tp = teaching_points[tp_idx]
                         with st.spinner("正在重新生成情境案例... Regenerating..."):
-                            prefix = "請以繁體中文回應以下所有內容。\n\n"
-                            raw = client.generate_content_quality(
-                                prefix +
-                                PromptTemplates.get_threshold_with_diagnosis_prompt(
-                                    reference, tp['diagnosis'])
+                            prompt = _build_scenario_prompt(
+                                reference, tp['diagnosis'],
+                                st.session_state.get('scenario_context', {}),
+                                st.session_state.get('scenario_used_names', set())
                             )
+                            raw = client.generate_content_quality(prompt)
                             ch_case, en_case = QuizParser.extract_case_study(raw)
                             st.session_state.emphasis_case_study = (ch_case, en_case)
                     st.rerun()
@@ -335,6 +354,42 @@ def display_emphasis_interface():
         elif teaching_points and tp_selected is None:
             # ── State 2: Teaching points mapped — show selection ──
             st.markdown("### 💡 情境案例 (Discussion Scenario)")
+
+            # ── Context selector ──────────────────────────────────────────
+            with st.expander("⚙️ 情境設定 Scenario Context (optional)", expanded=False):
+                ctx = st.session_state.get('scenario_context', {})
+                col_s1, col_s2 = st.columns(2)
+                with col_s1:
+                    setting = st.selectbox(
+                        "背景設定 Setting",
+                        ["灣區教會", "北美華人教會", "亞洲教會", "香港教會", "職場"],
+                        index=["灣區教會", "北美華人教會", "亞洲教會", "香港教會", "職場"].index(
+                            ctx.get('setting', '灣區教會')
+                        )
+                    )
+                    profession = st.selectbox(
+                        "職業 Profession",
+                        ["（不指定）", "科技業", "教育", "醫療", "商業", "全職父母", "教會事工"],
+                        index=0
+                    )
+                with col_s2:
+                    life_stage = st.selectbox(
+                        "人生階段 Life Stage",
+                        ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"],
+                        index=0
+                    )
+                    relationship = st.selectbox(
+                        "主要關係 Relationship",
+                        ["（不指定）", "夫妻", "同事", "小組成員", "師生", "朋友", "長輩晚輩"],
+                        index=0
+                    )
+                st.session_state.scenario_context = {
+                    'setting': setting,
+                    'profession': "" if profession == "（不指定）" else profession,
+                    'life_stage': "" if life_stage == "（不指定）" else life_stage,
+                    'relationship_context': "" if relationship == "（不指定）" else relationship,
+                }
+
             st.markdown("**選擇今天要聚焦的教學重點：**")
             st.markdown("*Select the teaching point for today's session:*")
             st.markdown("")
@@ -363,12 +418,12 @@ def display_emphasis_interface():
                 with col_btn:
                     if st.button(f"選擇\nSelect", key=f"tp_{i}", type="primary"):
                         with st.spinner("正在生成情境案例... Generating scenario..."):
-                            prefix = "請以繁體中文回應以下所有內容。\n\n"
-                            raw = client.generate_content_quality(
-                                prefix +
-                                PromptTemplates.get_threshold_with_diagnosis_prompt(
-                                    reference, tp['diagnosis'])
+                            prompt = _build_scenario_prompt(
+                                reference, tp['diagnosis'],
+                                st.session_state.get('scenario_context', {}),
+                                st.session_state.get('scenario_used_names', set())
                             )
+                            raw = client.generate_content_quality(prompt)
                             ch_case, en_case = QuizParser.extract_case_study(raw)
                             st.session_state.emphasis_case_study = (ch_case, en_case)
                             st.session_state.emphasis_tp_selected = i

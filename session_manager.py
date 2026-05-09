@@ -105,7 +105,14 @@ class SessionManager:
             st.session_state.emphasis_teaching_points = []  # list of {verses, teaching, diagnosis}
 
         if 'emphasis_tp_selected' not in st.session_state:
-            st.session_state.emphasis_tp_selected = None  # index of selected teaching point
+            st.session_state.emphasis_tp_selected = None
+        st.session_state.scenario_context = {
+            'setting': '灣區教會',
+            'profession': '',
+            'life_stage': '',
+            'relationship_context': '',
+        }
+        st.session_state.scenario_used_names = set()  # index of selected teaching point
 
         if 'emphasis_summary' not in st.session_state:
             st.session_state.emphasis_summary = None  # Raw summary text
@@ -278,6 +285,13 @@ class SessionManager:
         st.session_state.emphasis_all_followup_done = {}
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
+        st.session_state.scenario_context = {
+            'setting': '灣區教會',
+            'profession': '',
+            'life_stage': '',
+            'relationship_context': '',
+        }
+        st.session_state.scenario_used_names = set()
         # Reset quiz state
         st.session_state.emphasis_quiz_active = False
         st.session_state.emphasis_quiz_question = 0
@@ -420,6 +434,13 @@ class SessionManager:
         st.session_state.emphasis_all_followup_done = {}
         st.session_state.emphasis_teaching_points = []
         st.session_state.emphasis_tp_selected = None
+        st.session_state.scenario_context = {
+            'setting': '灣區教會',
+            'profession': '',
+            'life_stage': '',
+            'relationship_context': '',
+        }
+        st.session_state.scenario_used_names = set()
         st.session_state.emphasis_quiz_active = False
         st.session_state.emphasis_quiz_question = 0
         st.session_state.emphasis_quiz_questions = {}
