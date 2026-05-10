@@ -231,9 +231,9 @@ def _build_scenario_prompt(reference, diagnosis, context, used_names):
     gender = random.choice(["male", "female"])
     name = generate_name(
         gender=gender,
-        setting=context.get('setting', '灣區教會'),
+        region=context.get('region', '灣區'),
         used_names=used_names,
-        relationship_context=context.get('relationship_context', '')
+        scene=context.get('scene', '')
     )
     ctx_with_name = {**context, 'protagonist_name': name, 'protagonist_gender': gender}
     context_para = build_context_paragraph(ctx_with_name)
@@ -360,11 +360,11 @@ def display_emphasis_interface():
                 ctx = st.session_state.get('scenario_context', {})
                 col_s1, col_s2 = st.columns(2)
                 with col_s1:
-                    setting = st.selectbox(
-                        "背景設定 Setting",
-                        ["灣區教會", "北美華人教會", "亞洲教會", "香港教會", "職場"],
-                        index=["灣區教會", "北美華人教會", "亞洲教會", "香港教會", "職場"].index(
-                            ctx.get('setting', '灣區教會')
+                    region = st.selectbox(
+                        "地區 Region",
+                        ["灣區", "北美", "亞洲"],
+                        index=["灣區", "北美", "亞洲"].index(
+                            ctx.get('region', '灣區')
                         )
                     )
                     profession = st.selectbox(
@@ -378,16 +378,16 @@ def display_emphasis_interface():
                         ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"],
                         index=0
                     )
-                    relationship = st.selectbox(
-                        "主要關係 Relationship",
-                        ["（不指定）", "夫妻", "同事", "小組成員", "師生", "朋友", "長輩晚輩"],
+                    scene = st.selectbox(
+                        "情境場景 Scene",
+                        ["（不指定）", "職場", "學校", "家庭", "社區", "教會"],
                         index=0
                     )
                 st.session_state.scenario_context = {
-                    'setting': setting,
+                    'region': region,
+                    'scene': "" if scene == "（不指定）" else scene,
                     'profession': "" if profession == "（不指定）" else profession,
                     'life_stage': "" if life_stage == "（不指定）" else life_stage,
-                    'relationship_context': "" if relationship == "（不指定）" else relationship,
                 }
 
             st.markdown("**選擇今天要聚焦的教學重點：**")

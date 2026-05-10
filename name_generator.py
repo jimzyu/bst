@@ -36,27 +36,31 @@ FEMALE_ENGLISH = [
     "Angela", "Cindy", "Michelle", "Rachel", "Stephanie"
 ]
 
-# ── Title pools ───────────────────────────────────────────────────────────────
-TITLES_CHURCH = ["長老", "執事", "牧師", "師母", "組長"]
-TITLES_FAMILY_AGE = ["伯伯", "阿姨", "大哥", "大姐"]
-TITLES_GENERIC = ["弟兄", "姊妹"]
+# ── Title pools (gender-specific where relevant) ─────────────────────────────
+TITLES_CHURCH_MALE   = ["長老", "執事", "牧師", "組長"]
+TITLES_CHURCH_FEMALE = ["執事", "師母", "組長"]
+TITLES_FAMILY_MALE   = ["伯伯", "大哥"]
+TITLES_FAMILY_FEMALE = ["阿姨", "大姐"]
+TITLES_GENERIC_MALE   = ["弟兄"]
+TITLES_GENERIC_FEMALE = ["姊妹"]
 
 # ── English-appropriate contexts ──────────────────────────────────────────────
-ENGLISH_NAME_CONTEXTS = {"灣區教會", "北美華人教會", "香港教會"}
+# Regions where English names are appropriate (67% Chinese, 33% English)
+ENGLISH_NAME_REGIONS = {"灣區", "北美"}
 
 
 def generate_name(
     gender: str = "male",
-    setting: str = "灣區教會",
+    region: str = "灣區",
     used_names: Optional[set] = None,
-    relationship_context: str = "",
+    scene: str = "",
 ) -> str:
     """
     Generate a name for a scenario protagonist.
 
     Rules:
-    - English-appropriate settings: 67% Chinese, 33% English
-    - Asian settings: 100% Chinese
+    - 灣區 / 北美 regions: 67% Chinese, 33% English names
+    - 亞洲 region: 100% Chinese names
     - 75% full name, 25% title
     - English names: first name only (no surname)
     - Chinese title format: surname + title (陳長老) or generic title alone (弟兄)
@@ -64,9 +68,9 @@ def generate_name(
 
     Args:
         gender: "male" or "female"
-        setting: scenario context setting
+        region: 灣區 / 北美 / 亞洲
         used_names: set of names already used in this session
-        relationship_context: hints for title selection (church/family/workplace)
+        scene: scenario scene (教會/職場/家庭/學校/社區) — hints for title pool
 
     Returns:
         A name string ready to insert into the scenario prompt
@@ -75,24 +79,23 @@ def generate_name(
         used_names = set()
 
     use_english = (
-        setting in ENGLISH_NAME_CONTEXTS and random.random() < 0.33
+        region in ENGLISH_NAME_REGIONS and random.random() < 0.33
     )
     use_title = random.random() < 0.25
 
     if use_title:
         surname = random.choice([s for s in SURNAMES if s not in used_names] or SURNAMES)
         # Choose title pool based on context hints
-        if "church" in relationship_context.lower() or any(
-            t in relationship_context for t in ["小組", "教會", "事工", "長老", "執事"]
-        ):
-            title = random.choice(TITLES_CHURCH)
+        if scene == "教會":
+            pool = TITLES_CHURCH_MALE if gender == "male" else TITLES_CHURCH_FEMALE
+            title = random.choice(pool)
             name = f"{surname}{title}"
-        elif any(t in relationship_context for t in ["家庭", "夫妻", "長輩"]):
-            title = random.choice(TITLES_FAMILY_AGE)
+        elif scene == "家庭":
+            pool = TITLES_FAMILY_MALE if gender == "male" else TITLES_FAMILY_FEMALE
+            title = random.choice(pool)
             name = f"{surname}{title}"
         else:
-            # Generic — title alone
-            name = random.choice(TITLES_GENERIC)
+            name = TITLES_GENERIC_MALE[0] if gender == "male" else TITLES_GENERIC_FEMALE[0]
         used_names.add(name)
         return name
 
@@ -127,18 +130,18 @@ def build_context_paragraph(context: dict) -> str:
     Only includes dimensions that were explicitly set (non-default).
 
     Args:
-        context: dict with keys setting, profession, life_stage,
-                 relationship_context, protagonist_name, protagonist_gender
+        context: dict with keys region, scene, profession, life_stage,
+                 protagonist_name, protagonist_gender
 
     Returns:
         A short paragraph string for the prompt, or empty string if all defaults
     """
     parts = []
 
-    setting = context.get("setting", "灣區教會")
+    region = context.get("region", "灣區")
+    scene = context.get("scene", "")
     profession = context.get("profession", "")
     life_stage = context.get("life_stage", "")
-    relationship = context.get("relationship_context", "")
     name = context.get("protagonist_name", "")
     gender = context.get("protagonist_gender", "male")
 
@@ -146,17 +149,17 @@ def build_context_paragraph(context: dict) -> str:
         pronoun = "他" if gender == "male" else "她"
         parts.append(f"情境主角的名字是{name}（{pronoun}）。")
 
-    if setting:
-        parts.append(f"情境背景設定在{setting}。")
+    if region:
+        parts.append(f"情境設定在{region}地區。")
+
+    if scene:
+        parts.append(f"情境場景是{scene}。")
 
     if profession:
         parts.append(f"主角的職業或角色是{profession}。")
 
     if life_stage:
         parts.append(f"主角目前的人生階段：{life_stage}。")
-
-    if relationship:
-        parts.append(f"情境中的主要關係是{relationship}。")
 
     if not parts:
         return ""
