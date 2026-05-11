@@ -355,40 +355,67 @@ def display_emphasis_interface():
             # ── State 2: Teaching points mapped — show selection ──
             st.markdown("### 💡 情境案例 (Discussion Scenario)")
 
-            # ── Context selector ──────────────────────────────────────────
-            with st.expander("⚙️ 情境設定 Scenario Context (optional)", expanded=False):
-                ctx = st.session_state.get('scenario_context', {})
+            # ── Persistent context selector ───────────────────────────────
+            # Reads from session state — survives reruns, persists across all TPs
+            ctx = st.session_state.get('scenario_context', {
+                'region': '灣區', 'scene': '', 'profession': '', 'life_stage': ''
+            })
+
+            # Build summary line of active settings
+            active = [ctx.get('region', '灣區')]
+            for key, label in [('scene', ''), ('profession', ''), ('life_stage', '')]:
+                val = ctx.get(key, '')
+                if val:
+                    active.append(val)
+            ctx_summary = ' · '.join(active)
+
+            with st.expander(f"⚙️ 情境設定 {ctx_summary}", expanded=False):
                 col_s1, col_s2 = st.columns(2)
+                REGIONS   = ["灣區", "北美", "亞洲"]
+                PROFS     = ["（不指定）", "科技業", "教育", "醫療", "商業", "全職父母", "教會事工"]
+                STAGES    = ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"]
+                SCENES    = ["（不指定）", "職場", "學校", "家庭", "社區", "教會"]
+
                 with col_s1:
+                    cur_region = ctx.get('region', '灣區')
                     region = st.selectbox(
-                        "地區 Region",
-                        ["灣區", "北美", "亞洲"],
-                        index=["灣區", "北美", "亞洲"].index(
-                            ctx.get('region', '灣區')
-                        )
+                        "地區 Region", REGIONS,
+                        index=REGIONS.index(cur_region) if cur_region in REGIONS else 0,
+                        key="ctx_region"
                     )
+                    cur_prof = ctx.get('profession', '')
+                    prof_idx = PROFS.index(cur_prof) if cur_prof in PROFS else 0
                     profession = st.selectbox(
-                        "職業 Profession",
-                        ["（不指定）", "科技業", "教育", "醫療", "商業", "全職父母", "教會事工"],
-                        index=0
+                        "職業 Profession", PROFS, index=prof_idx, key="ctx_profession"
                     )
                 with col_s2:
+                    cur_stage = ctx.get('life_stage', '')
+                    stage_idx = STAGES.index(cur_stage) if cur_stage in STAGES else 0
                     life_stage = st.selectbox(
-                        "人生階段 Life Stage",
-                        ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"],
-                        index=0
+                        "人生階段 Life Stage", STAGES, index=stage_idx, key="ctx_life_stage"
                     )
+                    cur_scene = ctx.get('scene', '')
+                    scene_idx = SCENES.index(cur_scene) if cur_scene in SCENES else 0
                     scene = st.selectbox(
-                        "情境場景 Scene",
-                        ["（不指定）", "職場", "學校", "家庭", "社區", "教會"],
-                        index=0
+                        "情境場景 Scene", SCENES, index=scene_idx, key="ctx_scene"
                     )
-                st.session_state.scenario_context = {
-                    'region': region,
-                    'scene': "" if scene == "（不指定）" else scene,
-                    'profession': "" if profession == "（不指定）" else profession,
-                    'life_stage': "" if life_stage == "（不指定）" else life_stage,
-                }
+
+                col_apply, col_reset = st.columns([2, 1])
+                with col_apply:
+                    if st.button("✅ 套用設定 Apply", key="ctx_apply", type="primary"):
+                        st.session_state.scenario_context = {
+                            'region': region,
+                            'scene': "" if scene == "（不指定）" else scene,
+                            'profession': "" if profession == "（不指定）" else profession,
+                            'life_stage': "" if life_stage == "（不指定）" else life_stage,
+                        }
+                        st.rerun()
+                with col_reset:
+                    if st.button("🔄 重設 Reset", key="ctx_reset", type="secondary"):
+                        st.session_state.scenario_context = {
+                            'region': '灣區', 'scene': '', 'profession': '', 'life_stage': ''
+                        }
+                        st.rerun()
 
             st.markdown("**選擇今天要聚焦的教學重點：**")
             st.markdown("*Select the teaching point for today's session:*")
