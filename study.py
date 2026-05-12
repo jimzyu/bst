@@ -356,58 +356,65 @@ def display_emphasis_interface():
             st.markdown("### 💡 情境案例 (Discussion Scenario)")
 
             # ── Persistent context selector ───────────────────────────────
-            # Reads from session state — survives reruns, persists across all TPs
+            # Reads from and writes to session state — persists across all TPs
+            REGIONS = ["灣區", "北美", "亞洲"]
+            PROFS   = ["（不指定）", "科技業", "教育", "醫療", "商業", "全職父母", "教會事工"]
+            STAGES  = ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"]
+            SCENES  = ["（不指定）", "職場", "學校", "家庭", "社區", "教會"]
+
             ctx = st.session_state.get('scenario_context', {
                 'region': '灣區', 'scene': '', 'profession': '', 'life_stage': ''
             })
 
-            # Build summary line of active settings
-            active = [ctx.get('region', '灣區')]
-            for key, label in [('scene', ''), ('profession', ''), ('life_stage', '')]:
-                val = ctx.get(key, '')
-                if val:
-                    active.append(val)
-            ctx_summary = ' · '.join(active)
+            # Build active settings summary for display (non-default values only)
+            active_parts = []
+            if ctx.get('profession'): active_parts.append(ctx['profession'])
+            if ctx.get('life_stage'): active_parts.append(ctx['life_stage'])
+            if ctx.get('scene'):      active_parts.append(ctx['scene'])
+            region_label = ctx.get('region', '灣區')
+            ctx_summary = f"{region_label}" + (f" · {' · '.join(active_parts)}" if active_parts else "")
 
-            with st.expander(f"⚙️ 情境設定 {ctx_summary}", expanded=False):
+            with st.expander(f"⚙️ 情境設定 Scenario Context — {ctx_summary}", expanded=True):
                 col_s1, col_s2 = st.columns(2)
-                REGIONS   = ["灣區", "北美", "亞洲"]
-                PROFS     = ["（不指定）", "科技業", "教育", "醫療", "商業", "全職父母", "教會事工"]
-                STAGES    = ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"]
-                SCENES    = ["（不指定）", "職場", "學校", "家庭", "社區", "教會"]
-
                 with col_s1:
                     cur_region = ctx.get('region', '灣區')
-                    region = st.selectbox(
+                    st.selectbox(
                         "地區 Region", REGIONS,
                         index=REGIONS.index(cur_region) if cur_region in REGIONS else 0,
                         key="ctx_region"
                     )
                     cur_prof = ctx.get('profession', '')
-                    prof_idx = PROFS.index(cur_prof) if cur_prof in PROFS else 0
-                    profession = st.selectbox(
-                        "職業 Profession", PROFS, index=prof_idx, key="ctx_profession"
+                    st.selectbox(
+                        "職業 Profession", PROFS,
+                        index=PROFS.index(cur_prof) if cur_prof in PROFS else 0,
+                        key="ctx_profession"
                     )
                 with col_s2:
                     cur_stage = ctx.get('life_stage', '')
-                    stage_idx = STAGES.index(cur_stage) if cur_stage in STAGES else 0
-                    life_stage = st.selectbox(
-                        "人生階段 Life Stage", STAGES, index=stage_idx, key="ctx_life_stage"
+                    st.selectbox(
+                        "人生階段 Life Stage", STAGES,
+                        index=STAGES.index(cur_stage) if cur_stage in STAGES else 0,
+                        key="ctx_life_stage"
                     )
                     cur_scene = ctx.get('scene', '')
-                    scene_idx = SCENES.index(cur_scene) if cur_scene in SCENES else 0
-                    scene = st.selectbox(
-                        "情境場景 Scene", SCENES, index=scene_idx, key="ctx_scene"
+                    st.selectbox(
+                        "情境場景 Scene", SCENES,
+                        index=SCENES.index(cur_scene) if cur_scene in SCENES else 0,
+                        key="ctx_scene"
                     )
 
                 col_apply, col_reset = st.columns([2, 1])
                 with col_apply:
                     if st.button("✅ 套用設定 Apply", key="ctx_apply", type="primary"):
+                        # Read directly from widget session state keys — reliable after button click
+                        prof_val  = st.session_state.get("ctx_profession", "（不指定）")
+                        stage_val = st.session_state.get("ctx_life_stage", "（不指定）")
+                        scene_val = st.session_state.get("ctx_scene", "（不指定）")
                         st.session_state.scenario_context = {
-                            'region': region,
-                            'scene': "" if scene == "（不指定）" else scene,
-                            'profession': "" if profession == "（不指定）" else profession,
-                            'life_stage': "" if life_stage == "（不指定）" else life_stage,
+                            'region':     st.session_state.get("ctx_region", "灣區"),
+                            'profession': "" if prof_val  == "（不指定）" else prof_val,
+                            'life_stage': "" if stage_val == "（不指定）" else stage_val,
+                            'scene':      "" if scene_val == "（不指定）" else scene_val,
                         }
                         st.rerun()
                 with col_reset:
@@ -415,6 +422,10 @@ def display_emphasis_interface():
                         st.session_state.scenario_context = {
                             'region': '灣區', 'scene': '', 'profession': '', 'life_stage': ''
                         }
+                        # Also clear widget keys so dropdowns reset visually
+                        for k in ["ctx_region", "ctx_profession", "ctx_life_stage", "ctx_scene"]:
+                            if k in st.session_state:
+                                del st.session_state[k]
                         st.rerun()
 
             st.markdown("**選擇今天要聚焦的教學重點：**")
