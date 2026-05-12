@@ -61,9 +61,11 @@ def generate_name(
     Rules:
     - 灣區 / 北美 regions: 67% Chinese, 33% English names
     - 亞洲 region: 100% Chinese names
-    - 75% full name, 25% title
+    - 90% full name, 10% title
+    - 職場 / 學校 scenes: always full name (family titles never used)
+    - 教會 scene titles: 長老/執事/牧師/組長 (gender-appropriate)
+    - 家庭 / 社區 scene titles: 伯伯/阿姨/大哥/大姐 (gender-appropriate)
     - English names: first name only (no surname)
-    - Chinese title format: surname + title (陳長老) or generic title alone (弟兄)
     - Tracks used_names to avoid repetition within a session
 
     Args:
