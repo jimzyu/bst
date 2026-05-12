@@ -81,20 +81,33 @@ def generate_name(
     use_english = (
         region in ENGLISH_NAME_REGIONS and random.random() < 0.33
     )
-    use_title = random.random() < 0.25
+    use_title = random.random() < 0.10
 
     if use_title:
         surname = random.choice([s for s in SURNAMES if s not in used_names] or SURNAMES)
         # Choose title pool based on context hints
         if scene == "教會":
+            # Church titles for church scene
             pool = TITLES_CHURCH_MALE if gender == "male" else TITLES_CHURCH_FEMALE
             title = random.choice(pool)
             name = f"{surname}{title}"
-        elif scene == "家庭":
+        elif scene in ("家庭", "社區"):
+            # Family-register titles only for home/community scenes
             pool = TITLES_FAMILY_MALE if gender == "male" else TITLES_FAMILY_FEMALE
             title = random.choice(pool)
             name = f"{surname}{title}"
+        elif scene in ("職場", "學校"):
+            # Professional scenes: skip title, generate full name instead
+            given_pool = MALE_CHINESE if gender == "male" else FEMALE_CHINESE
+            available_given = [n for n in given_pool if n not in used_names]
+            if not available_given:
+                available_given = given_pool
+            available_surnames = [s for s in SURNAMES if s not in used_names]
+            if not available_surnames:
+                available_surnames = SURNAMES
+            name = random.choice(available_surnames) + random.choice(available_given)
         else:
+            # Generic scene or unspecified: use 弟兄/姊妹
             name = TITLES_GENERIC_MALE[0] if gender == "male" else TITLES_GENERIC_FEMALE[0]
         used_names.add(name)
         return name
