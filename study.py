@@ -356,77 +356,67 @@ def display_emphasis_interface():
             st.markdown("### 💡 情境案例 (Discussion Scenario)")
 
             # ── Persistent context selector ───────────────────────────────
-            # Reads from and writes to session state — persists across all TPs
+            # Always visible, not collapsible — persists across all TPs
             REGIONS = ["灣區", "北美", "亞洲"]
             PROFS   = ["（不指定）", "科技業", "教育", "醫療", "商業", "全職父母", "教會事工"]
             STAGES  = ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"]
             SCENES  = ["（不指定）", "職場", "學校", "家庭", "社區", "教會"]
 
-            ctx = st.session_state.get('scenario_context', {
-                'region': '灣區', 'scene': '', 'profession': '', 'life_stage': ''
-            })
+            # Initialise session state if not yet set
+            if 'scenario_context' not in st.session_state:
+                st.session_state.scenario_context = {
+                    'region': '灣區', 'scene': '', 'profession': '', 'life_stage': ''
+                }
 
-            # Build active settings summary for display (non-default values only)
-            active_parts = []
-            if ctx.get('profession'): active_parts.append(ctx['profession'])
-            if ctx.get('life_stage'): active_parts.append(ctx['life_stage'])
-            if ctx.get('scene'):      active_parts.append(ctx['scene'])
-            region_label = ctx.get('region', '灣區')
-            ctx_summary = f"{region_label}" + (f" · {' · '.join(active_parts)}" if active_parts else "")
+            ctx = st.session_state.scenario_context
 
-            with st.expander(f"⚙️ 情境設定 Scenario Context — {ctx_summary}", expanded=True):
+            st.markdown("**⚙️ 情境設定 Scenario Context**")
+            with st.container(border=True):
                 col_s1, col_s2 = st.columns(2)
                 with col_s1:
-                    cur_region = ctx.get('region', '灣區')
-                    st.selectbox(
+                    region = st.selectbox(
                         "地區 Region", REGIONS,
-                        index=REGIONS.index(cur_region) if cur_region in REGIONS else 0,
+                        index=REGIONS.index(ctx.get('region', '灣區')),
                         key="ctx_region"
                     )
-                    cur_prof = ctx.get('profession', '')
-                    st.selectbox(
+                    profession = st.selectbox(
                         "職業 Profession", PROFS,
-                        index=PROFS.index(cur_prof) if cur_prof in PROFS else 0,
+                        index=PROFS.index(ctx['profession']) if ctx.get('profession') in PROFS else 0,
                         key="ctx_profession"
                     )
                 with col_s2:
-                    cur_stage = ctx.get('life_stage', '')
-                    st.selectbox(
+                    life_stage = st.selectbox(
                         "人生階段 Life Stage", STAGES,
-                        index=STAGES.index(cur_stage) if cur_stage in STAGES else 0,
+                        index=STAGES.index(ctx['life_stage']) if ctx.get('life_stage') in STAGES else 0,
                         key="ctx_life_stage"
                     )
-                    cur_scene = ctx.get('scene', '')
-                    st.selectbox(
+                    scene = st.selectbox(
                         "情境場景 Scene", SCENES,
-                        index=SCENES.index(cur_scene) if cur_scene in SCENES else 0,
+                        index=SCENES.index(ctx['scene']) if ctx.get('scene') in SCENES else 0,
                         key="ctx_scene"
                     )
 
                 col_apply, col_reset = st.columns([2, 1])
                 with col_apply:
                     if st.button("✅ 套用設定 Apply", key="ctx_apply", type="primary"):
-                        # Read directly from widget session state keys — reliable after button click
-                        prof_val  = st.session_state.get("ctx_profession", "（不指定）")
-                        stage_val = st.session_state.get("ctx_life_stage", "（不指定）")
-                        scene_val = st.session_state.get("ctx_scene", "（不指定）")
                         st.session_state.scenario_context = {
-                            'region':     st.session_state.get("ctx_region", "灣區"),
-                            'profession': "" if prof_val  == "（不指定）" else prof_val,
-                            'life_stage': "" if stage_val == "（不指定）" else stage_val,
-                            'scene':      "" if scene_val == "（不指定）" else scene_val,
+                            'region':     st.session_state.ctx_region,
+                            'profession': "" if st.session_state.ctx_profession == "（不指定）" else st.session_state.ctx_profession,
+                            'life_stage': "" if st.session_state.ctx_life_stage == "（不指定）" else st.session_state.ctx_life_stage,
+                            'scene':      "" if st.session_state.ctx_scene == "（不指定）" else st.session_state.ctx_scene,
                         }
-                        st.rerun()
+                        st.toast("✅ 情境設定已套用 Context applied", icon="✅")
                 with col_reset:
                     if st.button("🔄 重設 Reset", key="ctx_reset", type="secondary"):
+                        # Set widget state directly to defaults — most reliable reset method
+                        st.session_state.ctx_region     = "灣區"
+                        st.session_state.ctx_profession = "（不指定）"
+                        st.session_state.ctx_life_stage = "（不指定）"
+                        st.session_state.ctx_scene      = "（不指定）"
                         st.session_state.scenario_context = {
                             'region': '灣區', 'scene': '', 'profession': '', 'life_stage': ''
                         }
-                        # Also clear widget keys so dropdowns reset visually
-                        for k in ["ctx_region", "ctx_profession", "ctx_life_stage", "ctx_scene"]:
-                            if k in st.session_state:
-                                del st.session_state[k]
-                        st.rerun()
+                        st.toast("🔄 情境設定已重設 Context reset", icon="🔄")
 
             st.markdown("**選擇今天要聚焦的教學重點：**")
             st.markdown("*Select the teaching point for today's session:*")
