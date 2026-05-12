@@ -127,46 +127,50 @@ def generate_name(
 def build_context_paragraph(context: dict) -> str:
     """
     Build a context paragraph to prepend to the scenario prompt.
-    Only includes dimensions that were explicitly set (non-default).
+    Uses explicit, directive language so the model treats these as hard constraints.
+    Only injects non-default values to avoid over-constraining.
 
     Args:
         context: dict with keys region, scene, profession, life_stage,
                  protagonist_name, protagonist_gender
 
     Returns:
-        A short paragraph string for the prompt, or empty string if all defaults
+        A directive context block for the prompt, or minimal block with just the name
     """
-    parts = []
-
+    name = context.get("protagonist_name", "")
+    gender = context.get("protagonist_gender", "male")
+    pronoun = "他" if gender == "male" else "她"
     region = context.get("region", "灣區")
     scene = context.get("scene", "")
     profession = context.get("profession", "")
     life_stage = context.get("life_stage", "")
-    name = context.get("protagonist_name", "")
-    gender = context.get("protagonist_gender", "male")
 
+    lines = []
+
+    # Name — always include
     if name:
-        pronoun = "他" if gender == "male" else "她"
-        parts.append(f"情境主角的名字是{name}（{pronoun}）。")
+        lines.append(f"主角姓名：{name}（{pronoun}）。在整個情境中，請始終使用此名字，不要更改或替換。")
 
-    if region:
-        parts.append(f"情境設定在{region}地區。")
-
+    # Scene — most important for scenario texture; always include if set
     if scene:
-        parts.append(f"情境場景是{scene}。")
+        lines.append(f"情境場景：{scene}。請將情境設定在{scene}環境中，而非其他場合。")
 
+    # Profession — include only if explicitly set
     if profession:
-        parts.append(f"主角的職業或角色是{profession}。")
+        lines.append(f"主角職業：{profession}。請確保情境符合此職業背景。")
 
+    # Life stage — include only if explicitly set
     if life_stage:
-        parts.append(f"主角目前的人生階段：{life_stage}。")
+        lines.append(f"主角人生階段：{life_stage}。")
 
-    if not parts:
+    # Region — only include if non-default (i.e. not 灣區, which is assumed)
+    if region and region != "灣區":
+        lines.append(f"地區背景：{region}。")
+
+    if not lines:
         return ""
 
-    return (
-        "SCENARIO CONTEXT (use these details to ground the scenario):\n"
-        + " ".join(parts)
-        + "\n\nDo not introduce other characters with the same name as the protagonist. "
-        + "Use the name exactly as given throughout the scenario.\n\n"
-    )
+    block = "【情境設定指示】請嚴格按照以下設定生成情境案例：\n"
+    block += "\n".join(f"- {line}" for line in lines)
+    block += "\n\n"
+    return block
