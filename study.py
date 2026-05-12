@@ -225,15 +225,30 @@ def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
 
 
 
-def _build_scenario_prompt(reference, diagnosis, context, used_names):
-    """Build a scenario prompt enriched with context and a randomised protagonist name."""
+def _build_scenario_prompt(reference, diagnosis, used_names):
+    """Build a scenario prompt enriched with context and a randomised protagonist name.
+    Reads context directly from Streamlit widget state — no Apply button needed.
+    """
     import random
+    import streamlit as st
+    # Read directly from dropdown widget keys
+    UNSET = "（不指定）"
+    region    = st.session_state.get("ctx_region", "灣區")
+    profession = st.session_state.get("ctx_profession", UNSET)
+    life_stage = st.session_state.get("ctx_life_stage", UNSET)
+    scene      = st.session_state.get("ctx_scene", UNSET)
+    context = {
+        'region':     region,
+        'profession': "" if profession == UNSET else profession,
+        'life_stage': "" if life_stage == UNSET else life_stage,
+        'scene':      "" if scene == UNSET else scene,
+    }
     gender = random.choice(["male", "female"])
     name = generate_name(
         gender=gender,
-        region=context.get('region', '灣區'),
+        region=context['region'],
         used_names=used_names,
-        scene=context.get('scene', '')
+        scene=context['scene']
     )
     ctx_with_name = {**context, 'protagonist_name': name, 'protagonist_gender': gender}
     context_para = build_context_paragraph(ctx_with_name)
@@ -343,7 +358,6 @@ def display_emphasis_interface():
                         with st.spinner("正在重新生成情境案例... Regenerating..."):
                             prompt = _build_scenario_prompt(
                                 reference, tp['diagnosis'],
-                                st.session_state.get('scenario_context', {}),
                                 st.session_state.get('scenario_used_names', set())
                             )
                             raw = client.generate_content_quality(prompt)
@@ -362,61 +376,15 @@ def display_emphasis_interface():
             STAGES  = ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"]
             SCENES  = ["（不指定）", "職場", "學校", "家庭", "社區", "教會"]
 
-            # Initialise session state if not yet set
-            if 'scenario_context' not in st.session_state:
-                st.session_state.scenario_context = {
-                    'region': '灣區', 'scene': '', 'profession': '', 'life_stage': ''
-                }
-
-            ctx = st.session_state.scenario_context
-
             st.markdown("**⚙️ 情境設定 Scenario Context**")
             with st.container(border=True):
                 col_s1, col_s2 = st.columns(2)
                 with col_s1:
-                    region = st.selectbox(
-                        "地區 Region", REGIONS,
-                        index=REGIONS.index(ctx.get('region', '灣區')),
-                        key="ctx_region"
-                    )
-                    profession = st.selectbox(
-                        "職業 Profession", PROFS,
-                        index=PROFS.index(ctx['profession']) if ctx.get('profession') in PROFS else 0,
-                        key="ctx_profession"
-                    )
+                    st.selectbox("地區 Region", REGIONS, key="ctx_region")
+                    st.selectbox("職業 Profession", PROFS, key="ctx_profession")
                 with col_s2:
-                    life_stage = st.selectbox(
-                        "人生階段 Life Stage", STAGES,
-                        index=STAGES.index(ctx['life_stage']) if ctx.get('life_stage') in STAGES else 0,
-                        key="ctx_life_stage"
-                    )
-                    scene = st.selectbox(
-                        "情境場景 Scene", SCENES,
-                        index=SCENES.index(ctx['scene']) if ctx.get('scene') in SCENES else 0,
-                        key="ctx_scene"
-                    )
-
-                col_apply, col_reset = st.columns([2, 1])
-                with col_apply:
-                    if st.button("✅ 套用設定 Apply", key="ctx_apply", type="primary"):
-                        st.session_state.scenario_context = {
-                            'region':     st.session_state.ctx_region,
-                            'profession': "" if st.session_state.ctx_profession == "（不指定）" else st.session_state.ctx_profession,
-                            'life_stage': "" if st.session_state.ctx_life_stage == "（不指定）" else st.session_state.ctx_life_stage,
-                            'scene':      "" if st.session_state.ctx_scene == "（不指定）" else st.session_state.ctx_scene,
-                        }
-                        st.toast("✅ 情境設定已套用 Context applied", icon="✅")
-                with col_reset:
-                    if st.button("🔄 重設 Reset", key="ctx_reset", type="secondary"):
-                        # Set widget state directly to defaults — most reliable reset method
-                        st.session_state.ctx_region     = "灣區"
-                        st.session_state.ctx_profession = "（不指定）"
-                        st.session_state.ctx_life_stage = "（不指定）"
-                        st.session_state.ctx_scene      = "（不指定）"
-                        st.session_state.scenario_context = {
-                            'region': '灣區', 'scene': '', 'profession': '', 'life_stage': ''
-                        }
-                        st.toast("🔄 情境設定已重設 Context reset", icon="🔄")
+                    st.selectbox("人生階段 Life Stage", STAGES, key="ctx_life_stage")
+                    st.selectbox("情境場景 Scene", SCENES, key="ctx_scene")
 
             st.markdown("**選擇今天要聚焦的教學重點：**")
             st.markdown("*Select the teaching point for today's session:*")
@@ -448,7 +416,6 @@ def display_emphasis_interface():
                         with st.spinner("正在生成情境案例... Generating scenario..."):
                             prompt = _build_scenario_prompt(
                                 reference, tp['diagnosis'],
-                                st.session_state.get('scenario_context', {}),
                                 st.session_state.get('scenario_used_names', set())
                             )
                             raw = client.generate_content_quality(prompt)
