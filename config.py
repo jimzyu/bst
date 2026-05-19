@@ -21,8 +21,8 @@ class Config:
     #   USE_GLOO = True, USE_ANTHROPIC = False
     #   Fast tasks → gloo-google-gemini-2.5-flash | Quality → gloo-anthropic-claude-sonnet-4.6
     #
-    USE_GLOO = True
-    USE_ANTHROPIC = False
+    USE_GLOO = False
+    USE_ANTHROPIC = True
 
     # ── Model names ───────────────────────────────────────────────────────────
 
@@ -32,8 +32,9 @@ class Config:
     # GEMINI_MODEL_QUALITY = 'gemini-2.5-pro'   # uncomment for quality runs
 
     # Option 2 — Anthropic direct (mixed)
-    ANTHROPIC_MODEL_QUALITY = 'claude-sonnet-4-6'   # scenario, eval, follow-up
-    ANTHROPIC_MODEL_FAST    = 'claude-haiku-4-5'    # summary, mapping, questions
+    ANTHROPIC_MODEL_QUALITY = 'claude-haiku-4-5'       # scenario, eval, follow-up
+    # ANTHROPIC_MODEL_QUALITY = 'claude-sonnet-4-6'    # alternative quality model
+    ANTHROPIC_MODEL_FAST    = 'claude-haiku-4-5'       # summary, mapping, questions
 
     # Option 3 — Gloo mixed (cross-provider)
     GLOO_MODEL_QUALITY = 'gloo-anthropic-claude-haiku-4.5'        # quality tasks
