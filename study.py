@@ -495,6 +495,38 @@ def display_emphasis_interface():
                         with ftab2:
                             st.markdown(en_fb or "")
             st.markdown("---")
+
+            # ── Session-end self-assessment ────────────────────────────────
+            assessment_options = {
+                "和上週一樣": "Same as last week — nothing especially new",
+                "注意到了一些東西": "Noticed something — a detail or question I hadn't seen",
+                "有些驚訝": "Surprised — the passage said something I didn't expect",
+                "不確定": "Not sure — still processing",
+            }
+            current_assessment = st.session_state.emphasis_session_assessment
+            st.markdown(
+                "<div style='font-size:0.95em;font-weight:600;margin-bottom:6px;'>"
+                "今天讀完這段經文，你的感受是什麼？"
+                "</div>"
+                "<div style='font-size:0.82em;color:#888;margin-bottom:12px;'>"
+                "How would you describe where you ended up with this passage today?"
+                "</div>",
+                unsafe_allow_html=True
+            )
+            if current_assessment:
+                st.success(f"✓ {current_assessment}")
+                st.caption(assessment_options.get(current_assessment, ""))
+            else:
+                acols = st.columns(2)
+                option_items = list(assessment_options.items())
+                for idx, (label, help_text) in enumerate(option_items):
+                    with acols[idx % 2]:
+                        if st.button(label, key=f"assess_{label}",
+                                     help=help_text, use_container_width=True):
+                            st.session_state.emphasis_session_assessment = label
+                            st.rerun()
+
+            st.markdown("---")
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("← 換一個重點 Try another emphasis", type="secondary"):
@@ -508,7 +540,19 @@ def display_emphasis_interface():
                     st.session_state.emphasis_followup_done = {}
                     st.rerun()
             with col2:
-                if st.button("✅ 完成 Done", type="primary"):
+                done_disabled = not st.session_state.emphasis_session_assessment
+                if st.button("✅ 完成 Done", type="primary", disabled=done_disabled):
+                    # Log ratings + assessment to Sheets before ending session
+                    try:
+                        sheets_row = st.session_state.get('emphasis_sheets_row')
+                        if sheets_row and client.draft_logger:
+                            client.draft_logger.log_session_completion(
+                                row_number=sheets_row,
+                                question_ratings=st.session_state.emphasis_question_ratings,
+                                session_assessment=st.session_state.emphasis_session_assessment
+                            )
+                    except Exception as log_err:
+                        logger.warning(f"Session completion logging failed: {log_err}")
                     SessionManager.end_emphasis()
                     st.rerun()
             return
@@ -635,7 +679,38 @@ def display_emphasis_interface():
                     with ftab2:
                         st.markdown(en_fb or "")
 
-                if st.button("Continue ➡️", type="primary"):
+                # ── Post-answer question depth rating ──────────────────────
+                existing_rating = st.session_state.emphasis_question_ratings.get(question_type)
+                if existing_rating:
+                    st.markdown(
+                        f"<div style='color:#888;font-size:0.85em;margin-bottom:8px;'>"
+                        f"你對這個問題的感受：<strong>{existing_rating}</strong></div>",
+                        unsafe_allow_html=True
+                    )
+                else:
+                    st.markdown(
+                        "<div style='font-size:0.9em;margin-bottom:4px;color:#555;'>"
+                        "這個問題對你來說感覺怎麼樣？"
+                        "<span style='color:#888;font-size:0.8em;'> How did this question feel?</span>"
+                        "</div>",
+                        unsafe_allow_html=True
+                    )
+                    rcol1, rcol2, rcol3 = st.columns(3)
+                    rating_options = [
+                        ("表面", "Surface — stayed on the text surface"),
+                        ("適中", "Moderate — went a bit deeper"),
+                        ("很深", "Deep — genuinely challenged me"),
+                    ]
+                    for col, (label, help_text) in zip([rcol1, rcol2, rcol3], rating_options):
+                        with col:
+                            if st.button(label, key=f"rate_{question_type}_{label}",
+                                         help=help_text, use_container_width=True):
+                                st.session_state.emphasis_question_ratings[question_type] = label
+                                st.rerun()
+
+                # Continue only enabled once rated
+                rated = question_type in st.session_state.emphasis_question_ratings
+                if st.button("Continue ➡️", type="primary", disabled=not rated):
                     SessionManager.advance_emphasis_question()
                     st.rerun()
 

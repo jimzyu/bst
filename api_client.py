@@ -58,6 +58,8 @@ class SheetsLogger:
     COL_CONFIDENCE_INT = 18
     COL_CONFIDENCE_APP = 19
     COL_UNDERSTANDING_CONF = 20
+    COL_QUESTION_RATINGS = 21
+    COL_SESSION_ASSESSMENT = 22
 
     HEADERS = [
         "Timestamp",
@@ -79,7 +81,9 @@ class SheetsLogger:
         "Confidence - Observation (%)",
         "Confidence - Interpretation (%)",
         "Confidence - Application (%)",
-        "AI Understanding Confidence (%)"
+        "AI Understanding Confidence (%)",
+        "Question Depth Ratings",
+        "Session Self-Assessment",
     ]
 
     def __init__(self, service_account_info: dict, spreadsheet_id: str):
@@ -249,6 +253,51 @@ class SheetsLogger:
         Reuses the same column mapping as log_quiz_answer.
         """
         self.log_quiz_answer(row_number, question_type, user_answer, feedback)
+
+    def log_session_completion(self, row_number: int,
+                                question_ratings: dict,
+                                session_assessment: str):
+        """
+        Write post-session data to the row when the user completes a study session.
+
+        Args:
+            row_number: Row number in the sheet to update (from log_emphasis_study)
+            question_ratings: {question_type: rating_string} e.g.
+                              {'observation': '表面', 'interpretation': '很深', ...}
+            session_assessment: One of '和上週一樣' | '注意到了一些東西' |
+                                '有些驚訝' | '不確定'
+        """
+        try:
+            from gspread.utils import rowcol_to_a1
+            import time as _time
+
+            # Serialise ratings as compact string, e.g. "Obs:適中 Int:很深 App:表面"
+            label_map = {
+                'observation': 'Obs',
+                'interpretation': 'Int',
+                'application': 'App',
+            }
+            ratings_str = '  '.join(
+                f"{label_map.get(qt, qt)}:{r}"
+                for qt, r in question_ratings.items()
+                if r
+            )
+
+            ratings_cell = rowcol_to_a1(row_number, self.COL_QUESTION_RATINGS)
+            assessment_cell = rowcol_to_a1(row_number, self.COL_SESSION_ASSESSMENT)
+
+            _time.sleep(0.3)
+            self.sheet.batch_update([
+                {'range': ratings_cell,    'values': [[ratings_str]]},
+                {'range': assessment_cell, 'values': [[session_assessment or '']]},
+            ])
+            logger.info(
+                f"Session completion logged (row {row_number}): "
+                f"ratings={ratings_str!r}, assessment={session_assessment!r}"
+            )
+        except Exception as e:
+            logger.error(f"Failed to log session completion: {e}")
+            # Non-fatal — session continues regardless
 
 
 class GlooTokenManager:

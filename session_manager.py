@@ -168,7 +168,16 @@ class SessionManager:
         if 'emphasis_all_followup_done' not in st.session_state:
             # Persistent: {emphasis: {question_type: bool}}
             st.session_state.emphasis_all_followup_done = {}
-    
+
+        if 'emphasis_question_ratings' not in st.session_state:
+            # {question_type: '表面' | '適中' | '很深'} — per-question depth rating
+            st.session_state.emphasis_question_ratings = {}
+
+        if 'emphasis_session_assessment' not in st.session_state:
+            # One of: '和上週一樣' | '注意到了一些東西' | '有些驚訝' | '不確定'
+            # None until the user submits the session-end self-assessment
+            st.session_state.emphasis_session_assessment = None
+
     @staticmethod
     def can_make_request(cooldown_seconds: int) -> tuple[bool, float]:
         """
@@ -448,6 +457,8 @@ class SessionManager:
         st.session_state.emphasis_quiz_feedbacks = {}
         st.session_state.emphasis_quiz_subquestion = 0
         st.session_state.emphasis_quiz_subquestion_answers = {}
+        st.session_state.emphasis_question_ratings = {}
+        st.session_state.emphasis_session_assessment = None
 
     # Quiz Mode Methods
     
