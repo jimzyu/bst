@@ -201,7 +201,15 @@ def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
             emphasis_keys = ['explore', 'understand', 'apply']
             for emphasis in emphasis_keys:
                 base_prompt = PromptTemplates.get_emphasis_prompt(reference, emphasis)
-                enriched = f"THEOLOGICAL CONTEXT FROM PRIOR ANALYSIS:\n{theology_summary[:3000]}\n\n---\n\n{base_prompt}"
+                enriched = (
+                    f"THEOLOGICAL CONTEXT FROM PRIOR ANALYSIS "
+                    f"(use this to enrich your questions — do NOT respond to it directly):\n"
+                    f"{theology_summary[:3000]}\n\n"
+                    f"---\n\n"
+                    f"{base_prompt}\n\n"
+                    f"REMINDER: Your response MUST begin immediately with the [CHINESE] tag. "
+                    f"Do not write any preamble, acknowledgement, or prose before [CHINESE]."
+                )
                 emphasis_prompts.append(enriched)
 
             # Generate summary from drafts — all four in parallel

@@ -114,43 +114,60 @@ class QuizParser:
     def extract_questions_from_study(study_text: str) -> dict:
         """
         Extract the three questions from a study guide.
-        
+
+        Defensive against common model output variations:
+        - [CHINESE] tag missing (model prefixed prose or omitted tag)
+        - [META_ASSESSMENT] appearing between [CHINESE] and [ENGLISH]
+        - Full-width colons （：） instead of ASCII colons
+        - Theological context block prepended before [CHINESE]
+        - Multi-line sub-questions under a single label
+
         Args:
-            study_text: Full study guide text with [CHINESE] section
-            
+            study_text: Full study guide text
+
         Returns:
-            Dict of {question_type: question_text}
+            Dict of {question_type: question_text}, empty dict if nothing found
         """
-        # Extract Chinese section
-        ch_pattern = r"\[CHINESE\](.*?)\[ENGLISH\]"
-        ch_match = re.search(ch_pattern, study_text, re.DOTALL | re.IGNORECASE)
-        
-        if not ch_match:
+        if not study_text:
             return {}
-        
-        chinese_content = ch_match.group(1)
-        
-        # Extract individual questions
+
+        # Step 1: isolate the Chinese section if tags are present.
+        # Stop at [META_ASSESSMENT] or [ENGLISH] — whichever comes first —
+        # so a [META_ASSESSMENT] block between [CHINESE] and [ENGLISH] doesn't
+        # swallow the question content.
+        ch_pattern = r"\[CHINESE\](.*?)(?=\[ENGLISH\]|\[META_ASSESSMENT\])"
+        ch_match = re.search(ch_pattern, study_text, re.DOTALL | re.IGNORECASE)
+        content = ch_match.group(1).strip() if ch_match else study_text
+
+        # Step 2: match question labels.
+        # Handles both ASCII (:) and full-width (：) colons, with or without
+        # the English gloss in parentheses, with or without a leading number.
+        obs_pattern = (
+            r"\*\*觀察[^*]*\*\*[：:]\s*"
+            r"(.+?)"
+            r"(?=\n\s*(?:\d+\.)?\s*\*\*(?:解釋|應用)|\Z)"
+        )
+        int_pattern = (
+            r"\*\*解釋[^*]*\*\*[：:]\s*"
+            r"(.+?)"
+            r"(?=\n\s*(?:\d+\.)?\s*\*\*(?:應用|觀察)|\Z)"
+        )
+        app_pattern = (
+            r"\*\*應用[^*]*\*\*[：:]\s*"
+            r"(.+?)"
+            r"(?=\n\s*(?:\d+\.)?\s*\*\*(?:觀察|解釋)"
+            r"|\[ENGLISH\]|\[META_ASSESSMENT\]|\Z)"
+        )
+
         questions = {}
-        
-        # Observation question
-        obs_pattern = r"\*\*觀察[^:]*\*\*:\s*(.+?)(?=\d\.|###|$)"
-        obs_match = re.search(obs_pattern, chinese_content, re.DOTALL)
-        if obs_match:
-            questions["observation"] = obs_match.group(1).strip()
-        
-        # Interpretation question
-        int_pattern = r"\*\*解釋[^:]*\*\*:\s*(.+?)(?=\d\.|###|$)"
-        int_match = re.search(int_pattern, chinese_content, re.DOTALL)
-        if int_match:
-            questions["interpretation"] = int_match.group(1).strip()
-        
-        # Application question
-        app_pattern = r"\*\*應用[^:]*\*\*:\s*(.+?)(?=\d\.|###|$)"
-        app_match = re.search(app_pattern, chinese_content, re.DOTALL)
-        if app_match:
-            questions["application"] = app_match.group(1).strip()
-        
+        obs  = re.search(obs_pattern,  content, re.DOTALL)
+        intr = re.search(int_pattern,  content, re.DOTALL)
+        app  = re.search(app_pattern,  content, re.DOTALL)
+
+        if obs:  questions["observation"]    = obs.group(1).strip()
+        if intr: questions["interpretation"] = intr.group(1).strip()
+        if app:  questions["application"]    = app.group(1).strip()
+
         return questions
     
     @staticmethod
