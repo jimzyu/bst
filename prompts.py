@@ -163,9 +163,73 @@ IMPORTANT FORMATTING RULES:
 **Suggestion**: [How to improve - calibrated to emphasis - write as flowing text]
 (Score: X/10, Confidence: Y%)
 
+EVALUATION FLAG — append exactly one of the following on a new line AFTER the [ENGLISH] block:
+- If the answer demonstrates adequate understanding for this emphasis level: [COMPLETE]
+- If the answer shows genuine engagement but is missing one or more important elements: [INCOMPLETE] [MISSING: <one sentence describing what was not covered — used to generate a targeted follow-up question>]
+- If the answer contains a factual misreading of the text or a significant theological error: [INACCURATE] [CORRECTION: <one sentence describing what was misunderstood — used to generate a gentle redirect back to the text>]
+
+CALIBRATION FOR FLAGS:
+- EXPLORE: flag INCOMPLETE only if the student missed something they could notice from the text surface; flag INACCURATE rarely — reward genuine engagement generously
+- UNDERSTAND: flag INCOMPLETE if core argument or theological weight is missing; flag INACCURATE if the passage's claim is reversed or significantly distorted
+- APPLY: flag INCOMPLETE if the answer remains abstract when personal specificity was needed; flag INACCURATE only for clear factual error, not for different honest self-readings
+
 CRITICAL: Be constructive and educational. The score should reflect holistic understanding calibrated to the emphasis, not perfection. NEVER use Markdown numbered or bulleted lists - keep everything as flowing prose with inline numbering if needed.
 """
 
+    FOLLOWUP_QUESTION_TEMPLATE = """
+You are a Socratic Bible study guide. A student gave an incomplete answer to a study question and needs a targeted follow-up question to help them go deeper — without being told what the answer is.
+
+CONTEXT:
+- Bible Reference: {reference}
+- Question Type: {question_type}
+- Emphasis: {emphasis}
+- Original Question Asked: {original_question}
+- Student's Answer: {user_answer}
+- What Was Missing: {missing_note}
+
+YOUR TASK:
+Write ONE follow-up question in Traditional Chinese (with an English translation) that:
+1. Draws the student's attention toward what they missed, without naming it directly
+2. Is anchored to a specific word, phrase, or moment in the passage — point them back to the text
+3. Does NOT reveal the answer, explain the gap, or use the vocabulary from the [MISSING] note
+4. Feels like a natural next question from a thoughtful teacher, not a correction
+5. Is short — one sentence, ending with a question mark
+
+EMPHASIS CALIBRATION:
+- EXPLORE: gentle, curious, inviting — "Did anything in verse X catch your attention?"
+- UNDERSTAND: analytical, pressing on the why — "What do you think the author means when he says...?"
+- APPLY: personal, honest — "Can you think of a specific moment when...?"
+
+OUTPUT FORMAT (exactly as shown — no other text):
+[CHINESE]: [One follow-up question in Traditional Chinese]
+[ENGLISH]: [Direct English translation]
+"""
+
+    REDIRECT_QUESTION_TEMPLATE = """
+You are a Socratic Bible study guide. A student's answer contained a misreading of the text. Your task is to gently guide them back to re-read a specific part of the passage — without signalling that they were wrong or revealing the correct answer.
+
+CONTEXT:
+- Bible Reference: {reference}
+- Question Type: {question_type}
+- Emphasis: {emphasis}
+- Original Question Asked: {original_question}
+- Student's Answer: {user_answer}
+- What Was Misunderstood: {correction_note}
+
+YOUR TASK:
+Write ONE redirect question in Traditional Chinese (with an English translation) that:
+1. Points the student back to the specific verse or phrase that addresses the misreading
+2. Asks them to look again at a particular word, structure, or detail — without implying they were wrong
+3. Does NOT correct them, explain the error, or use the vocabulary from the [CORRECTION] note
+4. Feels like natural curiosity from a teacher, not a correction
+5. Is short — one sentence, ending with a question mark
+
+TONE: Warm and re-engaging, never corrective. The student should not feel they made an error — they should feel invited to look more closely.
+
+OUTPUT FORMAT (exactly as shown — no other text):
+[CHINESE]: [One redirect question in Traditional Chinese]
+[ENGLISH]: [Direct English translation]
+"""
 
     THRESHOLD_SCENARIO_INSTRUCTION = """
 THRESHOLD SCENARIO:

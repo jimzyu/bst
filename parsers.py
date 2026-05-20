@@ -176,6 +176,54 @@ class QuizParser:
         return ch_feedback, en_feedback
     
     @staticmethod
+    def parse_evaluation_flags(feedback_text: str) -> tuple:
+        """
+        Extract the evaluation flag and associated note from feedback text.
+
+        The EVALUATION_TEMPLATE instructs the model to embed one of three flags
+        in its response, along with an optional note that is forwarded to the
+        follow-up / redirect question generators:
+
+            [COMPLETE]
+            [INCOMPLETE] [MISSING: <what was not covered>]
+            [INACCURATE] [CORRECTION: <what was misunderstood>]
+
+        Falls back to 'COMPLETE' if no flag is found so that the quiz can
+        always proceed rather than hanging in a follow-up loop.
+
+        Args:
+            feedback_text: Raw evaluation feedback text
+
+        Returns:
+            Tuple of (flag, note) where:
+              - flag: 'COMPLETE', 'INCOMPLETE', or 'INACCURATE'
+              - note: detail string for follow-up/redirect prompt, or ''
+        """
+        if not feedback_text:
+            return 'COMPLETE', ''
+
+        # Order matters: check INCOMPLETE and INACCURATE before COMPLETE
+        # to avoid COMPLETE matching inside e.g. [INCOMPLETE]
+        incomplete_match = re.search(
+            r'\[INCOMPLETE\](?:\s*\[MISSING:\s*(.+?)\])?',
+            feedback_text, re.IGNORECASE | re.DOTALL
+        )
+        if incomplete_match:
+            note = (incomplete_match.group(1) or '').strip()
+            return 'INCOMPLETE', note
+
+        inaccurate_match = re.search(
+            r'\[INACCURATE\](?:\s*\[CORRECTION:\s*(.+?)\])?',
+            feedback_text, re.IGNORECASE | re.DOTALL
+        )
+        if inaccurate_match:
+            note = (inaccurate_match.group(1) or '').strip()
+            return 'INACCURATE', note
+
+        # COMPLETE — explicit or fallback
+        return 'COMPLETE', ''
+
+    @staticmethod
     def extract_score(feedback_text: str) -> Optional[int]:
         """
         Extract numerical score from feedback text.
