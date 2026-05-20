@@ -384,6 +384,7 @@ Provide a theme summary in Traditional Chinese and English.
 Keep it accessible — this is reference context for readers before or after engaging with the passage.
 
 CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as shown.
+DO NOT generate any questions, 啟發式提問, or reflective questions. Summary fields only.
 
 [CHINESE]
 ### 主題摘要
@@ -421,6 +422,7 @@ Using all three analyses, produce a richer summary than any single draft could p
 Draw on Draft 1 for theological precision, Draft 2 for historical depth, and Draft 3 for the passage's specific diagnostic claim about the human condition.
 
 CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as shown.
+DO NOT generate any questions, 啟發式提問, or reflective questions. Summary fields only.
 
 [CHINESE]
 ### 主題摘要
