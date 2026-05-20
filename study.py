@@ -337,6 +337,14 @@ def display_emphasis_interface():
 
         if case_study:
             # ── State 3: Scenario already generated — show it ──
+
+            # Debug: show raw TP mapping output if parsing failed and produced the fallback
+            failed_raw = st.session_state.pop('_tp_map_failed_raw', None)
+            if failed_raw:
+                with st.expander("⚠️ Debug: Teaching point mapping returned 0 results — raw model output", expanded=True):
+                    st.caption("Copy this and share it to fix the parser for this model.")
+                    st.code(failed_raw, language=None)
+
             ch_case, en_case = case_study
             st.markdown("### 💡 情境案例 (Discussion Scenario)")
             tp_idx = st.session_state.emphasis_tp_selected
@@ -444,6 +452,9 @@ def display_emphasis_interface():
                     if points:
                         st.session_state.emphasis_teaching_points = points
                     else:
+                        # Store raw output for debug display before falling back
+                        st.session_state['_tp_map_failed_raw'] = getattr(
+                            client, '_last_tp_raw', '(raw output not captured)')
                         # Fallback: generate directly without mapping
                         raw = client.generate_case_study(reference)
                         ch_case, en_case = QuizParser.extract_case_study(raw)

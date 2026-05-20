@@ -717,6 +717,7 @@ class GeminiClient:
         logger.info(f"Mapping teaching points for: {reference}")
         prompt = PromptTemplates.get_passage_mapping_prompt(reference)
         raw = self.generate_content(prompt)
+        self._last_tp_raw = raw  # retain for debug display if parsing returns []
 
         # Robust parser — handles TEACHING_POINT_N (expected) and the alternative
         # formats that Flash-tier models commonly produce (bold headers, markdown
@@ -771,6 +772,11 @@ class GeminiClient:
             })
 
         logger.info(f"Found {len(points)} teaching point(s)")
+        if not points:
+            logger.warning(
+                f"map_passage_teaching_points returned 0 points. "
+                f"Raw output (first 1000 chars):\n{raw[:1000]}"
+            )
         return points
 
     def generate_case_study(self, reference: str) -> str:
