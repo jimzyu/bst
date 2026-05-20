@@ -718,24 +718,57 @@ class GeminiClient:
         prompt = PromptTemplates.get_passage_mapping_prompt(reference)
         raw = self.generate_content(prompt)
 
-        # Parse structured TEACHING_POINT_N blocks
+        # Robust parser — handles TEACHING_POINT_N (expected) and the alternative
+        # formats that Flash-tier models commonly produce (bold headers, markdown
+        # headers, space+colon tokens, numbered lists, code fences).
         points = []
-        blocks = re.split(r'TEACHING_POINT_\d+', raw)
+
+        # Strip markdown code fences if present
+        cleaned = re.sub(r'^```[^\n]*\n|```$', '', raw.strip(), flags=re.MULTILINE)
+
+        # Choose splitting strategy based on what token the model used
+        if re.search(r'TEACHING_POINT_\d+', cleaned):
+            blocks = re.split(r'TEACHING_POINT_\d+', cleaned)
+
+        elif re.search(r'(?:\*\*|##\s*)Teaching Point \d+', cleaned, re.IGNORECASE):
+            blocks = re.split(
+                r'(?:\*\*|##\s*)Teaching Point \d+[^*\n]*(?:\*\*)?',
+                cleaned, flags=re.IGNORECASE
+            )
+
+        elif re.search(r'TEACHING POINT \d+', cleaned, re.IGNORECASE):
+            blocks = re.split(r'TEACHING POINT \d+[:\s]*', cleaned, flags=re.IGNORECASE)
+
+        elif re.search(r'^\d+\.\s*(?:Verses:|Teaching:)', cleaned, re.MULTILINE):
+            blocks = re.split(r'(?=^\d+\.)', cleaned, flags=re.MULTILINE)
+
+        else:
+            # Prose or unknown format — treat whole output as one block;
+            # if it has no Teaching: field this correctly returns []
+            blocks = [cleaned]
+
         for block in blocks:
             block = block.strip()
             if not block:
                 continue
-            verses_m = re.search(r'Verses:\s*(.+)', block)
-            teaching_m = re.search(r'Teaching:\s*(.+)', block)
+            verses_m      = re.search(r'Verses:\s*(.+)', block)
+            teaching_m    = re.search(r'Teaching:\s*(.+)', block)
             teaching_zh_m = re.search(r'Teaching_ZH:\s*(.+)', block)
-            diagnosis_m = re.search(r'Diagnosis:\s*(.+?)(?=\n[A-Z]|$)', block, re.DOTALL)
-            if teaching_m:
-                points.append({
-                    'verses': verses_m.group(1).strip() if verses_m else '',
-                    'teaching': teaching_m.group(1).strip(),
-                    'teaching_zh': teaching_zh_m.group(1).strip() if teaching_zh_m else '',
-                    'diagnosis': diagnosis_m.group(1).strip() if diagnosis_m else '',
-                })
+            diagnosis_m   = re.search(r'Diagnosis:\s*(.+?)(?=\n[A-Z#*\d]|$)', block, re.DOTALL)
+
+            if not teaching_m:
+                continue  # preamble or empty block — skip
+
+            teaching_text = teaching_m.group(1).strip()
+            # Strip Teaching_ZH content if it bled onto the Teaching line
+            teaching_text = re.split(r'\s*Teaching_ZH:', teaching_text)[0].strip()
+
+            points.append({
+                'verses':      verses_m.group(1).strip() if verses_m else '',
+                'teaching':    teaching_text,
+                'teaching_zh': teaching_zh_m.group(1).strip() if teaching_zh_m else '',
+                'diagnosis':   diagnosis_m.group(1).strip() if diagnosis_m else '',
+            })
 
         logger.info(f"Found {len(points)} teaching point(s)")
         return points

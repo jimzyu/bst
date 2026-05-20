@@ -426,19 +426,21 @@ GUIDELINES ON NUMBER OF TEACHING POINTS:
 - 7-15 verses: typically 2-3 teaching points
 - 16+ verses: 3-4 teaching points maximum — do not over-divide
 
-CRITICAL: Respond ONLY in the following structured format. No preamble, no explanation.
+OUTPUT FORMAT — you MUST use exactly this token structure. Do not use bold headers, numbered lists, markdown, or prose. Use the exact tokens TEACHING_POINT_1, TEACHING_POINT_2, etc.:
 
 TEACHING_POINT_1
 Verses: [verse range]
-Teaching: [one sentence]
+Teaching: [one sentence in English]
 Diagnosis: [specific human condition diagnosed]
 
 TEACHING_POINT_2
 Verses: [verse range]
-Teaching: [one sentence]
+Teaching: [one sentence in English]
 Diagnosis: [specific human condition diagnosed]
 
 [Continue only if genuinely distinct teaching points exist — do not force additional points]
+
+CRITICAL: Begin your response immediately with TEACHING_POINT_1. Do not write any preamble, introduction, or explanation before or after the teaching point blocks.
 """
 
     SUMMARY_TEMPLATE = """
