@@ -21,8 +21,8 @@ class Config:
     #   USE_GLOO = True, USE_ANTHROPIC = False
     #   Fast tasks → gloo-google-gemini-2.5-flash | Quality → gloo-anthropic-claude-sonnet-4.6
     #
-    USE_GLOO = False
-    USE_ANTHROPIC = True
+    USE_GLOO = True
+    USE_ANTHROPIC = False
 
     # ── Model names ───────────────────────────────────────────────────────────
 
