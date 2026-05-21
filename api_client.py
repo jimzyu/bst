@@ -533,13 +533,18 @@ class GeminiClient:
         reraise=True
     )
 
-    def generate_content(self, prompt: str) -> str:
+    def generate_content(self, prompt: str, system_override: str = None) -> str:
         """
         Generate content with retry logic.
         Routes to Gloo AI Studio or Gemini depending on Config.USE_GLOO.
 
         Args:
             prompt: Input prompt
+            system_override: Optional system instruction to use instead of the
+                             default self.system_instruction. Use this for calls
+                             whose output format differs from the study guide format
+                             embedded in the main system instruction (e.g. passage
+                             mapping, which must NOT produce [CHINESE]/[ENGLISH] output).
 
         Returns:
             Generated text
@@ -551,9 +556,9 @@ class GeminiClient:
             logger.info(f"Generating content (prompt length: {len(prompt)} chars)")
 
             if self._use_anthropic:
-                text = self._generate_via_anthropic(prompt)
+                text = self._generate_via_anthropic(prompt, system_override=system_override)
             elif self._use_gloo:
-                text = self._generate_via_gloo(prompt)
+                text = self._generate_via_gloo(prompt, system_override=system_override)
             else:
                 response = self.model.generate_content(prompt)
                 text = self.validate_response(response)
@@ -565,18 +570,22 @@ class GeminiClient:
             logger.error(f"Error generating content: {str(e)}")
             raise GeminiAPIError(f"Content generation failed: {str(e)}") from e
 
-    def _generate_via_anthropic(self, prompt: str, model: str = None) -> str:
+    def _generate_via_anthropic(self, prompt: str, model: str = None,
+                                 system_override: str = None) -> str:
         """Call Anthropic Claude API.
         Args:
             prompt: Input prompt
             model: Model override; defaults to ANTHROPIC_MODEL_FAST
+            system_override: If provided, replaces self.system_instruction for
+                             this call only.
         """
         model = model or Config.ANTHROPIC_MODEL_FAST
+        system = system_override if system_override is not None else self.system_instruction
         message = self._anthropic_client.messages.create(
             model=model,
             max_tokens=4096,
             temperature=Config.TEMPERATURE,
-            system=self.system_instruction,
+            system=system,
             messages=[{"role": "user", "content": prompt}]
         )
         text = message.content[0].text
@@ -618,15 +627,20 @@ class GeminiClient:
         except Exception as e:
             logger.warning(f"Gloo warmup failed (non-critical): {str(e)}")
 
-    def _generate_via_gloo(self, prompt: str, model: str = None) -> str:
+    def _generate_via_gloo(self, prompt: str, model: str = None,
+                            system_override: str = None) -> str:
         """Call Gloo's OpenAI-compatible completions endpoint.
         Args:
             prompt: Input prompt
             model: Model override; defaults to GLOO_MODEL_FAST
+            system_override: If provided, replaces self.system_instruction for
+                             this call only — used for calls whose required output
+                             format differs from the study guide format.
         """
         import requests as req
         model = model or Config.GLOO_MODEL_FAST
         token = self._gloo_token_mgr.get_token()
+        system = system_override if system_override is not None else self.system_instruction
         response = req.post(
             f"{Config.GLOO_API_BASE}/chat/completions",
             headers={
@@ -636,7 +650,7 @@ class GeminiClient:
             json={
                 "model": model,
                 "messages": [
-                    {"role": "system", "content": self.system_instruction},
+                    {"role": "system", "content": system},
                     {"role": "user",   "content": prompt}
                 ],
                 "temperature": Config.TEMPERATURE
@@ -716,7 +730,16 @@ class GeminiClient:
 
         logger.info(f"Mapping teaching points for: {reference}")
         prompt = PromptTemplates.get_passage_mapping_prompt(reference)
-        raw = self.generate_content(prompt)
+
+        # Use a minimal neutral system instruction so that Flash-tier models
+        # (which give the system instruction higher priority than the user prompt)
+        # do not apply the study-guide output format to this structured-data call.
+        mapping_system = (
+            "You are a precise Bible study assistant. "
+            "Follow the user's output format instructions exactly. "
+            "Do not apply any other output format."
+        )
+        raw = self.generate_content(prompt, system_override=mapping_system)
         self._last_tp_raw = raw  # retain for debug display if parsing returns []
 
         # Robust parser — handles TEACHING_POINT_N (expected) and the alternative
