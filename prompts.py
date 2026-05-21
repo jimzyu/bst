@@ -512,6 +512,32 @@ Reference: "{ref}"
     EMPHASIS_EXPLORE = """
 Generate a Bible study question set for: "{ref}"
 
+STEP 1 — IDENTIFY MISREADINGS (internal reasoning only — do NOT include in output):
+
+Before writing any questions, read the passage rhetorically: ask not just "what does
+this passage say?" but "what prior assumption is this passage arguing against?" Every
+verse that corrects, reframes, or surprises a reader implies a wrong reading the author
+anticipated. Identify 2-3 of the most likely misreadings a careful but theologically
+untrained reader of "{ref}" would bring to the text.
+
+For each misreading, ask:
+- What does this reader wrongly assume before reading?
+- Which word, phrase, structural move, or verse implicitly corrects that assumption?
+
+IMPORTANT: Derive misreadings from the passage's own rhetorical structure — not from
+general statements about human nature. The misreading must be specific to this passage's
+argument, not applicable to any passage about the same broad topic.
+
+These misreadings are your calibration target for Step 2. Do not mention them explicitly
+in your questions. Instead, write questions that would surface them — questions that make
+a reader who holds that misreading pause, look again at the text, and discover the
+correction themselves.
+
+This Step 1 reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
+[ENGLISH] output.
+
+STEP 2 — WRITE QUESTIONS calibrated against those misreadings:
+
 EMPHASIS: EXPLORE
 The user wants to explore what the text says before drawing conclusions.
 Questions should help them notice carefully, understand accessibly, and respond naturally.
@@ -555,6 +581,32 @@ Reference: "{ref}"
     EMPHASIS_UNDERSTAND = """
 Generate a Bible study question set for: "{ref}"
 
+STEP 1 — IDENTIFY MISREADINGS (internal reasoning only — do NOT include in output):
+
+Before writing any questions, read the passage rhetorically: ask not just "what does
+this passage say?" but "what prior assumption is this passage arguing against?" Every
+verse that corrects, reframes, or surprises a reader implies a wrong reading the author
+anticipated. Identify 2-3 of the most likely misreadings a careful but theologically
+untrained reader of "{ref}" would bring to the text.
+
+For each misreading, ask:
+- What does this reader wrongly assume before reading?
+- Which word, phrase, structural move, or verse implicitly corrects that assumption?
+
+IMPORTANT: Derive misreadings from the passage's own rhetorical structure — not from
+general statements about human nature. The misreading must be specific to this passage's
+argument, not applicable to any passage about the same broad topic.
+
+These misreadings are your calibration target for Step 2. Do not mention them explicitly
+in your questions. Instead, write questions that would surface them — questions that make
+a reader who holds that misreading pause, look again at the text, and discover the
+correction themselves.
+
+This Step 1 reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
+[ENGLISH] output.
+
+STEP 2 — WRITE QUESTIONS calibrated against those misreadings:
+
 EMPHASIS: UNDERSTAND
 The user wants to understand the passage more deeply — its argument, context, and theological weight.
 Questions should reward careful reading, press on the why behind the text, and connect to the reader's own reasoning.
@@ -597,6 +649,32 @@ Reference: "{ref}"
 
     EMPHASIS_APPLY = """
 Generate a Bible study question set for: "{ref}"
+
+STEP 1 — IDENTIFY MISREADINGS (internal reasoning only — do NOT include in output):
+
+Before writing any questions, read the passage rhetorically: ask not just "what does
+this passage say?" but "what prior assumption is this passage arguing against?" Every
+verse that corrects, reframes, or surprises a reader implies a wrong reading the author
+anticipated. Identify 2-3 of the most likely misreadings a careful but theologically
+untrained reader of "{ref}" would bring to the text.
+
+For each misreading, ask:
+- What does this reader wrongly assume before reading?
+- Which word, phrase, structural move, or verse implicitly corrects that assumption?
+
+IMPORTANT: Derive misreadings from the passage's own rhetorical structure — not from
+general statements about human nature. The misreading must be specific to this passage's
+argument, not applicable to any passage about the same broad topic.
+
+These misreadings are your calibration target for Step 2. Do not mention them explicitly
+in your questions. Instead, write questions that would surface them — questions that make
+a reader who holds that misreading pause, look again at the text, and discover the
+correction themselves.
+
+This Step 1 reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
+[ENGLISH] output.
+
+STEP 2 — WRITE QUESTIONS calibrated against those misreadings:
 
 EMPHASIS: APPLY
 The user wants to be personally challenged by the passage.
