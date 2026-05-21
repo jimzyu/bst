@@ -670,51 +670,57 @@ class GeminiClient:
             raise GeminiAPIError("Gloo returned empty response")
         return text
     
-    def generate_drafts_parallel(self, prompts: List[str], 
-                                 status_callback=None) -> List[str]:
+    def generate_drafts_parallel(self, prompts: List[str],
+                                 status_callback=None,
+                                 labels: List[str] = None) -> List[str]:
         """
-        Generate multiple drafts in parallel.
-        
+        Generate multiple prompts in parallel.
+
         Args:
             prompts: List of prompts to generate
             status_callback: Optional callback function to update UI status
-            
+            labels: Optional list of status labels, one per prompt.
+                    If omitted, falls back to "Draft N complete".
+
         Returns:
             List of generated texts in same order as prompts
-            
+
         Raises:
             GeminiAPIError: If any generation fails
         """
-        logger.info(f"Generating {len(prompts)} drafts in parallel")
+        logger.info(f"Generating {len(prompts)} prompts in parallel")
         start_time = time.time()
-        
+
         drafts = [None] * len(prompts)
-        
+
         with ThreadPoolExecutor(max_workers=min(len(prompts), 3)) as executor:
             # Submit all tasks
             future_to_index = {
-                executor.submit(self.generate_content, prompt): i 
+                executor.submit(self.generate_content, prompt): i
                 for i, prompt in enumerate(prompts)
             }
-            
+
             # Collect results as they complete
             for future in as_completed(future_to_index):
                 index = future_to_index[future]
                 try:
                     drafts[index] = future.result()
                     if status_callback:
-                        status_callback(f"Draft {index + 1} complete")
-                    logger.info(f"Draft {index + 1} completed successfully")
-                    
+                        label = (labels[index] if labels and index < len(labels)
+                                 else f"Draft {index + 1} complete")
+                        status_callback(label)
+                    logger.info(f"Prompt {index + 1} completed successfully")
+
                 except Exception as e:
-                    logger.error(f"Draft {index + 1} failed: {str(e)}")
-                    raise GeminiAPIError(f"Draft {index + 1} generation failed: {str(e)}") from e
-        
+                    logger.error(f"Prompt {index + 1} failed: {str(e)}")
+                    raise GeminiAPIError(
+                        f"Prompt {index + 1} generation failed: {str(e)}") from e
+
         elapsed = time.time() - start_time
-        logger.info(f"All {len(prompts)} drafts completed in {elapsed:.2f} seconds")
-        
+        logger.info(f"All {len(prompts)} prompts completed in {elapsed:.2f} seconds")
+
         return drafts
-    
+
     def map_passage_teaching_points(self, reference: str) -> list:
         """
         Map a passage's distinct teaching points using the passage mapping prompt.
@@ -848,7 +854,14 @@ class GeminiClient:
         all_prompts = [prompts_dict[k] for k in emphasis_keys] + [summary_prompt]
 
         logger.info(f"Generating 3 emphasis sets + summary in parallel for: {reference}")
-        results_list = self.generate_drafts_parallel(all_prompts, status_callback)
+        emphasis_labels = [
+            "探索問題生成完成 Explore ✓",
+            "理解問題生成完成 Understand ✓",
+            "應用問題生成完成 Apply ✓",
+            "主題摘要生成完成 Summary ✓",
+        ]
+        results_list = self.generate_drafts_parallel(
+            all_prompts, status_callback, labels=emphasis_labels)
 
         emphasis_results = {emphasis_keys[i]: results_list[i] for i in range(len(emphasis_keys))}
         summary_text = results_list[-1]

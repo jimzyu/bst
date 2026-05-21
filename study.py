@@ -192,7 +192,12 @@ def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
             # Deep mode: run three theological drafts in parallel first
             status.update(label="深度分析中 (1/3) — 標準神學分析...")
             prompts = PromptTemplates.get_threshold_deep_prompts(reference)
-            drafts = client.generate_drafts_parallel(prompts, cb)
+            draft_labels = [
+                "神學分析 (標準) 完成 ✓",
+                "神學分析 (歷史) 完成 ✓",
+                "神學分析 (應用) 完成 ✓",
+            ]
+            drafts = client.generate_drafts_parallel(prompts, cb, labels=draft_labels)
             theology_summary = "\n\n---\n\n".join(drafts)
 
             # Generate all three emphasis sets in parallel, enriched with theology.
@@ -235,7 +240,14 @@ def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
             summary_prompt = PromptTemplates.get_summary_from_drafts_prompt(
                 reference, drafts[0], drafts[1], drafts[2])
             all_prompts = emphasis_prompts + [summary_prompt]
-            all_results_list = client.generate_drafts_parallel(all_prompts, cb)
+            deep_labels = [
+                "探索問題生成完成 Explore ✓",
+                "理解問題生成完成 Understand ✓",
+                "應用問題生成完成 Apply ✓",
+                "主題摘要生成完成 Summary ✓",
+            ]
+            all_results_list = client.generate_drafts_parallel(
+                all_prompts, cb, labels=deep_labels)
 
             all_results = {emphasis_keys[i]: all_results_list[i] for i in range(3)}
             summary_text = all_results_list[3]
