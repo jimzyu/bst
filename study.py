@@ -195,18 +195,37 @@ def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
             drafts = client.generate_drafts_parallel(prompts, cb)
             theology_summary = "\n\n---\n\n".join(drafts)
 
-            # Generate all three emphasis sets in parallel, enriched with theology
+            # Generate all three emphasis sets in parallel, enriched with theology.
+            # Option B ordering: STEP 1 (misreading identification from the raw passage)
+            # runs BEFORE the theological context, so the model reads the passage
+            # rhetorically first and treats theology as enrichment rather than as the
+            # frame that pre-answers STEP 1's questions.
+            # Order: STEP 1 → theology → STEP 2 + emphasis calibration + output format
             status.update(label="深度分析中 (2/3) — 生成問題組...")
             emphasis_prompts = []
             emphasis_keys = ['explore', 'understand', 'apply']
+            misreading_step = PromptTemplates.MISREADING_PREAMBLE.format(ref=reference)
             for emphasis in emphasis_keys:
                 base_prompt = PromptTemplates.get_emphasis_prompt(reference, emphasis)
+                # Strip STEP 1 from base_prompt — it now appears before the theology block
+                # base_prompt still contains STEP 2 + EMPHASIS calibration + output format
+                step2_marker = "STEP 2 — WRITE QUESTIONS calibrated against those misreadings:"
+                if step2_marker in base_prompt:
+                    base_prompt_step2_onwards = base_prompt[
+                        base_prompt.index(step2_marker):]
+                else:
+                    # Fallback: use full base_prompt if marker not found
+                    base_prompt_step2_onwards = base_prompt
+
                 enriched = (
+                    f"Generate a Bible study question set for: \"{reference}\"\n\n"
+                    f"{misreading_step}\n"
+                    f"---\n\n"
                     f"THEOLOGICAL CONTEXT FROM PRIOR ANALYSIS "
                     f"(use this to enrich your questions — do NOT respond to it directly):\n"
                     f"{theology_summary[:3000]}\n\n"
                     f"---\n\n"
-                    f"{base_prompt}\n\n"
+                    f"{base_prompt_step2_onwards}\n\n"
                     f"REMINDER: Your response MUST begin immediately with the [CHINESE] tag. "
                     f"Do not write any preamble, acknowledgement, or prose before [CHINESE]."
                 )
