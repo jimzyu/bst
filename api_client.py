@@ -391,7 +391,8 @@ class GeminiClient:
             anthropic_key = Config.get_anthropic_api_key()
             self._anthropic_client = anthropic_sdk.Anthropic(
                 api_key=anthropic_key,
-                timeout=180.0
+                timeout=180.0,
+                max_retries=0  # Disable SDK-level retries — tenacity handles all retrying
             )
             logger.info(f"Initialized Anthropic client — quality: {Config.ANTHROPIC_MODEL_QUALITY} | fast: {Config.ANTHROPIC_MODEL_FAST}")
         elif self._use_gloo:
