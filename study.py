@@ -221,6 +221,11 @@ def _generate_deep_summary(reference: str, client):
 def _build_scenario_prompt(reference, diagnosis, used_names):
     """Build a scenario prompt enriched with context and a randomised protagonist name.
     Reads context directly from Streamlit widget state — no Apply button needed.
+
+    Context enrichment priority (best available from session state):
+      1. Theological drafts (from Deep Summary) — richest
+      2. Quick summary text — lightweight but still useful
+      3. No context — TP diagnosis only (original behaviour)
     """
     import random
     import streamlit as st
@@ -246,8 +251,22 @@ def _build_scenario_prompt(reference, diagnosis, used_names):
     ctx_with_name = {**context, 'protagonist_name': name, 'protagonist_gender': gender}
     context_para = build_context_paragraph(ctx_with_name)
     from prompts import PromptTemplates
+
+    # Build the best available passage context for scenario enrichment
+    drafts = st.session_state.get('emphasis_theological_drafts')
+    summary = st.session_state.get('emphasis_summary')
+    if drafts:
+        # Deep Summary was generated — use all three draft texts joined
+        context_summary = "\n\n---\n\n".join(drafts)
+    elif summary:
+        # Quick Summary available — use it as lighter enrichment
+        context_summary = summary
+    else:
+        context_summary = None
+
     prefix = "請以繁體中文回應以下所有內容。\n\n"
-    base = PromptTemplates.get_threshold_with_diagnosis_prompt(reference, diagnosis)
+    base = PromptTemplates.get_threshold_with_diagnosis_prompt(
+        reference, diagnosis, context_summary=context_summary)
     return prefix + context_para + base
 
 def display_emphasis_interface():

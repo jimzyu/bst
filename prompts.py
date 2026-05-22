@@ -843,7 +843,8 @@ Reference: "{ref}"
         )
 
     @classmethod
-    def get_threshold_with_diagnosis_prompt(cls, reference: str, diagnosis: str) -> str:
+    def get_threshold_with_diagnosis_prompt(cls, reference: str, diagnosis: str,
+                                             context_summary: str = None) -> str:
         """
         Get a threshold scenario prompt informed by the passage's specific diagnosis.
         The diagnosis is prepended to the scenario instruction so the model knows
@@ -851,7 +852,11 @@ Reference: "{ref}"
 
         Args:
             reference: Bible reference
-            diagnosis: The 經文的診斷 text extracted from the summary
+            diagnosis: The 經文的診斷 text extracted from the teaching point mapping
+            context_summary: Optional passage context (from quick or deep summary)
+                             used to enrich rationalisation quality and cultural
+                             specificity. When theological drafts are available,
+                             pass their joined text here for maximum enrichment.
         """
         diagnosis_context = f"""PASSAGE DIAGNOSIS FOR THIS SCENARIO:
 The following is the specific human condition this passage diagnoses. The scenario you generate must embody this diagnosis — not merely be consistent with it:
@@ -861,7 +866,17 @@ The following is the specific human condition this passage diagnoses. The scenar
 Use this diagnosis to ensure the scenario shows a character whose specific failure matches what the passage names, not just a generic action-gap situation.
 
 """
-        enriched_instruction = diagnosis_context + cls.THRESHOLD_SCENARIO_INSTRUCTION
+        # Optional: enrich with passage context for richer rationalisation
+        if context_summary:
+            context_block = (
+                f"PASSAGE CONTEXT (use to enrich the rationalisation's theological "
+                f"and cultural specificity — do NOT reproduce this as narration):\n\n"
+                f"{context_summary[:2000]}\n\n"
+            )
+        else:
+            context_block = ""
+
+        enriched_instruction = diagnosis_context + context_block + cls.THRESHOLD_SCENARIO_INSTRUCTION
         return cls.BASE_STUDY_TEMPLATE.format(
             ref=reference,
             focus=cls.FOCUS_AREAS['application'],
