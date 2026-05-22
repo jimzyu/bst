@@ -117,6 +117,10 @@ class SessionManager:
         if 'emphasis_summary' not in st.session_state:
             st.session_state.emphasis_summary = None  # Raw summary text
 
+        if 'emphasis_theological_drafts' not in st.session_state:
+            # List of three raw draft strings from Deep Summary generation, or None
+            st.session_state.emphasis_theological_drafts = None
+
         if 'emphasis_sheets_row' not in st.session_state:
             st.session_state.emphasis_sheets_row = None  # Google Sheets row for this session
 
@@ -284,6 +288,7 @@ class SessionManager:
         st.session_state.emphasis_all_results = all_results
         st.session_state.emphasis_case_study = None
         st.session_state.emphasis_summary = None
+        st.session_state.emphasis_theological_drafts = None
         st.session_state.emphasis_sheets_row = None
         st.session_state.emphasis_all_answers = {}
         st.session_state.emphasis_all_feedbacks = {}
@@ -433,6 +438,7 @@ class SessionManager:
         st.session_state.emphasis_all_results = {}
         st.session_state.emphasis_case_study = None
         st.session_state.emphasis_summary = None
+        st.session_state.emphasis_theological_drafts = None
         st.session_state.emphasis_sheets_row = None
         st.session_state.emphasis_all_answers = {}
         st.session_state.emphasis_all_feedbacks = {}

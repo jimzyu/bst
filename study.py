@@ -109,57 +109,51 @@ def initialize_app():
 def render_ui():
     """Render the main UI."""
     labels = Config.LABELS
-    
+
     # Header
     st.title(labels['main_title'])
     st.subheader(labels['subtitle'])
     st.markdown(labels['input_prompt'])
-    
-    # Mode selection — Deep Study is the only option; Emphasis is the default
-    deep_mode = st.checkbox(labels['deep_mode'],
-                            help="運行三次平行分析以獲得更深入的問題組 / Run three parallel analyses for deeper question sets")
-    
+
     st.markdown("---")
-    
+
     # Input
     reference = st.text_input(
         labels['input_label'],
         placeholder=labels['input_placeholder']
     )
-    
-    return reference, deep_mode
+
+    return reference
 
 
-def process_study_request(reference: str, deep_mode: bool):
+def process_study_request(reference: str):
     """
-    Process a study request. Emphasis Study is always the default path.
-    Deep Study runs three parallel analyses before presenting emphasis selection.
-    
+    Process a study request — always uses Standard Mode question generation.
+    Summary depth (quick vs deep) is chosen by the user after questions are shown.
+
     Args:
         reference: Bible reference input
-        deep_mode: Whether to use deep study mode for richer question generation
     """
     labels = Config.LABELS
     client = st.session_state.gemini_client
-    
+
     # Check rate limiting
     can_proceed, wait_time = SessionManager.can_make_request(Config.REQUEST_COOLDOWN_SECONDS)
     if not can_proceed:
         st.warning(f"請等待 {int(wait_time) + 1} 秒後再試 (Please wait {int(wait_time) + 1} seconds)")
         return
-    
+
     # Validate input
     if not reference.strip():
         st.warning(labels['error_empty'])
         return
-    
+
     # Record request
     SessionManager.record_request()
-    
-    # Always route to emphasis selection (with optional deep mode)
+
     try:
-        process_emphasis_selection(reference, client, deep_mode=deep_mode)
-            
+        process_emphasis_selection(reference, client)
+
     except GeminiAPIError as e:
         logger.error(f"API error: {str(e)}")
         SessionManager.record_error()
@@ -173,94 +167,54 @@ def process_study_request(reference: str, deep_mode: bool):
         st.exception(e)
 
 
-def process_emphasis_selection(reference: str, client, deep_mode: bool = False):
+def process_emphasis_selection(reference: str, client):
     """
-    Generate all three emphasis question sets in parallel upfront,
-    then show the selection screen. The user selects instantly with no wait.
-    Deep mode runs three theological drafts first to inform richer questions.
+    Generate all three emphasis question sets in parallel (Standard Mode —
+    misreading preamble, no theological context). The user selects instantly
+    with no wait. Summary depth is chosen separately after question display.
     """
-    if deep_mode:
-        status_msg = "正在深度分析經文並準備問題組... Running deep analysis..."
-    else:
-        status_msg = "正在準備三種學習重點的問題組... Preparing all question sets..."
+    status_msg = "正在準備三種學習重點的問題組... Preparing all question sets..."
 
     with st.status(status_msg, expanded=True) as status:
         def cb(msg):
             status.update(label=f"生成中... {msg}")
 
-        if deep_mode:
-            # Deep mode: run three theological drafts in parallel first
-            status.update(label="深度分析中 (1/3) — 標準神學分析...")
-            prompts = PromptTemplates.get_threshold_deep_prompts(reference)
-            draft_labels = [
-                "神學分析 (標準) 完成 ✓",
-                "神學分析 (歷史) 完成 ✓",
-                "神學分析 (應用) 完成 ✓",
-            ]
-            drafts = client.generate_drafts_parallel(prompts, cb, labels=draft_labels)
-            theology_summary = "\n\n---\n\n".join(drafts)
-
-            # Generate all three emphasis sets in parallel, enriched with theology.
-            # Option B ordering: STEP 1 (misreading identification from the raw passage)
-            # runs BEFORE the theological context, so the model reads the passage
-            # rhetorically first and treats theology as enrichment rather than as the
-            # frame that pre-answers STEP 1's questions.
-            # Order: STEP 1 → theology → STEP 2 + emphasis calibration + output format
-            status.update(label="深度分析中 (2/3) — 生成問題組...")
-            emphasis_prompts = []
-            emphasis_keys = ['explore', 'understand', 'apply']
-            misreading_step = PromptTemplates.MISREADING_PREAMBLE.format(ref=reference)
-            for emphasis in emphasis_keys:
-                base_prompt = PromptTemplates.get_emphasis_prompt(reference, emphasis)
-                # Strip STEP 1 from base_prompt — it now appears before the theology block
-                # base_prompt still contains STEP 2 + EMPHASIS calibration + output format
-                step2_marker = "STEP 2 — WRITE QUESTIONS calibrated against those misreadings:"
-                if step2_marker in base_prompt:
-                    base_prompt_step2_onwards = base_prompt[
-                        base_prompt.index(step2_marker):]
-                else:
-                    # Fallback: use full base_prompt if marker not found
-                    base_prompt_step2_onwards = base_prompt
-
-                enriched = (
-                    f"Generate a Bible study question set for: \"{reference}\"\n\n"
-                    f"{misreading_step}\n"
-                    f"---\n\n"
-                    f"THEOLOGICAL CONTEXT FROM PRIOR ANALYSIS "
-                    f"(use this to enrich your questions — do NOT respond to it directly):\n"
-                    f"{theology_summary[:3000]}\n\n"
-                    f"---\n\n"
-                    f"{base_prompt_step2_onwards}\n\n"
-                    f"REMINDER: Your response MUST begin immediately with the [CHINESE] tag. "
-                    f"Do not write any preamble, acknowledgement, or prose before [CHINESE]."
-                )
-                emphasis_prompts.append(enriched)
-
-            # Generate summary from drafts — all four in parallel
-            summary_prompt = PromptTemplates.get_summary_from_drafts_prompt(
-                reference, drafts[0], drafts[1], drafts[2])
-            all_prompts = emphasis_prompts + [summary_prompt]
-            deep_labels = [
-                "探索問題生成完成 Explore ✓",
-                "理解問題生成完成 Understand ✓",
-                "應用問題生成完成 Apply ✓",
-                "主題摘要生成完成 Summary ✓",
-            ]
-            all_results_list = client.generate_drafts_parallel(
-                all_prompts, cb, labels=deep_labels)
-
-            all_results = {emphasis_keys[i]: all_results_list[i] for i in range(3)}
-            summary_text = all_results_list[3]
-            status.update(label="深度分析中 (3/3) — 整合完成...")
-        else:
-            all_results, summary_text = client.generate_all_emphasis_parallel(
-                reference, status_callback=cb)
+        all_results, summary_text = client.generate_all_emphasis_parallel(
+            reference, status_callback=cb)
 
         SessionManager.start_emphasis(reference, all_results)
         st.session_state.emphasis_summary = summary_text
 
         status.update(label="✅ 準備完成！Ready.", state="complete", expanded=False)
     st.rerun()
+
+
+def _generate_quick_summary(reference: str, client):
+    """Generate a quick passage summary (single call, no theological drafts)."""
+    from prompts import PromptTemplates
+    prompt = PromptTemplates.get_summary_prompt(reference)
+    return client.generate_content_quality(prompt)
+
+
+def _generate_deep_summary(reference: str, client):
+    """
+    Generate a deep passage summary using three parallel theological drafts.
+    Stores the drafts in session state for optional later use by scenario generation.
+    Returns the synthesised summary text.
+    """
+    from prompts import PromptTemplates
+    draft_labels = [
+        "神學分析 (標準) 完成 ✓",
+        "神學分析 (歷史) 完成 ✓",
+        "神學分析 (應用) 完成 ✓",
+    ]
+    prompts = PromptTemplates.get_threshold_deep_prompts(reference)
+    drafts = client.generate_drafts_parallel(prompts, labels=draft_labels)
+    st.session_state.emphasis_theological_drafts = drafts
+
+    summary_prompt = PromptTemplates.get_summary_from_drafts_prompt(
+        reference, drafts[0], drafts[1], drafts[2])
+    return client.generate_content_quality(summary_prompt)
 
 
 
@@ -344,7 +298,7 @@ def display_emphasis_interface():
 
         st.markdown("---")
 
-        # ── Passage Summary (collapsible reference panel with tabs) ──
+        # ── Passage Summary ──────────────────────────────────────────────────
         summary_raw = st.session_state.get('emphasis_summary')
         if summary_raw:
             ch_summary, en_summary = ResponseParser.parse_ai_response(summary_raw)
@@ -357,6 +311,36 @@ def display_emphasis_interface():
                     st.markdown(sim_summary)
                 with stab3:
                     st.markdown(en_summary or "")
+
+            # Show deep summary button only if not yet generated
+            if st.session_state.emphasis_theological_drafts is None:
+                if st.button("🔬 深度摘要 Deep Summary",
+                             help="生成包含歷史背景、原文詞彙與正典聯繫的深度摘要 / Generate a richer summary with historical, lexical and canonical depth",
+                             type="secondary"):
+                    with st.spinner("正在進行深度神學分析... Running deep theological analysis..."):
+                        deep_summary = _generate_deep_summary(reference, client)
+                        st.session_state.emphasis_summary = deep_summary
+                    st.rerun()
+        else:
+            # No summary yet — offer both options
+            st.markdown("### 📚 經文摘要 Passage Summary")
+            scol1, scol2 = st.columns(2)
+            with scol1:
+                if st.button("⚡ 快速摘要 Quick Summary",
+                             help="生成簡潔的段落摘要 / Generate a concise passage summary",
+                             type="secondary", use_container_width=True):
+                    with st.spinner("正在生成摘要... Generating summary..."):
+                        quick_summary = _generate_quick_summary(reference, client)
+                        st.session_state.emphasis_summary = quick_summary
+                    st.rerun()
+            with scol2:
+                if st.button("🔬 深度摘要 Deep Summary",
+                             help="生成包含歷史背景、原文詞彙與正典聯繫的深度摘要（需時較長）/ Richer summary with historical, lexical and canonical depth (takes longer)",
+                             type="secondary", use_container_width=True):
+                    with st.spinner("正在進行深度神學分析（三個平行分析）... Running deep analysis (3 parallel calls)..."):
+                        deep_summary = _generate_deep_summary(reference, client)
+                        st.session_state.emphasis_summary = deep_summary
+                    st.rerun()
 
         st.markdown("")
 
@@ -952,11 +936,11 @@ def main():
         display_emphasis_interface()
     else:
         # Render UI and get inputs
-        reference, deep_mode = render_ui()
-        
+        reference = render_ui()
+
         # Process button click
         if st.button(Config.LABELS['button_text'], type="primary"):
-            process_study_request(reference, deep_mode)
+            process_study_request(reference)
     
     # Optional: Debug info (comment out for production)
     # SessionManager.show_debug_info()
