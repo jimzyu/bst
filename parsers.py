@@ -309,6 +309,9 @@ class QuizParser:
         Returns:
             Tuple of (chinese_scenario, english_scenario) or (None, None) if not found
         """
+        import logging
+        _logger = logging.getLogger(__name__)
+
         # Extract Chinese threshold scenario
         ch_pattern = r'\[THRESHOLD_SCENARIO_CHINESE\](.*?)(?:\[THRESHOLD_SCENARIO_ENGLISH\]|\[META_ASSESSMENT\]|$)'
         ch_match = re.search(ch_pattern, answer_key, re.DOTALL | re.IGNORECASE)
@@ -320,10 +323,20 @@ class QuizParser:
         ch_scenario = ch_match.group(1).strip() if ch_match else None
         en_scenario = en_match.group(1).strip() if en_match else None
 
+        # Truncation detection: scenario present but ends abruptly without discussion questions
+        if ch_scenario:
+            has_q1 = '討論問題' in ch_scenario or 'Q1' in ch_scenario or '1.' in ch_scenario[-200:]
+            has_q2 = 'Q2' in ch_scenario or ('2.' in ch_scenario[-200:])
+            if not has_q1:
+                _logger.warning(
+                    "extract_case_study: scenario appears truncated — "
+                    "discussion questions not found in Chinese scenario. "
+                    f"Last 100 chars: {repr(ch_scenario[-100:])}"
+                )
+
         # Fallback: if tags not found but content exists, return full response as Chinese
         if not ch_scenario and answer_key and answer_key.strip():
-            import logging
-            logging.getLogger(__name__).warning(
+            _logger.warning(
                 "extract_case_study: scenario tags not found — using full response as fallback"
             )
             ch_scenario = answer_key.strip()

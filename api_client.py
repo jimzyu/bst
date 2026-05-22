@@ -630,11 +630,15 @@ class GeminiClient:
         system = system_override if system_override is not None else self.system_instruction
         message = self._anthropic_client.messages.create(
             model=model,
-            max_tokens=4096,
+            max_tokens=8192,
             temperature=Config.TEMPERATURE,
             system=system,
             messages=[{"role": "user", "content": prompt}]
         )
+        # Log stop reason to diagnose truncation issues
+        stop_reason = getattr(message, 'stop_reason', 'unknown')
+        if stop_reason not in ('end_turn', 'stop_sequence'):
+            logger.warning(f"Unexpected stop reason: {stop_reason} — response may be truncated")
         text = message.content[0].text
         if not text:
             raise GeminiAPIError("Anthropic returned empty response")
