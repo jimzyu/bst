@@ -203,7 +203,6 @@ def process_emphasis_selection(reference: str, client):
 
 def _generate_quick_summary(reference: str, client):
     """Generate a quick passage summary (single call, no theological drafts)."""
-    from prompts import PromptTemplates
     prompt = PromptTemplates.get_summary_prompt(reference)
     return client.generate_content_quality(prompt)
 
@@ -214,7 +213,6 @@ def _generate_deep_summary(reference: str, client):
     Stores the drafts in session state for optional later use by scenario generation.
     Returns the synthesised summary text, or None if generation fails.
     """
-    from prompts import PromptTemplates
     try:
         draft_labels = [
             "神學分析 (標準) 完成 ✓",
@@ -266,7 +264,6 @@ def _build_scenario_prompt(reference, diagnosis, used_names):
     )
     ctx_with_name = {**context, 'protagonist_name': name, 'protagonist_gender': gender}
     context_para = build_context_paragraph(ctx_with_name)
-    from prompts import PromptTemplates
 
     # Build the best available passage context for scenario enrichment
     drafts = st.session_state.get('emphasis_theological_drafts')
@@ -287,7 +284,6 @@ def _build_scenario_prompt(reference, diagnosis, used_names):
 
 def display_emphasis_interface():
     """Display the emphasis study interface — selection, question set, or quiz."""
-    from parsers import QuizParser
 
     EMPHASIS_OPTIONS = {
         'explore': {'label': '🔍 探索 Explore', 'desc': '讀讀看，注意你注意到什麼', 'desc_en': 'Read and notice what you notice'},
@@ -388,7 +384,6 @@ def display_emphasis_interface():
         st.markdown("")
 
         # ── Case Study section ──
-        from parsers import QuizParser
         case_study = st.session_state.emphasis_case_study
         teaching_points = st.session_state.emphasis_teaching_points
         tp_selected = st.session_state.emphasis_tp_selected
