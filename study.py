@@ -322,25 +322,13 @@ def display_emphasis_interface():
                         logger.warning("Emphasis logging skipped: draft_logger is None")
                     st.rerun()
 
-        st.markdown("---")
-
         # Gate: show summary and scenario only after completing at least one
         # question set, OR when facilitator mode is active.
         unlocked = (SessionManager.has_completed_any_emphasis()
                     or st.session_state.facilitator_mode)
 
-        # Toggle always visible so facilitator mode can be turned on OR off
-        # Rendered before the gate check so it appears in both locked/unlocked states
-
-        unlocked = (SessionManager.has_completed_any_emphasis()
-                    or st.session_state.facilitator_mode)
-
-        if not unlocked:
-            st.info(
-                "📝 作答完一組問題後，將可查看經文摘要與情境案例。\n\n"
-                "Complete one set of questions above to unlock the passage summary "
-                "and discussion scenario."
-            )
+        def _facilitator_toggle():
+            """Render the facilitator toggle — called in both locked and unlocked states."""
             tcol1, tcol2 = st.columns([4, 1])
             with tcol2:
                 facilitator = st.toggle(
@@ -353,8 +341,17 @@ def display_emphasis_interface():
                 if facilitator != st.session_state.facilitator_mode:
                     st.session_state.facilitator_mode = facilitator
                     st.rerun()
+
+        if not unlocked:
+            st.info(
+                "📝 作答完一組問題後，將可查看經文摘要與情境案例。\n\n"
+                "Complete one set of questions above to unlock the passage summary "
+                "and discussion scenario."
+            )
+            _facilitator_toggle()
             return
         else:
+            _facilitator_toggle()
             # ── Passage Summary ───────────────────────────────────────────────
             summary_raw = st.session_state.get('emphasis_summary')
             if summary_raw:
