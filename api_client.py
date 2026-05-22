@@ -560,7 +560,7 @@ class GeminiClient:
 
     @retry(
         stop=stop_after_attempt(Config.MAX_RETRIES),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
+        wait=wait_exponential(multiplier=2, min=3, max=30),
         retry=retry_if_exception_type((GeminiAPIError, Exception)),
         reraise=True
     )
@@ -720,7 +720,7 @@ class GeminiClient:
                                  status_callback=None,
                                  labels: List[str] = None) -> List[str]:
         """
-        Generate multiple prompts in parallel.
+        Generate multiple prompts in parallel with sequential retry fallback.
 
         Args:
             prompts: List of prompts to generate
@@ -732,21 +732,20 @@ class GeminiClient:
             List of generated texts in same order as prompts
 
         Raises:
-            GeminiAPIError: If any generation fails
+            GeminiAPIError: If any prompt fails after parallel attempt + sequential retry
         """
         logger.info(f"Generating {len(prompts)} prompts in parallel")
         start_time = time.time()
 
         drafts = [None] * len(prompts)
+        failed_indices = []
 
         with ThreadPoolExecutor(max_workers=min(len(prompts), 3)) as executor:
-            # Submit all tasks
             future_to_index = {
                 executor.submit(self.generate_content, prompt): i
                 for i, prompt in enumerate(prompts)
             }
 
-            # Collect results as they complete
             for future in as_completed(future_to_index):
                 index = future_to_index[future]
                 try:
@@ -758,9 +757,26 @@ class GeminiClient:
                     logger.info(f"Prompt {index + 1} completed successfully")
 
                 except Exception as e:
-                    logger.error(f"Prompt {index + 1} failed: {str(e)}")
-                    raise GeminiAPIError(
-                        f"Prompt {index + 1} generation failed: {str(e)}") from e
+                    logger.warning(
+                        f"Prompt {index + 1} failed in parallel: {str(e)} — "
+                        f"will retry sequentially"
+                    )
+                    failed_indices.append(index)
+
+        # Sequential retry for any failed prompts
+        for index in failed_indices:
+            try:
+                logger.info(f"Retrying prompt {index + 1} sequentially...")
+                drafts[index] = self.generate_content(prompts[index])
+                if status_callback:
+                    label = (labels[index] if labels and index < len(labels)
+                             else f"Draft {index + 1} complete (retry)")
+                    status_callback(label)
+                logger.info(f"Prompt {index + 1} succeeded on sequential retry")
+            except Exception as e:
+                logger.error(f"Prompt {index + 1} failed after sequential retry: {str(e)}")
+                raise GeminiAPIError(
+                    f"Prompt {index + 1} generation failed after retry: {str(e)}") from e
 
         elapsed = time.time() - start_time
         logger.info(f"All {len(prompts)} prompts completed in {elapsed:.2f} seconds")
