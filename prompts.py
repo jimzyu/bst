@@ -246,31 +246,6 @@ Test: Remove the passage from the equation. Could this scenario appear as a mora
 
 For passages about division and misplaced loyalty (e.g. 1 Corinthians 1:10-17), the scenario must show someone whose identity or allegiance has attached itself to a person, group, or cause in a way that is fracturing something — not merely someone who is unkind or passive. For passages about anxiety and trust (e.g. Philippians 4:6-7), the scenario must show the specific substitution the passage names — not generic worry, but worry that has displaced prayer and gratitude. For passages about faith and action (e.g. James 2:14-17), the scenario must show the specific gap the passage diagnoses — not general inertia, but the particular human habit of letting sincere belief become a substitute for the deed belief requires.
 
-PRINCIPLE 1 — THE RATIONALE MUST BE GENUINELY DEFENSIBLE, AND SINGULAR.
-The protagonist is not failing through laziness or obvious selfishness. Their reason for not acting should be one that some group members will instinctively defend — professional boundaries, respect for privacy, relational history, real and non-self-indulgent depletion, or a sincere belief that they have already done what they can. The debate happens because the group disagrees, not because the answer is obvious.
-ONE RATIONALE ONLY: Give the protagonist a single strong reason for inaction, not two or three stacked together. Multiple rationalisations weaken the debate — they let the reader dismiss the weakest one and feel they have answered the scenario. One well-chosen reason that a thoughtful person would genuinely defend is harder to dismiss than three weaker ones combined.
-SELF-CHECK BEFORE SUBMITTING: Count the distinct reasons the protagonist gives for not acting. If there are two or more, remove the weaker one. Common stacked pairs to watch for: "time constraints AND not my responsibility", "protecting dignity AND fear of dependence", "privacy AND others will help". Each of these should be one reason, not both.
-
-PRINCIPLE 2 — SHOW, DON'T DIAGNOSE.
-The passage's tension surfaces through specific, concrete detail — not through the protagonist quoting or paraphrasing Scripture, not through the narrator naming their failure, and not through a moment of obvious conviction. Faith vocabulary is permitted only where it occurs naturally. The reader should feel the gap before they can name it.
-
-PRINCIPLE 3 — END WHEN THE SITUATION IS FULLY SHOWN.
-The scenario ends when the situation has been fully established and nothing more needs to be said. Do not resolve it, explain it, or point toward change. The reader should be left inside the tension.
-
-The ending depends on the passage's type of tension:
-
-For ACTION-GAP passages (e.g. James 2:14-17) — where the tension is between seeing a need and doing something about it — a threshold image can earn its place: a specific physical detail that places the protagonist at the edge of acting (a hand on a door handle, a name not yet called, a cursor not yet clicked). Use this only when it arises naturally from the situation. Do NOT manufacture a pause or hesitation beat to create artificial suspense (深吸一口氣, 猶豫了一下, 她沒有立刻敲門 — these are resolutions in disguise).
-
-For IDENTITY or RELATIONAL passages (e.g. 1 Corinthians 1:10-17) — where the tension is an ongoing condition rather than a moment of decision — no threshold image is needed or appropriate. The scenario ends when the situation has been fully shown. Forcing a physical pause onto a relational condition feels manufactured because it is. End on the situation itself, not on a staged moment of hesitation.
-
-PRINCIPLE 4 — VARIETY.
-Vary setting (workplace, family, neighbourhood, community), protagonist gender, and the shape of inaction. Avoid these overused defaults: an exhausted professional noticing a struggling colleague; a woman caring for a parent with dementia or progressive illness. Both have appeared too frequently — find fresh situations. Draw from underrepresented but deeply real situations: estranged relationships, marital conflict, workplace injustice, financial shame, ambiguous or invisible needs, digital life, a person navigating chronic illness of their own, a leader facing a decision under pressure. The deed the passage calls for is not always material — sometimes it is a conversation avoided for years, a message not yet sent, a relationship held at arm's length.
-SETTING SELF-CHECK: The passage's diagnosis can manifest in family, academic, social, and personal contexts as readily as in professional ones. Before finalising a scenario, ask: is this set in a workplace? If yes — and if the previous scenario was also set in a workplace — find a different setting. A batch where all scenarios are workplace scenarios has failed the variety instruction regardless of how different the situations appear.
-CULTURAL CONTEXT: The protagonists have a mainland Chinese background and are part of a Chinese Christian community in the San Francisco Bay Area. This shapes who they are — their speech patterns, cultural instincts, and community context — but does NOT determine where the story is set. Settings should vary freely across workplace, home, church, neighbourhood, and community contexts as directed by PRINCIPLE 4. Use WeChat rather than LINE for messaging. Avoid Taiwan-specific cultural markers such as 7-Eleven convenience stores, betel nut stalls, or community bulletin boards.
-NAME VARIETY: Draw randomly from the most common mainland Chinese surnames (2021 census, rendered in Traditional Chinese): 王, 李, 張, 劉, 陳, 楊, 黃, 趙, 吳, 周, 徐, 孫, 馬, 朱, 胡, 郭, 何, 林, 高, 羅, 鄭, 梁, 謝, 宋, 唐, 許, 韓, 馮, 鄧, 曹. Select a different surname for each scenario and for each secondary character.
-REFERRING TO CHARACTERS: Prefer natural mainland Chinese forms of address rather than always using full names. Use relational prefixes (小王, 老張, 大李), title plus surname (王經理, 李醫生, 張老師, 劉牧師, 陳長老, 趙執事, 周主管, 吳總監), or surname plus honorific (王先生, 李女士, 張太太). Full given names are optional — use them sparingly. When a given name is needed, draw from single-character mainland adult names: for women 芳, 娜, 麗, 靜, 敏, 燕, 霞, 艷, 娟, 萍; for men 偉, 軍, 強, 磊, 濤, 剛, 浩, 勇, 斌, 明.
-THRESHOLD IMAGE VARIETY: Avoid repeating the same threshold image across scenarios. Phone face-down on a surface has appeared frequently — find fresh equivalents: a hand on a door handle, a cursor hovering over a send button, a box sitting unopened, a name in a contact list not yet tapped, a light still on in a neighbour's window.
-
 STRUCTURE (2–3 paragraphs, 150–250 Traditional Chinese characters per scenario):
 - Establish the protagonist and their situation concretely — who they are, what the tension is, what is stopping them
 - (Optional) A specific moment or detail that sharpens the tension without resolving it
@@ -302,6 +277,48 @@ Q2 OPENER VARIATION: Do not default to 你有沒有過這樣的時刻——. Var
 - 在你的生命裡，有沒有一次：
 Never use the same opener in two consecutive scenarios within the same study set.
 
+CRITICAL FORMAT REQUIREMENT: Your response MUST begin with the exact tag [THRESHOLD_SCENARIO_CHINESE] and include [THRESHOLD_SCENARIO_ENGLISH] exactly as shown. Do not use markdown headers, code blocks, or any other formatting in place of these tags. The parser depends on these exact tags.
+
+[THRESHOLD_SCENARIO_CHINESE]
+### 情境案例
+[Write the scenario in Traditional Chinese following the principles and structure above. 2–3 paragraphs.]
+
+**討論問題：**
+1. [Question about the protagonist — arguable, no embedded answer]
+2. [Question about the group themselves — personal, no embedded answer]
+
+[THRESHOLD_SCENARIO_ENGLISH]
+### Threshold Scenario
+[Direct English translation of the scenario above — same situation, same details]
+
+**Discussion Questions:**
+1. [Direct English translation of question 1]
+2. [Direct English translation of question 2]
+PRINCIPLE 1 — THE RATIONALE MUST BE GENUINELY DEFENSIBLE, AND SINGULAR.
+The protagonist is not failing through laziness or obvious selfishness. Their reason for not acting should be one that some group members will instinctively defend — professional boundaries, respect for privacy, relational history, real and non-self-indulgent depletion, or a sincere belief that they have already done what they can. The debate happens because the group disagrees, not because the answer is obvious.
+ONE RATIONALE ONLY: Give the protagonist a single strong reason for inaction, not two or three stacked together. Multiple rationalisations weaken the debate — they let the reader dismiss the weakest one and feel they have answered the scenario. One well-chosen reason that a thoughtful person would genuinely defend is harder to dismiss than three weaker ones combined.
+SELF-CHECK BEFORE SUBMITTING: Count the distinct reasons the protagonist gives for not acting. If there are two or more, remove the weaker one. Common stacked pairs to watch for: "time constraints AND not my responsibility", "protecting dignity AND fear of dependence", "privacy AND others will help". Each of these should be one reason, not both.
+
+PRINCIPLE 2 — SHOW, DON'T DIAGNOSE.
+The passage's tension surfaces through specific, concrete detail — not through the protagonist quoting or paraphrasing Scripture, not through the narrator naming their failure, and not through a moment of obvious conviction. Faith vocabulary is permitted only where it occurs naturally. The reader should feel the gap before they can name it.
+
+PRINCIPLE 3 — END WHEN THE SITUATION IS FULLY SHOWN.
+The scenario ends when the situation has been fully established and nothing more needs to be said. Do not resolve it, explain it, or point toward change. The reader should be left inside the tension.
+
+The ending depends on the passage's type of tension:
+
+For ACTION-GAP passages (e.g. James 2:14-17) — where the tension is between seeing a need and doing something about it — a threshold image can earn its place: a specific physical detail that places the protagonist at the edge of acting (a hand on a door handle, a name not yet called, a cursor not yet clicked). Use this only when it arises naturally from the situation. Do NOT manufacture a pause or hesitation beat to create artificial suspense (深吸一口氣, 猶豫了一下, 她沒有立刻敲門 — these are resolutions in disguise).
+
+For IDENTITY or RELATIONAL passages (e.g. 1 Corinthians 1:10-17) — where the tension is an ongoing condition rather than a moment of decision — no threshold image is needed or appropriate. The scenario ends when the situation has been fully shown. Forcing a physical pause onto a relational condition feels manufactured because it is. End on the situation itself, not on a staged moment of hesitation.
+
+PRINCIPLE 4 — VARIETY.
+Vary setting (workplace, family, neighbourhood, community), protagonist gender, and the shape of inaction. Avoid these overused defaults: an exhausted professional noticing a struggling colleague; a woman caring for a parent with dementia or progressive illness. Both have appeared too frequently — find fresh situations. Draw from underrepresented but deeply real situations: estranged relationships, marital conflict, workplace injustice, financial shame, ambiguous or invisible needs, digital life, a person navigating chronic illness of their own, a leader facing a decision under pressure. The deed the passage calls for is not always material — sometimes it is a conversation avoided for years, a message not yet sent, a relationship held at arm's length.
+SETTING SELF-CHECK: The passage's diagnosis can manifest in family, academic, social, and personal contexts as readily as in professional ones. Before finalising a scenario, ask: is this set in a workplace? If yes — and if the previous scenario was also set in a workplace — find a different setting. A batch where all scenarios are workplace scenarios has failed the variety instruction regardless of how different the situations appear.
+CULTURAL CONTEXT: The protagonists have a mainland Chinese background and are part of a Chinese Christian community in the San Francisco Bay Area. This shapes who they are — their speech patterns, cultural instincts, and community context — but does NOT determine where the story is set. Settings should vary freely across workplace, home, church, neighbourhood, and community contexts as directed by PRINCIPLE 4. Use WeChat rather than LINE for messaging. Avoid Taiwan-specific cultural markers such as 7-Eleven convenience stores, betel nut stalls, or community bulletin boards.
+NAME VARIETY: Draw randomly from the most common mainland Chinese surnames (2021 census, rendered in Traditional Chinese): 王, 李, 張, 劉, 陳, 楊, 黃, 趙, 吳, 周, 徐, 孫, 馬, 朱, 胡, 郭, 何, 林, 高, 羅, 鄭, 梁, 謝, 宋, 唐, 許, 韓, 馮, 鄧, 曹. Select a different surname for each scenario and for each secondary character.
+REFERRING TO CHARACTERS: Prefer natural mainland Chinese forms of address rather than always using full names. Use relational prefixes (小王, 老張, 大李), title plus surname (王經理, 李醫生, 張老師, 劉牧師, 陳長老, 趙執事, 周主管, 吳總監), or surname plus honorific (王先生, 李女士, 張太太). Full given names are optional — use them sparingly. When a given name is needed, draw from single-character mainland adult names: for women 芳, 娜, 麗, 靜, 敏, 燕, 霞, 艷, 娟, 萍; for men 偉, 軍, 強, 磊, 濤, 剛, 浩, 勇, 斌, 明.
+THRESHOLD IMAGE VARIETY: Avoid repeating the same threshold image across scenarios. Phone face-down on a surface has appeared frequently — find fresh equivalents: a hand on a door handle, a cursor hovering over a send button, a box sitting unopened, a name in a contact list not yet tapped, a light still on in a neighbour's window.
+
 EXAMPLES BY PASSAGE TYPE — study the pattern, do not copy the content:
 
 INTERNAL-TENSION (James 1 — protagonist calculates before trusting):
@@ -324,23 +341,6 @@ WORLDLY-WISDOM (1 Corinthians 1:18-25 — gospel filtered through sophistication
 Q1: 張偉認為要觸及受過高等教育的人，必須用嚴謹的邏輯和學術辯論。你認為他對「有效」的定義忽略了什麼——還是說他是對的？
 Q2: 對你自己說實話：在某些人面前，你對自己信仰的表達方式感到不自在，覺得它聽起來太簡單、太情緒化，或者不夠「有說服力」——這樣的時刻你有沒有遇到過？
 
-CRITICAL FORMAT REQUIREMENT: Your response MUST begin with the exact tag [THRESHOLD_SCENARIO_CHINESE] and include [THRESHOLD_SCENARIO_ENGLISH] exactly as shown. Do not use markdown headers, code blocks, or any other formatting in place of these tags. The parser depends on these exact tags.
-
-[THRESHOLD_SCENARIO_CHINESE]
-### 情境案例
-[Write the scenario in Traditional Chinese following the principles and structure above. 2–3 paragraphs.]
-
-**討論問題：**
-1. [Question about the protagonist — arguable, no embedded answer]
-2. [Question about the group themselves — personal, no embedded answer]
-
-[THRESHOLD_SCENARIO_ENGLISH]
-### Threshold Scenario
-[Direct English translation of the scenario above — same situation, same details]
-
-**Discussion Questions:**
-1. [Direct English translation of question 1]
-2. [Direct English translation of question 2]
 """
 
     THRESHOLD_WITH_THEOLOGY_TEMPLATE = """
