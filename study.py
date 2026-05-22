@@ -329,6 +329,15 @@ def display_emphasis_interface():
 
         st.markdown("---")
 
+        st.markdown(
+            "<div style='color:#555;font-size:0.9em;margin-bottom:16px;'>"
+            "選擇一個重點後作答，或先閱讀摘要、生成情境案例。"
+            "<span style='color:#999;'> &nbsp;·&nbsp; "
+            "Select an emphasis to answer questions, or generate a summary / scenario first."
+            "</span></div>",
+            unsafe_allow_html=True
+        )
+
         # ── Passage Summary ──────────────────────────────────────────────────
         summary_raw = st.session_state.get('emphasis_summary')
         if summary_raw:
@@ -381,7 +390,7 @@ def display_emphasis_interface():
                     if deep_summary:
                         st.rerun()
 
-        st.markdown("")
+        st.markdown("---")
 
         # ── Case Study section ──
         case_study = st.session_state.emphasis_case_study
