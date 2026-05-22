@@ -847,8 +847,17 @@ Reference: "{ref}"
                                              context_summary: str = None) -> str:
         """
         Get a threshold scenario prompt informed by the passage's specific diagnosis.
-        The diagnosis is prepended to the scenario instruction so the model knows
-        precisely what human condition the scenario should embody.
+
+        Prompt order (deliberately structured to prevent context-pressure dropout):
+          1. PASSAGE DIAGNOSIS — short, anchors the scenario's diagnostic target
+          2. THRESHOLD_SCENARIO_INSTRUCTION — full format requirements, principles,
+             Q1/Q2 specification. Must arrive BEFORE the context block so the model
+             processes the complete format requirements before encountering the
+             enrichment text. Prevents smaller models (Haiku) from dropping
+             discussion questions when the context block is large.
+          3. PASSAGE CONTEXT (optional) — theological/cultural enrichment as a
+             trailing reference layer. Enriches rationalisation quality without
+             displacing the format requirements from the model's attention.
 
         Args:
             reference: Bible reference
@@ -859,24 +868,35 @@ Reference: "{ref}"
                              pass their joined text here for maximum enrichment.
         """
         diagnosis_context = f"""PASSAGE DIAGNOSIS FOR THIS SCENARIO:
-The following is the specific human condition this passage diagnoses. The scenario you generate must embody this diagnosis — not merely be consistent with it:
+The following is the specific human condition this passage diagnoses. The scenario \
+you generate must embody this diagnosis — not merely be consistent with it:
 
 {diagnosis}
 
-Use this diagnosis to ensure the scenario shows a character whose specific failure matches what the passage names, not just a generic action-gap situation.
+Use this diagnosis to ensure the scenario shows a character whose specific failure \
+matches what the passage names, not just a generic action-gap situation.
 
 """
-        # Optional: enrich with passage context for richer rationalisation
+        # Optional enrichment — appended AFTER the full instruction so that
+        # format requirements (including Q1/Q2) are processed before this block.
         if context_summary:
             context_block = (
-                f"PASSAGE CONTEXT (use to enrich the rationalisation's theological "
-                f"and cultural specificity — do NOT reproduce this as narration):\n\n"
-                f"{context_summary[:2000]}\n\n"
+                f"\n\nPASSAGE CONTEXT FOR ENRICHMENT ONLY "
+                f"(use to deepen the rationalisation's theological and cultural "
+                f"specificity — do NOT reproduce as narration, do NOT let this "
+                f"alter the scenario structure or discussion question format "
+                f"already specified above):\n\n"
+                f"{context_summary[:2000]}"
             )
         else:
             context_block = ""
 
-        enriched_instruction = diagnosis_context + context_block + cls.THRESHOLD_SCENARIO_INSTRUCTION
+        # Order: diagnosis → full instruction (with Q1/Q2) → context enrichment
+        enriched_instruction = (
+            diagnosis_context
+            + cls.THRESHOLD_SCENARIO_INSTRUCTION
+            + context_block
+        )
         return cls.BASE_STUDY_TEMPLATE.format(
             ref=reference,
             focus=cls.FOCUS_AREAS['application'],
