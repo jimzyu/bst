@@ -200,21 +200,25 @@ def _generate_deep_summary(reference: str, client):
     """
     Generate a deep passage summary using three parallel theological drafts.
     Stores the drafts in session state for optional later use by scenario generation.
-    Returns the synthesised summary text.
+    Returns the synthesised summary text, or None if generation fails.
     """
     from prompts import PromptTemplates
-    draft_labels = [
-        "神學分析 (標準) 完成 ✓",
-        "神學分析 (歷史) 完成 ✓",
-        "神學分析 (應用) 完成 ✓",
-    ]
-    prompts = PromptTemplates.get_threshold_deep_prompts(reference)
-    drafts = client.generate_drafts_parallel(prompts, labels=draft_labels)
-    st.session_state.emphasis_theological_drafts = drafts
+    try:
+        draft_labels = [
+            "神學分析 (標準) 完成 ✓",
+            "神學分析 (歷史) 完成 ✓",
+            "神學分析 (應用) 完成 ✓",
+        ]
+        prompts = PromptTemplates.get_threshold_deep_prompts(reference)
+        drafts = client.generate_drafts_parallel(prompts, labels=draft_labels)
+        st.session_state.emphasis_theological_drafts = drafts
 
-    summary_prompt = PromptTemplates.get_summary_from_drafts_prompt(
-        reference, drafts[0], drafts[1], drafts[2])
-    return client.generate_content_quality(summary_prompt)
+        summary_prompt = PromptTemplates.get_summary_from_drafts_prompt(
+            reference, drafts[0], drafts[1], drafts[2])
+        return client.generate_content_quality(summary_prompt)
+    except Exception as e:
+        logger.error(f"Deep summary generation failed: {str(e)}")
+        return None
 
 
 
@@ -338,8 +342,12 @@ def display_emphasis_interface():
                              type="secondary"):
                     with st.spinner("正在進行深度神學分析... Running deep theological analysis..."):
                         deep_summary = _generate_deep_summary(reference, client)
-                        st.session_state.emphasis_summary = deep_summary
-                    st.rerun()
+                        if deep_summary:
+                            st.session_state.emphasis_summary = deep_summary
+                        else:
+                            st.error("深度摘要生成失敗，請重試。Deep summary failed — please try again.")
+                    if deep_summary:
+                        st.rerun()
         else:
             # No summary yet — offer both options
             st.markdown("### 📚 經文摘要 Passage Summary")
@@ -358,8 +366,12 @@ def display_emphasis_interface():
                              type="secondary", use_container_width=True):
                     with st.spinner("正在進行深度神學分析（三個平行分析）... Running deep analysis (3 parallel calls)..."):
                         deep_summary = _generate_deep_summary(reference, client)
-                        st.session_state.emphasis_summary = deep_summary
-                    st.rerun()
+                        if deep_summary:
+                            st.session_state.emphasis_summary = deep_summary
+                        else:
+                            st.error("深度摘要生成失敗，請重試。Deep summary failed — please try again.")
+                    if deep_summary:
+                        st.rerun()
 
         st.markdown("")
 
