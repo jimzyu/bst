@@ -349,6 +349,9 @@ def display_emphasis_interface():
                 "and discussion scenario."
             )
             _facilitator_toggle()
+            if st.button("← 返回 Back", type="secondary"):
+                SessionManager.end_emphasis()
+                st.rerun()
             return
         else:
             _facilitator_toggle()
