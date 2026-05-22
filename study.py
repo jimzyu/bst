@@ -322,21 +322,6 @@ def display_emphasis_interface():
                         logger.warning("Emphasis logging skipped: draft_logger is None")
                     st.rerun()
 
-        # ── Facilitator mode toggle — below cards ────────────────────────────
-        st.markdown("")
-        tcol1, tcol2 = st.columns([4, 1])
-        with tcol2:
-            facilitator = st.toggle(
-                "備課模式",
-                value=st.session_state.facilitator_mode,
-                help="備課模式讓引導者在作答之前即可查看摘要和情境案例。\n"
-                     "Facilitator mode unlocks summary and scenario without completing questions.",
-                key="facilitator_toggle"
-            )
-            if facilitator != st.session_state.facilitator_mode:
-                st.session_state.facilitator_mode = facilitator
-                st.rerun()
-
         st.markdown("---")
 
         # Gate: show summary and scenario only after completing at least one
@@ -350,6 +335,18 @@ def display_emphasis_interface():
                 "Complete one set of questions above to unlock the passage summary "
                 "and discussion scenario."
             )
+            tcol1, tcol2 = st.columns([4, 1])
+            with tcol2:
+                facilitator = st.toggle(
+                    "備課模式",
+                    value=st.session_state.facilitator_mode,
+                    help="備課模式讓引導者在作答之前即可查看摘要和情境案例。\n"
+                         "Facilitator mode unlocks summary and scenario without completing questions.",
+                    key="facilitator_toggle"
+                )
+                if facilitator != st.session_state.facilitator_mode:
+                    st.session_state.facilitator_mode = facilitator
+                    st.rerun()
             return
         else:
             # ── Passage Summary ───────────────────────────────────────────────
