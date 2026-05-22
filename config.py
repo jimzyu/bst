@@ -21,14 +21,14 @@ class Config:
     #   USE_GLOO = True, USE_ANTHROPIC = False
     #   Fast tasks → gloo-google-gemini-2.5-flash | Quality → gloo-anthropic-claude-sonnet-4.6
     #
-    USE_GLOO = True
-    USE_ANTHROPIC = False
+    USE_GLOO = False
+    USE_ANTHROPIC = True
 
     # ── Model names ───────────────────────────────────────────────────────────
 
     # Option 1 — Gemini direct (testing — both tasks use Flash)
-    GEMINI_MODEL_FAST    = 'gemini-2.5-flash'   # summary, mapping, questions
-    GEMINI_MODEL_QUALITY = 'gemini-2.5-pro'   # scenario, eval, follow-up
+    GEMINI_MODEL_FAST    = 'gemini-3.5-flash'   # summary, mapping, questions
+    GEMINI_MODEL_QUALITY = 'gemini-3.5-flash'   # scenario, eval, follow-up
     # GEMINI_MODEL_QUALITY = 'gemini-2.5-pro'   # uncomment for quality runs
 
     # Option 2 — Anthropic direct (mixed)
