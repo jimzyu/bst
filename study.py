@@ -330,18 +330,10 @@ def display_emphasis_interface():
                     or st.session_state.facilitator_mode)
 
         # Toggle always visible so facilitator mode can be turned on OR off
-        tcol1, tcol2 = st.columns([4, 1])
-        with tcol2:
-            facilitator = st.toggle(
-                "備課模式",
-                value=st.session_state.facilitator_mode,
-                help="備課模式讓引導者在作答之前即可查看摘要和情境案例。\n"
-                     "Facilitator mode unlocks summary and scenario without completing questions.",
-                key="facilitator_toggle"
-            )
-            if facilitator != st.session_state.facilitator_mode:
-                st.session_state.facilitator_mode = facilitator
-                st.rerun()
+        # Rendered before the gate check so it appears in both locked/unlocked states
+
+        unlocked = (SessionManager.has_completed_any_emphasis()
+                    or st.session_state.facilitator_mode)
 
         if not unlocked:
             st.info(
@@ -349,6 +341,18 @@ def display_emphasis_interface():
                 "Complete one set of questions above to unlock the passage summary "
                 "and discussion scenario."
             )
+            tcol1, tcol2 = st.columns([4, 1])
+            with tcol2:
+                facilitator = st.toggle(
+                    "備課模式",
+                    value=st.session_state.facilitator_mode,
+                    help="備課模式讓引導者在作答之前即可查看摘要和情境案例。\n"
+                         "Facilitator mode unlocks summary and scenario without completing questions.",
+                    key="facilitator_toggle"
+                )
+                if facilitator != st.session_state.facilitator_mode:
+                    st.session_state.facilitator_mode = facilitator
+                    st.rerun()
             return
         else:
             # ── Passage Summary ───────────────────────────────────────────────
