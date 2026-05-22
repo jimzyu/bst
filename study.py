@@ -364,6 +364,7 @@ def display_emphasis_interface():
                 "Complete one set of questions above to unlock the passage summary "
                 "and discussion scenario."
             )
+            return
         else:
             # ── Passage Summary ───────────────────────────────────────────────
             summary_raw = st.session_state.get('emphasis_summary')
