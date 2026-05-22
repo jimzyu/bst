@@ -157,9 +157,27 @@ def process_study_request(reference: str):
     except GeminiAPIError as e:
         logger.error(f"API error: {str(e)}")
         SessionManager.record_error()
-        st.error(f"API 錯誤 (API Error): {str(e)}")
-        st.info("Please try again. If the problem persists, check your API key and quota.")
-        
+        error_str = str(e)
+        if '529' in error_str or 'overloaded' in error_str.lower():
+            st.warning(
+                "🕐 AI 服務目前負載較高，請稍候片刻再試。\n\n"
+                "The AI service is temporarily overloaded. "
+                "This is not a problem with your setup — please wait a moment and try again."
+            )
+        elif '401' in error_str or '403' in error_str or 'api_key' in error_str.lower():
+            st.error(
+                f"🔑 API 金鑰錯誤 (API Key Error): {error_str}\n\n"
+                "Please check your API key configuration."
+            )
+        elif '429' in error_str or 'rate' in error_str.lower():
+            st.warning(
+                "⏳ 請求過於頻繁，請稍候再試。\n\n"
+                "Rate limit reached. Please wait a moment before trying again."
+            )
+        else:
+            st.error(f"API 錯誤 (API Error): {error_str}")
+            st.info("Please try again. If the problem persists, check your API key and quota.")
+
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}", exc_info=True)
         SessionManager.record_error()
