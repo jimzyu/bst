@@ -149,6 +149,10 @@ class SessionManager:
             # Persistent store: {emphasis: {question_type: answer_text}}
             st.session_state.emphasis_all_answers = {}
 
+        if 'facilitator_mode' not in st.session_state:
+            # When True, summary and scenario visible without completing questions first.
+            st.session_state.facilitator_mode = False
+
         if 'emphasis_all_feedbacks' not in st.session_state:
             # Persistent store: {emphasis: {question_type: feedback_text}}
             st.session_state.emphasis_all_feedbacks = {}
@@ -377,6 +381,20 @@ class SessionManager:
     @staticmethod
     def is_emphasis_quiz_complete() -> bool:
         return st.session_state.emphasis_quiz_question >= 3
+
+    @staticmethod
+    def has_completed_any_emphasis() -> bool:
+        """
+        Return True if the user has answered all three questions (observation,
+        interpretation, application) for at least one emphasis in this session.
+        Used to gate summary and scenario visibility in personal study mode.
+        """
+        all_answers = st.session_state.get('emphasis_all_answers', {})
+        required = {'observation', 'interpretation', 'application'}
+        for emphasis_answers in all_answers.values():
+            if required.issubset(emphasis_answers.keys()):
+                return True
+        return False
 
     @staticmethod
     def advance_emphasis_question():

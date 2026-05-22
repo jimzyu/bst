@@ -298,6 +298,21 @@ def display_emphasis_interface():
 
     st.title("📖 選擇學習重點")
     st.markdown(f"**經文：** {reference}")
+
+    # ── Facilitator mode toggle ───────────────────────────────────────────────
+    fcol1, fcol2 = st.columns([3, 1])
+    with fcol2:
+        facilitator = st.toggle(
+            "備課模式 Facilitator",
+            value=st.session_state.facilitator_mode,
+            help="備課模式讓引導者在作答之前即可查看摘要和情境案例。\n"
+                 "Facilitator mode unlocks summary and scenario without requiring completed answers.",
+            key="facilitator_toggle"
+        )
+        if facilitator != st.session_state.facilitator_mode:
+            st.session_state.facilitator_mode = facilitator
+            st.rerun()
+
     st.markdown("---")
 
     # ── SCREEN 1: No emphasis selected yet ──
@@ -338,200 +353,212 @@ def display_emphasis_interface():
             unsafe_allow_html=True
         )
 
-        # ── Passage Summary ──────────────────────────────────────────────────
-        summary_raw = st.session_state.get('emphasis_summary')
-        if summary_raw:
-            ch_summary, en_summary = ResponseParser.parse_ai_response(summary_raw)
-            with st.expander("📚 經文摘要 Passage Summary", expanded=False):
-                stab1, stab2, stab3 = st.tabs(["繁體中文", "简体中文", "English"])
-                with stab1:
-                    st.markdown(ch_summary or summary_raw)
-                with stab2:
-                    sim_summary = st.session_state.cc_converter.convert(ch_summary or summary_raw)
-                    st.markdown(sim_summary)
-                with stab3:
-                    st.markdown(en_summary or "")
+        # Gate: show summary and scenario only after completing at least one
+        # question set, OR when facilitator mode is active.
+        unlocked = (SessionManager.has_completed_any_emphasis()
+                    or st.session_state.facilitator_mode)
 
-            # Show deep summary button only if not yet generated
-            if st.session_state.emphasis_theological_drafts is None:
-                if st.button("🔬 深度摘要 Deep Summary",
-                             help="生成包含歷史背景、原文詞彙與正典聯繫的深度摘要 / Generate a richer summary with historical, lexical and canonical depth",
-                             type="secondary"):
-                    with st.spinner("正在進行深度神學分析... Running deep theological analysis..."):
-                        deep_summary = _generate_deep_summary(reference, client)
-                        if deep_summary:
-                            st.session_state.emphasis_summary = deep_summary
-                        else:
-                            st.error("深度摘要生成失敗，請重試。Deep summary failed — please try again.")
-                    if deep_summary:
-                        st.rerun()
+        if not unlocked:
+            st.info(
+                "📝 作答完一組問題後，將可查看經文摘要與情境案例。\n\n"
+                "Complete one set of questions above to unlock the passage summary "
+                "and discussion scenario."
+            )
         else:
-            # No summary yet — offer both options
-            st.markdown("### 📚 經文摘要 Passage Summary")
-            scol1, scol2 = st.columns(2)
-            with scol1:
-                if st.button("⚡ 快速摘要 Quick Summary",
-                             help="生成簡潔的段落摘要 / Generate a concise passage summary",
-                             type="secondary", use_container_width=True):
-                    with st.spinner("正在生成摘要... Generating summary..."):
-                        quick_summary = _generate_quick_summary(reference, client)
-                        st.session_state.emphasis_summary = quick_summary
-                    st.rerun()
-            with scol2:
-                if st.button("🔬 深度摘要 Deep Summary",
-                             help="生成包含歷史背景、原文詞彙與正典聯繫的深度摘要（需時較長）/ Richer summary with historical, lexical and canonical depth (takes longer)",
-                             type="secondary", use_container_width=True):
-                    with st.spinner("正在進行深度神學分析（三個平行分析）... Running deep analysis (3 parallel calls)..."):
-                        deep_summary = _generate_deep_summary(reference, client)
+            # ── Passage Summary ───────────────────────────────────────────────
+            summary_raw = st.session_state.get('emphasis_summary')
+            if summary_raw:
+                ch_summary, en_summary = ResponseParser.parse_ai_response(summary_raw)
+                with st.expander("📚 經文摘要 Passage Summary", expanded=False):
+                    stab1, stab2, stab3 = st.tabs(["繁體中文", "简体中文", "English"])
+                    with stab1:
+                        st.markdown(ch_summary or summary_raw)
+                    with stab2:
+                        sim_summary = st.session_state.cc_converter.convert(ch_summary or summary_raw)
+                        st.markdown(sim_summary)
+                    with stab3:
+                        st.markdown(en_summary or "")
+
+                # Show deep summary button only if not yet generated
+                if st.session_state.emphasis_theological_drafts is None:
+                    if st.button("🔬 深度摘要 Deep Summary",
+                                 help="生成包含歷史背景、原文詞彙與正典聯繫的深度摘要 / Generate a richer summary with historical, lexical and canonical depth",
+                                 type="secondary"):
+                        with st.spinner("正在進行深度神學分析... Running deep theological analysis..."):
+                            deep_summary = _generate_deep_summary(reference, client)
+                            if deep_summary:
+                                st.session_state.emphasis_summary = deep_summary
+                            else:
+                                st.error("深度摘要生成失敗，請重試。Deep summary failed — please try again.")
                         if deep_summary:
-                            st.session_state.emphasis_summary = deep_summary
-                        else:
-                            st.error("深度摘要生成失敗，請重試。Deep summary failed — please try again.")
-                    if deep_summary:
+                            st.rerun()
+            else:
+                # No summary yet — offer both options
+                st.markdown("### 📚 經文摘要 Passage Summary")
+                scol1, scol2 = st.columns(2)
+                with scol1:
+                    if st.button("⚡ 快速摘要 Quick Summary",
+                                 help="生成簡潔的段落摘要 / Generate a concise passage summary",
+                                 type="secondary", use_container_width=True):
+                        with st.spinner("正在生成摘要... Generating summary..."):
+                            quick_summary = _generate_quick_summary(reference, client)
+                            st.session_state.emphasis_summary = quick_summary
+                        st.rerun()
+                with scol2:
+                    if st.button("🔬 深度摘要 Deep Summary",
+                                 help="生成包含歷史背景、原文詞彙與正典聯繫的深度摘要（需時較長）/ Richer summary with historical, lexical and canonical depth (takes longer)",
+                                 type="secondary", use_container_width=True):
+                        with st.spinner("正在進行深度神學分析（三個平行分析）... Running deep analysis (3 parallel calls)..."):
+                            deep_summary = _generate_deep_summary(reference, client)
+                            if deep_summary:
+                                st.session_state.emphasis_summary = deep_summary
+                            else:
+                                st.error("深度摘要生成失敗，請重試。Deep summary failed — please try again.")
+                        if deep_summary:
+                            st.rerun()
+
+            st.markdown("---")
+
+            # ── Case Study section ──
+            case_study = st.session_state.emphasis_case_study
+            teaching_points = st.session_state.emphasis_teaching_points
+            tp_selected = st.session_state.emphasis_tp_selected
+
+            if case_study:
+                # ── State 3: Scenario already generated — show it ──
+
+                # Debug: show raw TP mapping output if parsing failed and produced the fallback
+                failed_raw = st.session_state.pop('_tp_map_failed_raw', None)
+                if failed_raw:
+                    with st.expander("⚠️ Debug: Teaching point mapping returned 0 results — raw model output", expanded=True):
+                        st.caption("Copy this and share it to fix the parser for this model.")
+                        st.code(failed_raw, language=None)
+
+                ch_case, en_case = case_study
+                st.markdown("### 💡 情境案例 (Discussion Scenario)")
+                tp_idx = st.session_state.emphasis_tp_selected
+                if teaching_points and tp_idx is not None and tp_idx < len(teaching_points):
+                    tp = teaching_points[tp_idx]
+                    st.caption(f"📌 {tp['verses']} — {tp['teaching']}")
+                ctab1, ctab2, ctab3 = st.tabs(["繁體中文", "简体中文", "English"])
+                with ctab1:
+                    st.markdown(ch_case or "")
+                with ctab2:
+                    sim_case = st.session_state.cc_converter.convert(ch_case or "")
+                    st.markdown(sim_case)
+                with ctab3:
+                    st.markdown(en_case or "")
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    if st.button("🔄 換一個教學重點 Change teaching point", type="secondary"):
+                        st.session_state.emphasis_case_study = None
+                        st.session_state.emphasis_tp_selected = None
+                        st.rerun()
+                with col_b:
+                    if st.button("↩️ 重新生成 Regenerate", type="secondary"):
+                        # Keep tp_selected — regenerate same teaching point immediately
+                        tp_idx = st.session_state.emphasis_tp_selected
+                        if tp_idx is not None and tp_idx < len(teaching_points):
+                            tp = teaching_points[tp_idx]
+                            with st.spinner("正在重新生成情境案例... Regenerating..."):
+                                prompt = _build_scenario_prompt(
+                                    reference, tp['diagnosis'],
+                                    st.session_state.get('scenario_used_names', set())
+                                )
+                                raw = client.generate_content_quality(
+                                    prompt,
+                                    system_override=client.SCENARIO_SYSTEM)
+                                ch_case, en_case = QuizParser.extract_case_study(raw)
+                                st.session_state.emphasis_case_study = (ch_case, en_case)
                         st.rerun()
 
-        st.markdown("---")
+            elif teaching_points and tp_selected is None:
+                # ── State 2: Teaching points mapped — show selection ──
+                st.markdown("### 💡 情境案例 (Discussion Scenario)")
 
-        # ── Case Study section ──
-        case_study = st.session_state.emphasis_case_study
-        teaching_points = st.session_state.emphasis_teaching_points
-        tp_selected = st.session_state.emphasis_tp_selected
+                # ── Persistent context selector ───────────────────────────────
+                # Always visible, not collapsible — persists across all TPs
+                REGIONS = ["灣區", "北美", "亞洲"]
+                PROFS   = ["（不指定）", "科技業", "教育", "醫療", "商業", "全職父母", "教會事工"]
+                STAGES  = ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"]
+                SCENES  = ["（不指定）", "職場", "學校", "家庭", "社區", "教會"]
 
-        if case_study:
-            # ── State 3: Scenario already generated — show it ──
+                st.markdown("**⚙️ 情境設定 Scenario Context**")
+                with st.container(border=True):
+                    col_s1, col_s2 = st.columns(2)
+                    with col_s1:
+                        st.selectbox("地區 Region", REGIONS, key="ctx_region")
+                        st.selectbox("職業 Profession", PROFS, key="ctx_profession")
+                    with col_s2:
+                        st.selectbox("人生階段 Life Stage", STAGES, key="ctx_life_stage")
+                        st.selectbox("情境場景 Scene", SCENES, key="ctx_scene")
 
-            # Debug: show raw TP mapping output if parsing failed and produced the fallback
-            failed_raw = st.session_state.pop('_tp_map_failed_raw', None)
-            if failed_raw:
-                with st.expander("⚠️ Debug: Teaching point mapping returned 0 results — raw model output", expanded=True):
-                    st.caption("Copy this and share it to fix the parser for this model.")
-                    st.code(failed_raw, language=None)
-
-            ch_case, en_case = case_study
-            st.markdown("### 💡 情境案例 (Discussion Scenario)")
-            tp_idx = st.session_state.emphasis_tp_selected
-            if teaching_points and tp_idx is not None and tp_idx < len(teaching_points):
-                tp = teaching_points[tp_idx]
-                st.caption(f"📌 {tp['verses']} — {tp['teaching']}")
-            ctab1, ctab2, ctab3 = st.tabs(["繁體中文", "简体中文", "English"])
-            with ctab1:
-                st.markdown(ch_case or "")
-            with ctab2:
-                sim_case = st.session_state.cc_converter.convert(ch_case or "")
-                st.markdown(sim_case)
-            with ctab3:
-                st.markdown(en_case or "")
-            col_a, col_b = st.columns(2)
-            with col_a:
-                if st.button("🔄 換一個教學重點 Change teaching point", type="secondary"):
-                    st.session_state.emphasis_case_study = None
-                    st.session_state.emphasis_tp_selected = None
+                st.markdown("**選擇今天要聚焦的教學重點：**")
+                st.markdown("*Select the teaching point for today's session:*")
+                st.markdown("")
+                for i, tp in enumerate(teaching_points):
+                    col_tp, col_btn = st.columns([4, 1])
+                    with col_tp:
+                        zh_label = tp.get('teaching_zh', '')
+                        en_label = tp.get('teaching', '')
+                        if zh_label:
+                            st.markdown(
+                                f"<div style='margin-bottom:12px'>"
+                                f"<strong>教學重點 {i+1}</strong> "
+                                f"<span style='color:#888'>({tp['verses']})</span><br>"
+                                f"{zh_label}<br>"
+                                f"<span style='font-size:0.85em;color:#888;font-style:italic'>{en_label}</span>"
+                                f"</div>",
+                                unsafe_allow_html=True)
+                        else:
+                            st.markdown(
+                                f"<div style='margin-bottom:12px'>"
+                                f"<strong>教學重點 {i+1}</strong> "
+                                f"<span style='color:#888'>({tp['verses']})</span><br>"
+                                f"<span style='font-size:0.85em'>{en_label}</span>"
+                                f"</div>",
+                                unsafe_allow_html=True)
+                    with col_btn:
+                        if st.button(f"選擇\nSelect", key=f"tp_{i}", type="primary"):
+                            with st.spinner("正在生成情境案例... Generating scenario..."):
+                                prompt = _build_scenario_prompt(
+                                    reference, tp['diagnosis'],
+                                    st.session_state.get('scenario_used_names', set())
+                                )
+                                raw = client.generate_content_quality(
+                                    prompt,
+                                    system_override=client.SCENARIO_SYSTEM)
+                                ch_case, en_case = QuizParser.extract_case_study(raw)
+                                st.session_state.emphasis_case_study = (ch_case, en_case)
+                                st.session_state.emphasis_tp_selected = i
+                            st.rerun()
+                st.markdown("")
+                if st.button("✕ 取消 Cancel", type="secondary"):
+                    st.session_state.emphasis_teaching_points = []
                     st.rerun()
-            with col_b:
-                if st.button("↩️ 重新生成 Regenerate", type="secondary"):
-                    # Keep tp_selected — regenerate same teaching point immediately
-                    tp_idx = st.session_state.emphasis_tp_selected
-                    if tp_idx is not None and tp_idx < len(teaching_points):
-                        tp = teaching_points[tp_idx]
-                        with st.spinner("正在重新生成情境案例... Regenerating..."):
-                            prompt = _build_scenario_prompt(
-                                reference, tp['diagnosis'],
-                                st.session_state.get('scenario_used_names', set())
-                            )
-                            raw = client.generate_content_quality(
-                                prompt,
-                                system_override=client.SCENARIO_SYSTEM)
+
+            else:
+                # ── State 1: Not yet mapped — show initial button ──
+                if st.button("💡 生成情境案例 Generate Discussion Scenario", type="secondary"):
+                    with st.spinner("正在分析教學重點... Mapping teaching points..."):
+                        points = client.map_passage_teaching_points(reference)
+                        if points:
+                            st.session_state.emphasis_teaching_points = points
+                        else:
+                            # Store raw output for debug display before falling back
+                            st.session_state['_tp_map_failed_raw'] = getattr(
+                                client, '_last_tp_raw', '(raw output not captured)')
+                            # Fallback: generate directly without mapping
+                            raw = client.generate_case_study(reference)
                             ch_case, en_case = QuizParser.extract_case_study(raw)
                             st.session_state.emphasis_case_study = (ch_case, en_case)
                     st.rerun()
 
-        elif teaching_points and tp_selected is None:
-            # ── State 2: Teaching points mapped — show selection ──
-            st.markdown("### 💡 情境案例 (Discussion Scenario)")
-
-            # ── Persistent context selector ───────────────────────────────
-            # Always visible, not collapsible — persists across all TPs
-            REGIONS = ["灣區", "北美", "亞洲"]
-            PROFS   = ["（不指定）", "科技業", "教育", "醫療", "商業", "全職父母", "教會事工"]
-            STAGES  = ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"]
-            SCENES  = ["（不指定）", "職場", "學校", "家庭", "社區", "教會"]
-
-            st.markdown("**⚙️ 情境設定 Scenario Context**")
-            with st.container(border=True):
-                col_s1, col_s2 = st.columns(2)
-                with col_s1:
-                    st.selectbox("地區 Region", REGIONS, key="ctx_region")
-                    st.selectbox("職業 Profession", PROFS, key="ctx_profession")
-                with col_s2:
-                    st.selectbox("人生階段 Life Stage", STAGES, key="ctx_life_stage")
-                    st.selectbox("情境場景 Scene", SCENES, key="ctx_scene")
-
-            st.markdown("**選擇今天要聚焦的教學重點：**")
-            st.markdown("*Select the teaching point for today's session:*")
-            st.markdown("")
-            for i, tp in enumerate(teaching_points):
-                col_tp, col_btn = st.columns([4, 1])
-                with col_tp:
-                    zh_label = tp.get('teaching_zh', '')
-                    en_label = tp.get('teaching', '')
-                    if zh_label:
-                        st.markdown(
-                            f"<div style='margin-bottom:12px'>"
-                            f"<strong>教學重點 {i+1}</strong> "
-                            f"<span style='color:#888'>({tp['verses']})</span><br>"
-                            f"{zh_label}<br>"
-                            f"<span style='font-size:0.85em;color:#888;font-style:italic'>{en_label}</span>"
-                            f"</div>",
-                            unsafe_allow_html=True)
-                    else:
-                        st.markdown(
-                            f"<div style='margin-bottom:12px'>"
-                            f"<strong>教學重點 {i+1}</strong> "
-                            f"<span style='color:#888'>({tp['verses']})</span><br>"
-                            f"<span style='font-size:0.85em'>{en_label}</span>"
-                            f"</div>",
-                            unsafe_allow_html=True)
-                with col_btn:
-                    if st.button(f"選擇\nSelect", key=f"tp_{i}", type="primary"):
-                        with st.spinner("正在生成情境案例... Generating scenario..."):
-                            prompt = _build_scenario_prompt(
-                                reference, tp['diagnosis'],
-                                st.session_state.get('scenario_used_names', set())
-                            )
-                            raw = client.generate_content_quality(
-                                prompt,
-                                system_override=client.SCENARIO_SYSTEM)
-                            ch_case, en_case = QuizParser.extract_case_study(raw)
-                            st.session_state.emphasis_case_study = (ch_case, en_case)
-                            st.session_state.emphasis_tp_selected = i
-                        st.rerun()
-            st.markdown("")
-            if st.button("✕ 取消 Cancel", type="secondary"):
-                st.session_state.emphasis_teaching_points = []
+            st.markdown("---")
+            if st.button("← 返回 Back", type="secondary"):
+                SessionManager.end_emphasis()
                 st.rerun()
-
-        else:
-            # ── State 1: Not yet mapped — show initial button ──
-            if st.button("💡 生成情境案例 Generate Discussion Scenario", type="secondary"):
-                with st.spinner("正在分析教學重點... Mapping teaching points..."):
-                    points = client.map_passage_teaching_points(reference)
-                    if points:
-                        st.session_state.emphasis_teaching_points = points
-                    else:
-                        # Store raw output for debug display before falling back
-                        st.session_state['_tp_map_failed_raw'] = getattr(
-                            client, '_last_tp_raw', '(raw output not captured)')
-                        # Fallback: generate directly without mapping
-                        raw = client.generate_case_study(reference)
-                        ch_case, en_case = QuizParser.extract_case_study(raw)
-                        st.session_state.emphasis_case_study = (ch_case, en_case)
-                st.rerun()
-
-        st.markdown("---")
-        if st.button("← 返回 Back", type="secondary"):
-            SessionManager.end_emphasis()
-            st.rerun()
-        return
+            return
 
     opt = EMPHASIS_OPTIONS[selected]
 
