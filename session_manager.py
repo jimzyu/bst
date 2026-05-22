@@ -294,6 +294,7 @@ class SessionManager:
         st.session_state.emphasis_summary = None
         st.session_state.emphasis_theological_drafts = None
         st.session_state.emphasis_sheets_row = None
+        st.session_state.facilitator_mode = False
         st.session_state.emphasis_all_answers = {}
         st.session_state.emphasis_all_feedbacks = {}
         st.session_state.emphasis_all_subquestion_answers = {}
