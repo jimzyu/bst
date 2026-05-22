@@ -410,7 +410,9 @@ def display_emphasis_interface():
                                 reference, tp['diagnosis'],
                                 st.session_state.get('scenario_used_names', set())
                             )
-                            raw = client.generate_content_quality(prompt)
+                            raw = client.generate_content_quality(
+                                prompt,
+                                system_override=client.SCENARIO_SYSTEM)
                             ch_case, en_case = QuizParser.extract_case_study(raw)
                             st.session_state.emphasis_case_study = (ch_case, en_case)
                     st.rerun()
@@ -468,7 +470,9 @@ def display_emphasis_interface():
                                 reference, tp['diagnosis'],
                                 st.session_state.get('scenario_used_names', set())
                             )
-                            raw = client.generate_content_quality(prompt)
+                            raw = client.generate_content_quality(
+                                prompt,
+                                system_override=client.SCENARIO_SYSTEM)
                             ch_case, en_case = QuizParser.extract_case_study(raw)
                             st.session_state.emphasis_case_study = (ch_case, en_case)
                             st.session_state.emphasis_tp_selected = i

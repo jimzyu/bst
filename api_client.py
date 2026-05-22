@@ -355,6 +355,19 @@ class GlooTokenManager:
 
 
 class GeminiClient:
+
+    # Neutral system instruction for scenario generation calls.
+    # The main SYSTEM_INSTRUCTION defines a study-guide output format and a
+    # STRICT VALIDATION RULE that some models (Haiku, Gemini Flash) apply
+    # universally — causing them to refuse or reformat scenario prompts that
+    # include specific protagonist parameters or non-study-guide output tags.
+    # This override replaces it for all scenario generation calls.
+    SCENARIO_SYSTEM = (
+        "You are a creative Bible study assistant specialising in narrative "
+        "scenario generation. Follow the user's output format and structural "
+        "instructions exactly, including all tag requirements and discussion "
+        "question format. Do not apply any other output format or validation rules."
+    )
     """Client for interacting with Google Gemini API."""
     
     def __init__(self, api_key: str, system_instruction: str):
@@ -495,35 +508,54 @@ class GeminiClient:
         
         return response.text
     
-    def generate_content_quality(self, prompt: str) -> str:
+    def generate_content_quality(self, prompt: str,
+                                  system_override: str = None) -> str:
         """
         Generate content using the quality model for the active provider.
         Use for: scenario generation, evaluation, follow-up/redirect questions.
         Falls back to standard generate_content for Option 1 (Gemini direct).
+
+        Args:
+            prompt: Input prompt
+            system_override: Optional system instruction to use instead of the
+                             default self.system_instruction. Use for calls whose
+                             required output format differs from the study guide
+                             format embedded in the main system instruction.
         """
         try:
             logger.info(f"Generating quality content (prompt length: {len(prompt)} chars)")
             if self._use_anthropic:
                 text = self._generate_via_anthropic(prompt,
-                                                     model=Config.ANTHROPIC_MODEL_QUALITY)
+                                                     model=Config.ANTHROPIC_MODEL_QUALITY,
+                                                     system_override=system_override)
             elif self._use_gloo:
                 text = self._generate_via_gloo(prompt,
-                                               model=Config.GLOO_MODEL_QUALITY)
+                                               model=Config.GLOO_MODEL_QUALITY,
+                                               system_override=system_override)
             else:
                 # Option 1: Gemini direct — use quality model
-                quality_model = genai.GenerativeModel(
-                    model_name=Config.GEMINI_MODEL_QUALITY,
-                    generation_config=genai.types.GenerationConfig(
-                        temperature=Config.TEMPERATURE
-                    ),
-                    system_instruction=self.system_instruction
-                )
+                if system_override is not None:
+                    quality_model = genai.GenerativeModel(
+                        model_name=Config.GEMINI_MODEL_QUALITY,
+                        generation_config=genai.types.GenerationConfig(
+                            temperature=Config.TEMPERATURE
+                        ),
+                        system_instruction=system_override
+                    )
+                else:
+                    quality_model = genai.GenerativeModel(
+                        model_name=Config.GEMINI_MODEL_QUALITY,
+                        generation_config=genai.types.GenerationConfig(
+                            temperature=Config.TEMPERATURE
+                        ),
+                        system_instruction=self.system_instruction
+                    )
                 response = quality_model.generate_content(prompt)
                 text = self.validate_response(response)
             logger.info(f"Quality content generated ({len(text)} chars)")
             return text
         except Exception as e:
-            logger.error(f"Error generating quality content: {str(e)}")
+            logger.error(f"Error generating quality content: {str(e)}") 
             raise GeminiAPIError(f"Quality content generation failed: {str(e)}") from e
 
     @retry(
@@ -836,7 +868,8 @@ class GeminiClient:
         from prompts import PromptTemplates
         logger.info(f"Generating case study for: {reference}")
         prompt = PromptTemplates.get_threshold_prompt(reference)
-        result = self.generate_content_quality(prompt)
+
+        result = self.generate_content_quality(prompt, system_override=self.SCENARIO_SYSTEM)
         logger.info(f"Case study generated ({len(result)} chars)")
         return result
 
