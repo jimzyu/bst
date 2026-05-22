@@ -560,7 +560,21 @@ class GeminiClient:
             elif self._use_gloo:
                 text = self._generate_via_gloo(prompt, system_override=system_override)
             else:
-                response = self.model.generate_content(prompt)
+                # Native Gemini SDK path.
+                # system_instruction is baked into self.model at construction time.
+                # If a system_override is provided, create a temporary model instance
+                # with the overridden instruction for this call only.
+                if system_override is not None:
+                    temp_model = genai.GenerativeModel(
+                        model_name=Config.GEMINI_MODEL_FAST,
+                        generation_config=genai.types.GenerationConfig(
+                            temperature=Config.TEMPERATURE
+                        ),
+                        system_instruction=system_override
+                    )
+                    response = temp_model.generate_content(prompt)
+                else:
+                    response = self.model.generate_content(prompt)
                 text = self.validate_response(response)
 
             logger.info(f"Successfully generated content (response length: {len(text)} chars)")
