@@ -296,30 +296,10 @@ def display_emphasis_interface():
     result = st.session_state.emphasis_result
     client = st.session_state.gemini_client
 
-    st.title("📖 選擇學習重點")
-    st.markdown(f"**經文：** {reference}")
-
-    # ── Facilitator mode toggle ───────────────────────────────────────────────
-    fcol1, fcol2 = st.columns([3, 1])
-    with fcol2:
-        facilitator = st.toggle(
-            "備課模式 Facilitator",
-            value=st.session_state.facilitator_mode,
-            help="備課模式讓引導者在作答之前即可查看摘要和情境案例。\n"
-                 "Facilitator mode unlocks summary and scenario without requiring completed answers.",
-            key="facilitator_toggle"
-        )
-        if facilitator != st.session_state.facilitator_mode:
-            st.session_state.facilitator_mode = facilitator
-            st.rerun()
-
-    st.markdown("---")
+    st.markdown(f"### 📖 {reference}")
 
     # ── SCREEN 1: No emphasis selected yet ──
     if not selected or not result:
-        st.markdown("### 今天你想怎麼讀這段經文？")
-        st.markdown("*How do you want to approach this passage today?*")
-        st.markdown("")
         cols = st.columns(3)
         for i, (key, opt) in enumerate(EMPHASIS_OPTIONS.items()):
             with cols[i]:
@@ -342,16 +322,22 @@ def display_emphasis_interface():
                         logger.warning("Emphasis logging skipped: draft_logger is None")
                     st.rerun()
 
-        st.markdown("---")
+        # ── Facilitator mode toggle — below cards ────────────────────────────
+        st.markdown("")
+        tcol1, tcol2 = st.columns([4, 1])
+        with tcol2:
+            facilitator = st.toggle(
+                "備課模式",
+                value=st.session_state.facilitator_mode,
+                help="備課模式讓引導者在作答之前即可查看摘要和情境案例。\n"
+                     "Facilitator mode unlocks summary and scenario without completing questions.",
+                key="facilitator_toggle"
+            )
+            if facilitator != st.session_state.facilitator_mode:
+                st.session_state.facilitator_mode = facilitator
+                st.rerun()
 
-        st.markdown(
-            "<div style='color:#555;font-size:0.9em;margin-bottom:16px;'>"
-            "選擇一個重點後作答，或先閱讀摘要、生成情境案例。"
-            "<span style='color:#999;'> &nbsp;·&nbsp; "
-            "Select an emphasis to answer questions, or generate a summary / scenario first."
-            "</span></div>",
-            unsafe_allow_html=True
-        )
+        st.markdown("---")
 
         # Gate: show summary and scenario only after completing at least one
         # question set, OR when facilitator mode is active.
