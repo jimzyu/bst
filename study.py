@@ -105,17 +105,255 @@ def initialize_app():
             st.session_state.bible_client = None
             logger.warning("Bible API key not found - passage display will be disabled")
 
+    # ── SAGOS brand CSS ───────────────────────────────────────────────────────
+    st.markdown("""
+<style>
+/* ── SAGOS Design System ─────────────────────────────────────────────── */
+:root {
+    --green:       #2D7A2D;
+    --green-dark:  #1A5C1A;
+    --green-light: #EAF4EA;
+    --brown:       #7A4520;
+    --brown-light: #F5EDE6;
+    --purple:      #7B3B8B;
+    --purple-light:#F5EAF7;
+    --warm-white:  #F9F8F5;
+    --card-bg:     #FFFFFF;
+    --text:        #1A1A1A;
+    --text-muted:  #666666;
+    --border:      #E0D8CF;
+    --shadow:      0 2px 8px rgba(45,122,45,0.10);
+    --shadow-hover:0 6px 20px rgba(45,122,45,0.18);
+    --radius:      12px;
+    --radius-sm:   8px;
+}
+
+/* Page background */
+.stApp { background-color: var(--warm-white); }
+.block-container { padding-top: 2rem !important; }
+
+/* ── Typography ──────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+.stApp, .stMarkdown, .stText {
+    font-family: 'Noto Sans TC', 'PingFang TC', sans-serif;
+    color: var(--text);
+}
+h1, h2, h3 { font-family: 'Lora', 'PingFang TC', serif; }
+
+/* App title on landing screen */
+.stApp h1 {
+    color: var(--green-dark);
+    font-size: 2.2rem !important;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    border-bottom: 3px solid var(--green);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
+}
+.stApp h2 { color: var(--brown); font-size: 1.1rem !important; font-weight: 400; }
+
+/* Reference header (### on Screen 1) */
+.stApp h3 {
+    color: var(--green-dark);
+    font-family: 'Lora', serif;
+    font-size: 1.5rem !important;
+    margin-bottom: 1rem;
+    padding-left: 0.6rem;
+    border-left: 4px solid var(--green);
+}
+
+/* ── Input ───────────────────────────────────────────────────────────── */
+.stTextInput > div > div > input {
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    font-size: 1.05rem;
+    padding: 0.6rem 0.9rem;
+    transition: border-color 0.2s;
+}
+.stTextInput > div > div > input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(45,122,45,0.12);
+}
+
+/* ── Primary button (Start Study / Done) ─────────────────────────────── */
+.stButton > button[kind="primary"] {
+    background: var(--green) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: var(--radius-sm) !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    padding: 0.55rem 1.4rem !important;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s !important;
+    box-shadow: var(--shadow) !important;
+}
+.stButton > button[kind="primary"]:hover {
+    background: var(--green-dark) !important;
+    box-shadow: var(--shadow-hover) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ── Secondary button (Back / Try another) ───────────────────────────── */
+.stButton > button[kind="secondary"] {
+    background: transparent !important;
+    color: var(--brown) !important;
+    border: 1.5px solid var(--brown) !important;
+    border-radius: var(--radius-sm) !important;
+    font-weight: 500 !important;
+    transition: background 0.2s, color 0.2s !important;
+}
+.stButton > button[kind="secondary"]:hover {
+    background: var(--brown-light) !important;
+    color: var(--brown) !important;
+}
+
+/* ── Emphasis cards ──────────────────────────────────────────────────── */
+/* Explore — green accent */
+[data-testid="column"]:nth-child(1) .stButton > button {
+    background: var(--green-light) !important;
+    color: var(--green-dark) !important;
+    border: 2px solid var(--green) !important;
+    border-radius: var(--radius-sm) !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    transition: all 0.2s !important;
+}
+[data-testid="column"]:nth-child(1) .stButton > button:hover {
+    background: var(--green) !important;
+    color: #fff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-hover) !important;
+}
+
+/* Understand — brown accent */
+[data-testid="column"]:nth-child(2) .stButton > button {
+    background: var(--brown-light) !important;
+    color: var(--brown) !important;
+    border: 2px solid var(--brown) !important;
+    border-radius: var(--radius-sm) !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    transition: all 0.2s !important;
+}
+[data-testid="column"]:nth-child(2) .stButton > button:hover {
+    background: var(--brown) !important;
+    color: #fff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(122,69,32,0.18) !important;
+}
+
+/* Apply — purple accent */
+[data-testid="column"]:nth-child(3) .stButton > button {
+    background: var(--purple-light) !important;
+    color: var(--purple) !important;
+    border: 2px solid var(--purple) !important;
+    border-radius: var(--radius-sm) !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    transition: all 0.2s !important;
+}
+[data-testid="column"]:nth-child(3) .stButton > button:hover {
+    background: var(--purple) !important;
+    color: #fff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(123,59,139,0.18) !important;
+}
+
+/* ── Info / success / warning boxes ──────────────────────────────────── */
+.stAlert[data-baseweb="notification"] {
+    border-radius: var(--radius) !important;
+}
+div[data-testid="stNotificationContentInfo"] {
+    background: var(--green-light) !important;
+    border-left: 4px solid var(--green) !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+/* ── Expanders ───────────────────────────────────────────────────────── */
+.streamlit-expanderHeader {
+    background: var(--card-bg) !important;
+    border: 1.5px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    font-weight: 600 !important;
+    color: var(--text) !important;
+    transition: border-color 0.2s !important;
+}
+.streamlit-expanderHeader:hover {
+    border-color: var(--green) !important;
+    color: var(--green-dark) !important;
+}
+
+/* ── Toggle (facilitator) ────────────────────────────────────────────── */
+.stToggle [data-testid="stToggle"] { accent-color: var(--green); }
+
+/* ── Divider ─────────────────────────────────────────────────────────── */
+hr { border-color: var(--border) !important; margin: 1.2rem 0 !important; }
+
+/* ── Spinner / status ────────────────────────────────────────────────── */
+.stSpinner > div { border-top-color: var(--green) !important; }
+
+/* ── Tabs ────────────────────────────────────────────────────────────── */
+.stTabs [data-baseweb="tab-list"] { border-bottom: 2px solid var(--border); }
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    color: var(--green-dark) !important;
+    border-bottom: 3px solid var(--green) !important;
+    font-weight: 600;
+}
+.stTabs [data-baseweb="tab"] { color: var(--text-muted); }
+
+/* ── Success message ─────────────────────────────────────────────────── */
+.stSuccess { border-left: 4px solid var(--green) !important; }
+
+/* ── Caption / small text ────────────────────────────────────────────── */
+.stCaption { color: var(--text-muted) !important; font-size: 0.82rem !important; }
+small { color: var(--text-muted); font-size: 0.82rem; }
+
+/* ── Card wrapper (used for question display) ────────────────────────── */
+.sagos-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+}
+.sagos-card-green  { border-left: 4px solid var(--green); }
+.sagos-card-brown  { border-left: 4px solid var(--brown); }
+.sagos-card-purple { border-left: 4px solid var(--purple); }
+</style>
+""", unsafe_allow_html=True)
+
 
 def render_ui():
     """Render the main UI."""
     labels = Config.LABELS
 
-    # Header
-    st.title(labels['main_title'])
-    st.subheader(labels['subtitle'])
-    st.markdown(labels['input_prompt'])
+    # Branded landing header
+    st.markdown("""
+<div style="
+    background: linear-gradient(135deg, #1A5C1A 0%, #2D7A2D 60%, #4A9A4A 100%);
+    border-radius: 16px;
+    padding: 2rem 2.2rem 1.6rem;
+    margin-bottom: 1.6rem;
+    box-shadow: 0 4px 20px rgba(45,122,45,0.20);
+">
+  <div style="font-family:'Lora',serif;font-size:1.9rem;font-weight:600;
+              color:#FFFFFF;letter-spacing:-0.01em;margin-bottom:0.3rem;">
+    📖 聖經研讀工具
+  </div>
+  <div style="font-size:1.05rem;color:rgba(255,255,255,0.85);font-weight:400;">
+    Bible Study Tool &nbsp;·&nbsp; SAGOS Institute
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown(
+        f"<p style='color:#666;font-size:0.95rem;margin-bottom:1rem;'>"
+        f"{labels['input_prompt']}</p>",
+        unsafe_allow_html=True
+    )
 
     # Input
     reference = st.text_input(
@@ -300,13 +538,33 @@ def display_emphasis_interface():
 
     # ── SCREEN 1: No emphasis selected yet ──
     if not selected or not result:
+        # Emphasis card colours aligned with CSS nth-child selectors
+        card_styles = {
+            'explore':    ('var(--green)',  'var(--green-light)',  'var(--green-dark)'),
+            'understand': ('var(--brown)',  'var(--brown-light)',  'var(--brown)'),
+            'apply':      ('var(--purple)', 'var(--purple-light)', 'var(--purple)'),
+        }
         cols = st.columns(3)
         for i, (key, opt) in enumerate(EMPHASIS_OPTIONS.items()):
+            border_col, bg_col, text_col = card_styles[key]
             with cols[i]:
-                st.markdown(f"**{opt['label']}**")
-                st.markdown(f"*{opt['desc']}*")
-                st.markdown(f"<small>{opt['desc_en']}</small>", unsafe_allow_html=True)
-                if st.button(f"選擇 {opt['label']}", key=f"emphasis_{key}", use_container_width=True):
+                st.markdown(f"""
+<div style="
+    background:{bg_col};
+    border:2px solid {border_col};
+    border-radius:12px;
+    padding:1rem 1.1rem 0.6rem;
+    margin-bottom:0.5rem;
+    min-height:110px;
+">
+  <div style="font-size:1.05rem;font-weight:700;color:{text_col};margin-bottom:0.3rem;">
+    {opt['label']}
+  </div>
+  <div style="font-size:0.95rem;color:#333;margin-bottom:0.2rem;">{opt['desc']}</div>
+  <div style="font-size:0.78rem;color:#777;">{opt['desc_en']}</div>
+</div>
+""", unsafe_allow_html=True)
+                if st.button(f"選擇", key=f"emphasis_{key}", use_container_width=True):
                     SessionManager.select_emphasis(key)
                     # Log selected question set to Google Sheets
                     selected_result = st.session_state.emphasis_all_results.get(key, '')
