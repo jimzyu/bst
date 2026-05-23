@@ -685,10 +685,23 @@ def display_emphasis_interface():
                     st.rerun()
 
         if not unlocked:
-            st.info(
-                "📝 作答完一組問題後，將可查看經文摘要與情境案例。\n\n"
-                "Complete one set of questions above to unlock the passage summary "
-                "and discussion scenario."
+            st.markdown(
+                '<div style="'
+                'background:var(--green-light);'
+                'border:1.5px solid var(--green);'
+                'border-left:4px solid var(--green);'
+                'border-radius:var(--radius-sm);'
+                'padding:0.55rem 1rem;'
+                'margin-top:0.4rem;'
+                'font-size:0.88rem;'
+                'color:var(--green-dark);'
+                'line-height:1.5;'
+                '">'
+                '🌿 作答完一組問題後，將可查看經文摘要與情境案例。'
+                '<span style="color:#555;font-weight:400;"> · '
+                'Complete one set of questions to unlock summary and scenario.</span>'
+                '</div>',
+                unsafe_allow_html=True
             )
             _facilitator_toggle()
             if st.button("← 返回 Back", type="secondary"):
