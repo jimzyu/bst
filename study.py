@@ -322,6 +322,75 @@ small { color: var(--text-muted); font-size: 0.82rem; }
 .sagos-card-green  { border-left: 4px solid var(--green); }
 .sagos-card-brown  { border-left: 4px solid var(--brown); }
 .sagos-card-purple { border-left: 4px solid var(--purple); }
+
+/* ── Question card ───────────────────────────────────────────────────── */
+.question-card {
+    background: var(--card-bg);
+    border-left: 4px solid var(--green);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 1rem 1.3rem;
+    margin-bottom: 0.8rem;
+    box-shadow: var(--shadow);
+    line-height: 1.9;
+}
+.question-card.brown  { border-left-color: var(--brown); }
+.question-card.purple { border-left-color: var(--purple); }
+
+/* ── Feedback card ───────────────────────────────────────────────────── */
+.feedback-card {
+    background: #F0F7F0;
+    border: 1px solid var(--green);
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1.2rem;
+    margin-top: 0.6rem;
+    font-size: 0.95rem;
+    line-height: 1.85;
+}
+
+/* ── Completion badge on emphasis cards ──────────────────────────────── */
+.completion-badge {
+    display: inline-block;
+    background: var(--green);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+/* ── Unlock banner ───────────────────────────────────────────────────── */
+.unlock-banner {
+    background: linear-gradient(90deg, var(--green-light) 0%, #fff 100%);
+    border: 1.5px solid var(--green);
+    border-radius: var(--radius-sm);
+    padding: 0.7rem 1.1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.92rem;
+    color: var(--green-dark);
+    font-weight: 500;
+}
+
+/* ── Chinese body text line height ──────────────────────────────────── */
+.stMarkdown p, .stText p, .stWrite { line-height: 1.85 !important; }
+
+/* ── Responsive: iPad portrait (≤800px) — tighter cards ─────────────── */
+@media (max-width: 800px) {
+    .block-container { padding-left: 1rem !important; padding-right: 1rem !important; }
+    .stApp h1 { font-size: 1.7rem !important; }
+    [data-testid="column"] { min-width: 140px; }
+}
+
+/* ── Responsive: phone (≤640px) — single column cards ───────────────── */
+@media (max-width: 640px) {
+    [data-testid="stHorizontalBlock"] { flex-direction: column !important; }
+    [data-testid="column"] { width: 100% !important; flex: none !important; }
+    .block-container { padding-left: 0.7rem !important; padding-right: 0.7rem !important; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -538,7 +607,10 @@ def display_emphasis_interface():
 
     # ── SCREEN 1: No emphasis selected yet ──
     if not selected or not result:
-        # Emphasis card colours aligned with CSS nth-child selectors
+        # Completion state for badge display
+        all_answers = st.session_state.get('emphasis_all_answers', {})
+        required = {'observation', 'interpretation', 'application'}
+
         card_styles = {
             'explore':    ('var(--green)',  'var(--green-light)',  'var(--green-dark)'),
             'understand': ('var(--brown)',  'var(--brown-light)',  'var(--brown)'),
@@ -547,6 +619,8 @@ def display_emphasis_interface():
         cols = st.columns(3)
         for i, (key, opt) in enumerate(EMPHASIS_OPTIONS.items()):
             border_col, bg_col, text_col = card_styles[key]
+            completed = required.issubset(all_answers.get(key, {}).keys())
+            badge = '<span class="completion-badge">✓ 完成</span>' if completed else ''
             with cols[i]:
                 st.markdown(f"""
 <div style="
@@ -558,7 +632,7 @@ def display_emphasis_interface():
     min-height:110px;
 ">
   <div style="font-size:1.05rem;font-weight:700;color:{text_col};margin-bottom:0.3rem;">
-    {opt['label']}
+    {opt['label']}{badge}
   </div>
   <div style="font-size:0.95rem;color:#333;margin-bottom:0.2rem;">{opt['desc']}</div>
   <div style="font-size:0.78rem;color:#777;">{opt['desc_en']}</div>
@@ -613,6 +687,16 @@ def display_emphasis_interface():
             return
         else:
             _facilitator_toggle()
+            # Unlock banner — shown when user earned access through completing questions
+            if not st.session_state.facilitator_mode:
+                st.markdown(
+                    '<div class="unlock-banner">'
+                    '🌿 你完成了一組問題，摘要與情境案例現已開放。'
+                    '<span style="color:#555;font-weight:400;font-size:0.88rem;">'
+                    ' Summary and scenario unlocked.</span>'
+                    '</div>',
+                    unsafe_allow_html=True
+                )
             # ── Passage Summary ───────────────────────────────────────────────
             summary_raw = st.session_state.get('emphasis_summary')
             if summary_raw:
@@ -929,7 +1013,21 @@ def display_emphasis_interface():
             "interpretation": "🤔 解釋 Interpretation",
             "application": "💡 應用 Application"
         }
-        st.markdown(f"### {type_labels.get(question_type, question_type)}")
+        type_card_class = {
+            "observation": "",
+            "interpretation": "brown",
+            "application": "purple"
+        }
+        card_cls = type_card_class.get(question_type, "")
+        st.markdown(
+            f'<div class="question-card {card_cls}">'
+            f'<div style="font-size:0.78rem;font-weight:700;letter-spacing:0.06em;'
+            f'color:var(--text-muted);text-transform:uppercase;margin-bottom:0.5rem;">'
+            f'{type_labels.get(question_type, question_type)}</div>'
+            f'<div style="font-size:1rem;line-height:1.9;">{question_text}</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
 
         # Already evaluated this question
         if question_type in st.session_state.emphasis_quiz_feedbacks:
