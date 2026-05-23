@@ -1218,7 +1218,8 @@ def display_emphasis_interface():
                             f"<strong>{i+1}. {sq}</strong></div>",
                             unsafe_allow_html=True)
             else:
-                st.info(subquestions[0])
+                # Single subquestion — already shown in the question-card above; don't repeat
+                pass
 
             # Pre-populate with previous answer if returning to this emphasis
             prev_subq_answers = SessionManager.get_emphasis_subquestion_answers(question_type)
