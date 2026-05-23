@@ -168,13 +168,23 @@ h1, h2, h3 { font-family: 'Lora', 'PingFang TC', serif; }
     border: 2px solid var(--border);
     border-radius: var(--radius-sm);
     background: var(--card-bg);
+    color: var(--text) !important;
+    -webkit-text-fill-color: var(--text) !important;
     font-size: 1.05rem;
     padding: 0.6rem 0.9rem;
     transition: border-color 0.2s;
+    opacity: 1 !important;
 }
 .stTextInput > div > div > input:focus {
     border-color: var(--green);
     box-shadow: 0 0 0 3px rgba(45,122,45,0.12);
+    color: var(--text) !important;
+    -webkit-text-fill-color: var(--text) !important;
+}
+.stTextInput > div > div > input::placeholder {
+    color: #999 !important;
+    -webkit-text-fill-color: #999 !important;
+    opacity: 1 !important;
 }
 
 /* ── Primary button (Start Study / Done) ─────────────────────────────── */
