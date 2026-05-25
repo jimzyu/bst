@@ -727,7 +727,13 @@ def display_emphasis_interface():
             summary_raw = st.session_state.get('emphasis_summary')
             if summary_raw:
                 ch_summary, en_summary = ResponseParser.parse_ai_response(summary_raw)
-                with st.expander("📚 經文摘要 Passage Summary", expanded=False):
+                is_deep = st.session_state.emphasis_theological_drafts is not None
+                expander_label = (
+                    "📚 深度經文摘要 Deep Summary"
+                    if is_deep else
+                    "📚 經文摘要 Passage Summary"
+                )
+                with st.expander(expander_label, expanded=False):
                     stab1, stab2, stab3 = st.tabs(["繁體中文", "简体中文", "English"])
                     with stab1:
                         st.markdown(ch_summary or summary_raw)
