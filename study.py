@@ -526,23 +526,35 @@ def _generate_quick_summary(reference: str, client):
 
 def _generate_deep_summary(reference: str, client):
     """
-    Generate a deep passage summary using three parallel theological drafts.
-    Stores the drafts in session state for optional later use by scenario generation.
-    Returns the synthesised summary text, or None if generation fails.
+    Generate a Deep Summary using a lean 2-call path:
+      Call 1: Historical/lexical enrichment draft
+      Call 2: Consolidation using Quick Summary + historical draft
+
+    The Quick Summary (already in session state) serves as the theological
+    foundation, eliminating the redundant Draft 1 and the discarded Draft 3.
+    Guarantees Deep Summary is richer than Quick Summary by explicitly
+    building on it. Returns the synthesised summary text, or None on failure.
     """
     try:
-        draft_labels = [
-            "神學分析 (標準) 完成 ✓",
-            "神學分析 (歷史) 完成 ✓",
-            "神學分析 (應用) 完成 ✓",
-        ]
-        prompts = PromptTemplates.get_threshold_deep_prompts(reference)
-        drafts = client.generate_drafts_parallel(prompts, labels=draft_labels)
-        st.session_state.emphasis_theological_drafts = drafts
+        # Quick Summary is already in session state from initial generation
+        quick_summary = st.session_state.get('emphasis_summary', '')
 
-        summary_prompt = PromptTemplates.get_summary_from_drafts_prompt(
-            reference, drafts[0], drafts[1], drafts[2])
-        return client.generate_content_quality(summary_prompt)
+        # Call 1: Historical enrichment only — the unique value of Deep Summary
+        historical_prompt = PromptTemplates.BASE_STUDY_TEMPLATE.format(
+            ref=reference,
+            focus=PromptTemplates.FOCUS_AREAS['historical'],
+            case_study_instruction=""
+        )
+        historical_draft = client.generate_content_quality(historical_prompt)
+
+        # Store draft for scenario enrichment (Step 3 pipeline)
+        st.session_state.emphasis_theological_drafts = [historical_draft]
+
+        # Call 2: Consolidation — builds on Quick Summary, enriched by history
+        enriched_prompt = PromptTemplates.get_summary_enriched_prompt(
+            reference, quick_summary, historical_draft)
+        return client.generate_content_quality(enriched_prompt)
+
     except Exception as e:
         logger.error(f"Deep summary generation failed: {str(e)}")
         return None

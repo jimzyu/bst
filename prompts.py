@@ -536,6 +536,45 @@ DO NOT generate any questions, 啟發式提問, or reflective questions. Summary
 Reference: "{ref}"
 """
 
+    SUMMARY_ENRICHED_TEMPLATE = """
+Generate a comprehensive Deep Summary for: "{ref}"
+
+You have access to:
+
+PASSAGE SUMMARY (already generated — use as your theological foundation):
+{quick_summary}
+
+HISTORICAL ENRICHMENT (deep analysis of historical, cultural and linguistic context):
+{historical_draft}
+
+Your task: produce a richer summary that builds on and deepens the Passage Summary above.
+
+Instructions per field:
+- **主題名稱**: May refine the title if the historical enrichment suggests a more precise framing.
+- **神學意義說明**: Expand to 3-4 sentences. Add theological precision from the historical enrichment — canonical connections, original language nuances, covenantal or intertextual dimensions not present in the Passage Summary.
+- **歷史背景補充**: Expand to 2-3 sentences using specific details from the Historical Enrichment. Name specific cultural practices, original language terms, historical context, or canonical connections. This section should contain detail not present in the Passage Summary.
+- **經文的診斷**: Start from the Passage Summary's diagnosis and sharpen it. The diagnosis should name the self-deception or human condition with enough precision that a reader recognises it in themselves — not just "pride" or "worldliness" but the specific form these take for this passage's argument. Do NOT simply paraphrase a verse.
+
+CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as shown.
+DO NOT generate any questions, 啟發式提問, or reflective questions. Summary fields only.
+
+[CHINESE]
+### 主題摘要
+- **主題名稱**: [refined title if needed]
+- **神學意義說明**: [3-4 sentences, expanded with theological depth]
+- **歷史背景補充**: [2-3 sentences, specific historical/lexical details from Historical Enrichment]
+- **經文的診斷**: [1-2 sentences, sharpened from Passage Summary diagnosis]
+
+[ENGLISH]
+### Theme Summary
+- **Theme Title**: [English translation]
+- **Theological Significance**: [English translation]
+- **Historical Context**: [English translation]
+- **Passage Diagnosis**: [English translation]
+
+Reference: "{ref}"
+"""
+
     # ── EMPHASIS-BASED QUESTION TEMPLATES ─────────────────────────────────────
 
     EMPHASIS_EXPLORE = """
@@ -916,12 +955,30 @@ matches what the passage names, not just a generic action-gap situation.
     @classmethod
     def get_summary_from_drafts_prompt(cls, reference: str,
                                        draft_1: str, draft_2: str, draft_3: str) -> str:
-        """Get a richer summary prompt informed by three theological drafts."""
+        """Get a richer summary prompt informed by three theological drafts.
+        Legacy method — kept for backwards compatibility."""
         return cls.SUMMARY_FROM_DRAFTS_TEMPLATE.format(
             ref=reference,
             draft_1=draft_1[:2000],  # Truncate to avoid token limits
             draft_2=draft_2[:2000],
             draft_3=draft_3[:2000],
+        )
+
+    @classmethod
+    def get_summary_enriched_prompt(cls, reference: str,
+                                    quick_summary: str, historical_draft: str) -> str:
+        """
+        Get a Deep Summary prompt using the existing Quick Summary as foundation
+        and a single historical enrichment draft. This is the lean 2-call path:
+          Call 1: historical draft (FOCUS_AREAS['historical'])
+          Call 2: consolidation via this method
+        Guarantees Deep Summary is richer than Quick Summary by explicitly building
+        on it rather than regenerating from scratch.
+        """
+        return cls.SUMMARY_ENRICHED_TEMPLATE.format(
+            ref=reference,
+            quick_summary=quick_summary[:3000],
+            historical_draft=historical_draft[:3000],
         )
 
     @classmethod
