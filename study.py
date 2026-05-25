@@ -621,6 +621,27 @@ def display_emphasis_interface():
         all_answers = st.session_state.get('emphasis_all_answers', {})
         required = {'observation', 'interpretation', 'application'}
 
+        # Notice above cards — precondition shown before emphasis choice
+        if not unlocked:
+            st.markdown(
+                '<div style="'
+                'background:#F5F3F0;'
+                'border:1.5px solid #C8BFB5;'
+                'border-left:4px solid #A89880;'
+                'border-radius:var(--radius-sm);'
+                'padding:0.55rem 1rem;'
+                'margin-bottom:0.8rem;'
+                'font-size:0.88rem;'
+                'color:#555;'
+                'line-height:1.5;'
+                '">'
+                '📝 作答完一組問題後，將可查看經文摘要與情境案例。'
+                '<span style="color:#888;font-weight:400;"> · '
+                'Complete one set of questions to unlock summary and scenario.</span>'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
         card_styles = {
             'explore':    ('var(--green)',  'var(--green-light)',  'var(--green-dark)'),
             'understand': ('var(--brown)',  'var(--brown-light)',  'var(--brown)'),
@@ -685,24 +706,6 @@ def display_emphasis_interface():
                     st.rerun()
 
         if not unlocked:
-            st.markdown(
-                '<div style="'
-                'background:#F5F3F0;'
-                'border:1.5px solid #C8BFB5;'
-                'border-left:4px solid #A89880;'
-                'border-radius:var(--radius-sm);'
-                'padding:0.55rem 1rem;'
-                'margin-top:0.4rem;'
-                'font-size:0.88rem;'
-                'color:#555;'
-                'line-height:1.5;'
-                '">'
-                '📝 作答完一組問題後，將可查看經文摘要與情境案例。'
-                '<span style="color:#888;font-weight:400;"> · '
-                'Complete one set of questions to unlock summary and scenario.</span>'
-                '</div>',
-                unsafe_allow_html=True
-            )
             _facilitator_toggle()
             if st.button("← 返回 Back", type="secondary"):
                 SessionManager.end_emphasis()
