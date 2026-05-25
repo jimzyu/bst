@@ -32,7 +32,7 @@ class Config:
     # GEMINI_MODEL_QUALITY = 'gemini-2.5-pro'   # uncomment for quality runs
 
     # Option 2 — Anthropic direct (mixed)
-    ANTHROPIC_MODEL_QUALITY = 'claude-haiku-4-5'       # scenario, eval, follow-up
+    ANTHROPIC_MODEL_QUALITY = 'claude-sonnet-4-6'      # scenario, eval, follow-up
     # ANTHROPIC_MODEL_QUALITY = 'claude-sonnet-4-6'    # alternative quality model
     ANTHROPIC_MODEL_FAST    = 'claude-haiku-4-5'       # summary, mapping, questions
 
