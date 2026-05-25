@@ -621,6 +621,26 @@ def display_emphasis_interface():
         all_answers = st.session_state.get('emphasis_all_answers', {})
         required = {'observation', 'interpretation', 'application'}
 
+        # Gate: show summary and scenario only after completing at least one
+        # question set, OR when facilitator mode is active.
+        unlocked = (SessionManager.has_completed_any_emphasis()
+                    or st.session_state.facilitator_mode)
+
+        def _facilitator_toggle():
+            """Render the facilitator toggle — called in both locked and unlocked states."""
+            tcol1, tcol2 = st.columns([4, 1])
+            with tcol2:
+                facilitator = st.toggle(
+                    "備課模式",
+                    value=st.session_state.facilitator_mode,
+                    help="備課模式讓引導者在作答之前即可查看摘要和情境案例。\n"
+                         "Facilitator mode unlocks summary and scenario without completing questions.",
+                    key="facilitator_toggle"
+                )
+                if facilitator != st.session_state.facilitator_mode:
+                    st.session_state.facilitator_mode = facilitator
+                    st.rerun()
+
         # Notice above cards — precondition shown before emphasis choice
         if not unlocked:
             st.markdown(
@@ -683,26 +703,6 @@ def display_emphasis_interface():
                             logger.error(f"Emphasis logging FAILED: {log_err}", exc_info=True)
                     elif not client.draft_logger:
                         logger.warning("Emphasis logging skipped: draft_logger is None")
-                    st.rerun()
-
-        # Gate: show summary and scenario only after completing at least one
-        # question set, OR when facilitator mode is active.
-        unlocked = (SessionManager.has_completed_any_emphasis()
-                    or st.session_state.facilitator_mode)
-
-        def _facilitator_toggle():
-            """Render the facilitator toggle — called in both locked and unlocked states."""
-            tcol1, tcol2 = st.columns([4, 1])
-            with tcol2:
-                facilitator = st.toggle(
-                    "備課模式",
-                    value=st.session_state.facilitator_mode,
-                    help="備課模式讓引導者在作答之前即可查看摘要和情境案例。\n"
-                         "Facilitator mode unlocks summary and scenario without completing questions.",
-                    key="facilitator_toggle"
-                )
-                if facilitator != st.session_state.facilitator_mode:
-                    st.session_state.facilitator_mode = facilitator
                     st.rerun()
 
         if not unlocked:
