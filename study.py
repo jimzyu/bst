@@ -615,7 +615,7 @@ def display_emphasis_interface():
     """Display the emphasis study interface — selection, question set, or quiz."""
 
     EMPHASIS_OPTIONS = {
-        'explore': {'label': '🔍 探索 Explore', 'desc': '讀讀看，注意你注意到什麼', 'desc_en': 'Read and notice what you notice'},
+        'explore': {'label': '🔍 探索 Explore', 'desc': '讀讀看，留意你所看見的', 'desc_en': 'Read and notice what stands out'},
         'understand': {'label': '💡 理解 Understand', 'desc': '挖深一點，問為什麼', 'desc_en': 'Dig deeper, ask why'},
         'apply': {'label': '❤️ 應用 Apply', 'desc': '讓經文來問你', 'desc_en': 'Let the passage question you'},
     }
