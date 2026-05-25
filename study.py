@@ -687,18 +687,18 @@ def display_emphasis_interface():
         if not unlocked:
             st.markdown(
                 '<div style="'
-                'background:var(--green-light);'
-                'border:1.5px solid var(--green);'
-                'border-left:4px solid var(--green);'
+                'background:#F5F3F0;'
+                'border:1.5px solid #C8BFB5;'
+                'border-left:4px solid #A89880;'
                 'border-radius:var(--radius-sm);'
                 'padding:0.55rem 1rem;'
                 'margin-top:0.4rem;'
                 'font-size:0.88rem;'
-                'color:var(--green-dark);'
+                'color:#555;'
                 'line-height:1.5;'
                 '">'
-                '🌿 作答完一組問題後，將可查看經文摘要與情境案例。'
-                '<span style="color:#555;font-weight:400;"> · '
+                '📝 作答完一組問題後，將可查看經文摘要與情境案例。'
+                '<span style="color:#888;font-weight:400;"> · '
                 'Complete one set of questions to unlock summary and scenario.</span>'
                 '</div>',
                 unsafe_allow_html=True
