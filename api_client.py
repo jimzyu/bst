@@ -401,7 +401,8 @@ class GeminiClient:
         else:
             genai.configure(api_key=api_key)
             generation_config = genai.types.GenerationConfig(
-                temperature=Config.TEMPERATURE
+                temperature=Config.TEMPERATURE,
+                thinking_config=genai.types.ThinkingConfig(thinking_budget=0)
             )
             self.model = genai.GenerativeModel(
                 model_name=Config.GEMINI_MODEL_FAST,
@@ -537,7 +538,8 @@ class GeminiClient:
                     quality_model = genai.GenerativeModel(
                         model_name=Config.GEMINI_MODEL_QUALITY,
                         generation_config=genai.types.GenerationConfig(
-                            temperature=Config.TEMPERATURE
+                            temperature=Config.TEMPERATURE,
+                            thinking_config=genai.types.ThinkingConfig(thinking_budget=0)
                         ),
                         system_instruction=system_override
                     )
@@ -545,11 +547,15 @@ class GeminiClient:
                     quality_model = genai.GenerativeModel(
                         model_name=Config.GEMINI_MODEL_QUALITY,
                         generation_config=genai.types.GenerationConfig(
-                            temperature=Config.TEMPERATURE
+                            temperature=Config.TEMPERATURE,
+                            thinking_config=genai.types.ThinkingConfig(thinking_budget=0)
                         ),
                         system_instruction=self.system_instruction
                     )
-                response = quality_model.generate_content(prompt)
+                response = quality_model.generate_content(
+                    prompt,
+                    request_options={"timeout": 300}
+                )
                 text = self.validate_response(response)
             logger.info(f"Quality content generated ({len(text)} chars)")
             return text
@@ -599,13 +605,20 @@ class GeminiClient:
                     temp_model = genai.GenerativeModel(
                         model_name=Config.GEMINI_MODEL_FAST,
                         generation_config=genai.types.GenerationConfig(
-                            temperature=Config.TEMPERATURE
+                            temperature=Config.TEMPERATURE,
+                            thinking_config=genai.types.ThinkingConfig(thinking_budget=0)
                         ),
                         system_instruction=system_override
                     )
-                    response = temp_model.generate_content(prompt)
+                    response = temp_model.generate_content(
+                        prompt,
+                        request_options={"timeout": 180}
+                    )
                 else:
-                    response = self.model.generate_content(prompt)
+                    response = self.model.generate_content(
+                        prompt,
+                        request_options={"timeout": 180}
+                    )
                 text = self.validate_response(response)
 
             logger.info(f"Successfully generated content (response length: {len(text)} chars)")
