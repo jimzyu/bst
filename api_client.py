@@ -402,7 +402,6 @@ class GeminiClient:
             genai.configure(api_key=api_key)
             generation_config = genai.types.GenerationConfig(
                 temperature=Config.TEMPERATURE,
-                thinking_config=genai.types.ThinkingConfig(thinking_budget=0)
             )
             self.model = genai.GenerativeModel(
                 model_name=Config.GEMINI_MODEL_FAST,
@@ -539,7 +538,6 @@ class GeminiClient:
                         model_name=Config.GEMINI_MODEL_QUALITY,
                         generation_config=genai.types.GenerationConfig(
                             temperature=Config.TEMPERATURE,
-                            thinking_config=genai.types.ThinkingConfig(thinking_budget=0)
                         ),
                         system_instruction=system_override
                     )
@@ -548,7 +546,6 @@ class GeminiClient:
                         model_name=Config.GEMINI_MODEL_QUALITY,
                         generation_config=genai.types.GenerationConfig(
                             temperature=Config.TEMPERATURE,
-                            thinking_config=genai.types.ThinkingConfig(thinking_budget=0)
                         ),
                         system_instruction=self.system_instruction
                     )
@@ -606,7 +603,6 @@ class GeminiClient:
                         model_name=Config.GEMINI_MODEL_FAST,
                         generation_config=genai.types.GenerationConfig(
                             temperature=Config.TEMPERATURE,
-                            thinking_config=genai.types.ThinkingConfig(thinking_budget=0)
                         ),
                         system_instruction=system_override
                     )
