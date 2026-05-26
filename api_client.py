@@ -41,9 +41,7 @@ class SheetsLogger:
     COL_TIMESTAMP = 1
     COL_REFERENCE = 2
     COL_MODE = 3
-    COL_DRAFT_1 = 4
-    COL_DRAFT_2 = 5
-    COL_DRAFT_3 = 6
+    # Cols 4-6 reserved (legacy draft columns — not populated in current flow)
     COL_FINAL_RESULT = 7
     COL_USER_ANS_OBS = 8
     COL_FEEDBACK_OBS = 9

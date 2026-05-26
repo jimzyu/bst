@@ -343,19 +343,6 @@ Q2: 對你自己說實話：在某些人面前，你對自己信仰的表達方�
 
 """
 
-    THRESHOLD_WITH_THEOLOGY_TEMPLATE = """
-Generate a threshold scenario for group Bible study based on the following passage and theological analysis.
-
-PASSAGE: {reference}
-
-THEOLOGICAL ANALYSIS FROM PRIOR DRAFTS:
-{theology_summary}
-
-Using the theological analysis above to identify the passage's precise diagnosis, generate a threshold scenario in Traditional Chinese followed by a direct English translation.
-
-{threshold_instruction}
-"""
-
     BASE_STUDY_TEMPLATE = """
 Analyze the following reference: "{ref}".
 
@@ -374,84 +361,8 @@ CRITICAL: You MUST include the [META_ASSESSMENT] section at the end of your resp
 Reference to analyze: "{ref}"
 """
 
-    MERGE_DRAFTS_TEMPLATE = """
-You are an expert editor. I have generated three different study guides for the biblical reference: "{reference}".
-
-Draft 1 (Standard Theological View):
-{draft_1}
-
-Draft 2 (Historical & Cultural Context):
-{draft_2}
-
-Draft 3 (Practical Life Application):
-{draft_3}
-
-Your Goal: Create ONE Master Version by intelligently combining the best elements.
-
-Instructions:
-1. Select the most insightful "Observation" question from the three drafts (or create a better one)
-2. Select the deepest "Interpretation" question (or synthesize a better one)
-3. Select the most challenging and practical "Application" question (or create a more actionable one)
-4. Combine the historical facts and theological meanings into a rich, comprehensive summary
-5. Ensure all content is cohesive and flows well together
-6. **CRITICAL**: If Draft 3 contains [THRESHOLD_SCENARIO_CHINESE] and [THRESHOLD_SCENARIO_ENGLISH] sections, copy them verbatim into your merged output. Do NOT rewrite, improve, or synthesize them with other drafts — the threshold scenario was intentionally written from an application-focused perspective and synthesis tends to introduce over-explanation. Preserve it exactly as written.
-
-CRITICAL: Output STRICTLY in [CHINESE] and [ENGLISH] format as specified in your system instructions.
-The English section must be a direct translation of the Chinese section.
-
-IMPORTANT: You MUST include the [META_ASSESSMENT] section at the end with your Understanding Confidence percentage and reasoning based on your combined analysis of all three drafts.
-
-IMPORTANT: If Draft 3 contains threshold scenario sections, copy [THRESHOLD_SCENARIO_CHINESE] and [THRESHOLD_SCENARIO_ENGLISH] verbatim after the [META_ASSESSMENT] section.
-"""
 
 
-
-
-    MISREADING_PREAMBLE = """
-STEP 1 — IDENTIFY MISREADINGS (internal reasoning only — do NOT include in output):
-
-Before writing any questions, do three things:
-
-A. IDENTIFY THE GENRE of "{ref}":
-   - Epistolary/didactic (Paul's letters, James, Hebrews): the passage makes explicit
-     arguments — ask "what assumption is this verse arguing against?"
-   - Narrative (Genesis, Gospels, Acts, Kings): the passage shows rather than argues —
-     ask "what does this story assume the reader will misidentify about the character,
-     motive, or outcome?"
-   - Prophetic oracle (Isaiah, Jeremiah, Ezekiel, Daniel): the passage addresses a
-     specific audience in crisis — first identify WHO the primary audience is and what
-     specific despair, pride, or self-deception they carry, THEN ask what the oracle
-     corrects in that audience. Do not diagnose the nations or enemies named in the
-     oracle — diagnose the people the oracle is written FOR.
-   - Poetry/Wisdom (Psalms, Proverbs, Song of Songs, Ecclesiastes): the passage works
-     through image and metaphor, not argument — ask "what does this image assume about
-     the reader's prior experience, fear, or unspoken belief?" and "what does the poet
-     expect the reader to resist or find uncomfortable?"
-   - Law/Torah (Deuteronomy, Leviticus, covenant passages): the passage forms a people
-     through instruction — ask "what habit of fragmentation, compartmentalisation, or
-     self-exemption does this instruction implicitly resist?"
-
-B. IDENTIFY THE PRIMARY AUDIENCE this passage addresses — not the characters in the
-   passage, but the people the author wrote it FOR. Misreadings belong to the reader,
-   not the narrative's antagonist. For prophetic passages especially: the oracle about
-   Babylon is written for the exiles, not for Babylon. The misreadings to surface are
-   those the exiles carry, not Babylon's errors.
-
-C. IDENTIFY 2-3 MISREADINGS this specific passage corrects in its primary audience.
-   Derive misreadings from the passage's own rhetorical structure — not from general
-   statements about human nature. Each misreading must be specific to this passage's
-   argument, not applicable to any passage on the same broad topic.
-
-These misreadings are your calibration target for Step 2. Do not mention them explicitly
-in your questions. Instead, write questions that would surface them — questions that make
-a reader who holds that misreading pause, look again at the text, and discover the
-correction themselves.
-
-This Step 1 reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
-[ENGLISH] output.
-
-STEP 2 — WRITE QUESTIONS calibrated against those misreadings:
-"""
 
     PASSAGE_MAPPING_TEMPLATE = """
 Analyse the following Bible passage and identify its distinct teaching points.
@@ -516,43 +427,6 @@ DO NOT generate any questions, 啟發式提問, or reflective questions. Summary
 Reference: "{ref}"
 """
 
-
-    SUMMARY_FROM_DRAFTS_TEMPLATE = """
-Generate a comprehensive passage summary for: "{ref}"
-
-You have access to three theological analyses of this passage generated from different angles:
-
-DRAFT 1 — Standard theological analysis:
-{draft_1}
-
-DRAFT 2 — Historical and cultural context:
-{draft_2}
-
-DRAFT 3 — Practical application focus:
-{draft_3}
-
-Using all three analyses, produce a richer summary than any single draft could provide.
-Draw on Draft 1 for theological precision, Draft 2 for historical depth, and Draft 3 for the passage's specific diagnostic claim about the human condition.
-
-CRITICAL: Your response MUST include the [CHINESE] and [ENGLISH] tags exactly as shown.
-DO NOT generate any questions, 啟發式提問, or reflective questions. Summary fields only.
-
-[CHINESE]
-### 主題摘要
-- **主題名稱**: [4-8 traditional Chinese characters summarizing the core theme]
-- **神學意義說明**: [3-4 sentences explaining the theological significance — draw on all three drafts for precision and depth]
-- **歷史背景補充**: [2-3 sentences of specific historical or cultural context drawn from Draft 2 — name specific details: time period, cultural practices, original language nuances where relevant]
-- **經文的診斷**: [1-2 sentences naming the specific human condition this passage addresses — what does it call out in the reader that the reader might not have named themselves? Draw on Draft 3 for the application insight. Be precise rather than generic. Do NOT simply paraphrase a verse. Avoid "this passage challenges us to..." or "people tend to..." — instead name the specific tendency, pattern, or self-deception with enough precision that a reader would recognise it in themselves.]
-
-[ENGLISH]
-### Theme Summary
-- **Theme Title**: [English translation of theme title]
-- **Theological Significance**: [English translation]
-- **Historical Context**: [English translation]
-- **Passage Diagnosis**: [English translation]
-
-Reference: "{ref}"
-"""
 
     SUMMARY_ENRICHED_TEMPLATE = """
 Generate a comprehensive Deep Summary for: "{ref}"
@@ -865,16 +739,6 @@ Reference: "{ref}"
     }
     
     @classmethod
-    def get_merge_prompt(cls, reference: str, draft_1: str, draft_2: str, draft_3: str) -> str:
-        """Get merge prompt for combining drafts."""
-        return cls.MERGE_DRAFTS_TEMPLATE.format(
-            reference=reference,
-            draft_1=draft_1,
-            draft_2=draft_2,
-            draft_3=draft_3
-        )
-    
-    @classmethod
     def get_evaluation_prompt(cls, reference: str, question_type: str,
                              question: str, user_answer: str, ai_answer: str,
                              emphasis: str = "standard") -> str:
@@ -912,45 +776,6 @@ Reference: "{ref}"
             ref=reference,
             focus=cls.FOCUS_AREAS['application'],
             case_study_instruction=cls.THRESHOLD_SCENARIO_INSTRUCTION
-        )
-
-    @classmethod
-    def get_threshold_deep_prompts(cls, reference: str) -> list[str]:
-        """
-        Get prompts for deep mode threshold scenario.
-        Drafts 1 and 2 build theological understanding.
-        Draft 3 generates the threshold scenario informed by that theology.
-        """
-        return [
-            cls.BASE_STUDY_TEMPLATE.format(
-                ref=reference,
-                focus=cls.FOCUS_AREAS['standard'],
-                case_study_instruction=""  # Theology only — no scenario
-            ),
-            cls.BASE_STUDY_TEMPLATE.format(
-                ref=reference,
-                focus=cls.FOCUS_AREAS['historical'],
-                case_study_instruction=""  # Theology only — no scenario
-            ),
-            cls.BASE_STUDY_TEMPLATE.format(
-                ref=reference,
-                focus=cls.FOCUS_AREAS['application'],
-                case_study_instruction=cls.THRESHOLD_SCENARIO_INSTRUCTION  # Scenario in Draft 3
-            )
-        ]
-
-    @classmethod
-    def get_threshold_with_theology_prompt(cls, reference: str, theology_summary: str) -> str:
-        """
-        Get threshold scenario prompt that explicitly uses theological summary
-        from prior drafts. Used in deep mode after drafts 1 and 2 are complete,
-        so the scenario generation is directly informed by the passage's
-        precise theological diagnosis.
-        """
-        return cls.THRESHOLD_WITH_THEOLOGY_TEMPLATE.format(
-            reference=reference,
-            theology_summary=theology_summary,
-            threshold_instruction=cls.THRESHOLD_SCENARIO_INSTRUCTION
         )
 
     @classmethod
@@ -1023,18 +848,6 @@ matches what the passage names, not just a generic action-gap situation.
     def get_summary_prompt(cls, reference: str) -> str:
         """Get a standalone passage summary prompt."""
         return cls.SUMMARY_TEMPLATE.format(ref=reference)
-
-    @classmethod
-    def get_summary_from_drafts_prompt(cls, reference: str,
-                                       draft_1: str, draft_2: str, draft_3: str) -> str:
-        """Get a richer summary prompt informed by three theological drafts.
-        Legacy method — kept for backwards compatibility."""
-        return cls.SUMMARY_FROM_DRAFTS_TEMPLATE.format(
-            ref=reference,
-            draft_1=draft_1[:2000],  # Truncate to avoid token limits
-            draft_2=draft_2[:2000],
-            draft_3=draft_3[:2000],
-        )
 
     @classmethod
     def get_summary_enriched_prompt(cls, reference: str,

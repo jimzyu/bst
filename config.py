@@ -21,15 +21,14 @@ class Config:
     #   USE_GLOO = True, USE_ANTHROPIC = False
     #   Fast tasks → gloo-google-gemini-2.5-flash | Quality → gloo-anthropic-claude-sonnet-4.6
     #
-    USE_GLOO = False
+    USE_GLOO = True
     USE_ANTHROPIC = False
 
     # ── Model names ───────────────────────────────────────────────────────────
 
     # Option 1 — Gemini direct (testing — both tasks use Flash)
-    GEMINI_MODEL_FAST    = 'gemma-4-26b-a4b-it'   # summary, mapping, questions
-    # GEMINI_MODEL_FAST = 'gemini-2.5-flash'   # uncomment for fast runs
-    GEMINI_MODEL_QUALITY = 'gemma-4-31b-it'     # scenario, eval, follow-up
+    GEMINI_MODEL_FAST    = 'gemini-2.5-flash'   # summary, mapping, questions
+    GEMINI_MODEL_QUALITY = 'gemini-2.5-pro'     # scenario, eval, follow-up
     # GEMINI_MODEL_QUALITY = 'gemini-2.5-pro'   # uncomment for quality runs
 
     # Option 2 — Anthropic direct (mixed)
@@ -38,14 +37,11 @@ class Config:
     ANTHROPIC_MODEL_FAST    = 'claude-haiku-4-5'       # summary, mapping, questions
 
     # Option 3 — Gloo mixed (cross-provider)
-    GLOO_MODEL_QUALITY = 'gloo-google-gemma-4-31b'       # quality tasks
+    GLOO_MODEL_QUALITY = 'gloo-anthropic-claude-sonnet-4.6'       # quality tasks
     # GLOO_MODEL_QUALITY = 'gloo-google-gemini-3.1-pro'           # alternative quality model
-    # GLOO_MODEL_QUALITY = 'gloo-anthropic-claude-sonnet-4.6'           # alternative quality model
-    GLOO_MODEL_FAST = 'gloo-google-gemma-4-26b'                # fast tasks
+    GLOO_MODEL_FAST = 'gloo-google-gemini-3-flash'                # fast tasks
     # GLOO_MODEL_FAST = 'gloo-google-gemini-2.5-flash'            # alternative fast model
 
-    # Legacy single-model Gloo name (kept for reference)
-    GLOO_MODEL_NAME = GLOO_MODEL_FAST
     TEMPERATURE = 0.3
     MAX_RETRIES = 4
 
@@ -65,24 +61,10 @@ class Config:
     
     # Text labels
     LABELS = {
-        'main_title': '📖 聖經研讀工具',
-        'subtitle': 'Bible Study Tool',
         'input_prompt': '輸入經文引用以獲取啟發提問與深度摘要。',
-        'deep_mode': '🔍 啟用深度整合模式 (Deep Study Mode - Generates 3 drafts & merges them)',
         'input_placeholder': '例如: Matthew 14:1-36',
         'input_label': '經文引用 Scriptural Reference',
-        'button_text': '開始研讀 Start Study',
-        'error_invalid': '❌ 無法識別該經文引用。請輸入有效的聖經章節（例如：約翰福音 3:16）。',
-        'error_invalid_en': 'Invalid scriptural reference. Please enter a valid Bible passage.',
         'error_empty': '請輸入有效的經文引用。',
-        'status_deep': '正在進行深度研讀 (Conducting Deep Study)...',
-        'status_standard': '正在查詢經文...',
-        'status_complete': '完成！ (Complete!)',
-        'reflections_title': '📝 提問+小結 (Reflections & Summary)',
-        'summary_expander': '📖 查看主題摘要 (View Theme Summary)',
-        'tab_traditional': '繁體中文',
-        'tab_simplified': '简体中文',
-        'tab_english': 'English',
     }
     
     @staticmethod
