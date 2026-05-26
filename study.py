@@ -1408,7 +1408,7 @@ def main():
         reference = render_ui()
 
         # Process button click
-        if st.button(Config.LABELS['button_text'], type="primary"):
+        if st.button("開始研讀 Start Study", type="primary"):
             process_study_request(reference)
     
     # Optional: Debug info (comment out for production)
