@@ -410,19 +410,37 @@ IMPORTANT: If Draft 3 contains threshold scenario sections, copy [THRESHOLD_SCEN
     MISREADING_PREAMBLE = """
 STEP 1 — IDENTIFY MISREADINGS (internal reasoning only — do NOT include in output):
 
-Before writing any questions, read the passage rhetorically: ask not just "what does
-this passage say?" but "what prior assumption is this passage arguing against?" Every
-verse that corrects, reframes, or surprises a reader implies a wrong reading the author
-anticipated. Identify 2-3 of the most likely misreadings a careful but theologically
-untrained reader of "{ref}" would bring to the text.
+Before writing any questions, do three things:
 
-For each misreading, ask:
-- What does this reader wrongly assume before reading?
-- Which word, phrase, structural move, or verse implicitly corrects that assumption?
+A. IDENTIFY THE GENRE of "{ref}":
+   - Epistolary/didactic (Paul's letters, James, Hebrews): the passage makes explicit
+     arguments — ask "what assumption is this verse arguing against?"
+   - Narrative (Genesis, Gospels, Acts, Kings): the passage shows rather than argues —
+     ask "what does this story assume the reader will misidentify about the character,
+     motive, or outcome?"
+   - Prophetic oracle (Isaiah, Jeremiah, Ezekiel, Daniel): the passage addresses a
+     specific audience in crisis — first identify WHO the primary audience is and what
+     specific despair, pride, or self-deception they carry, THEN ask what the oracle
+     corrects in that audience. Do not diagnose the nations or enemies named in the
+     oracle — diagnose the people the oracle is written FOR.
+   - Poetry/Wisdom (Psalms, Proverbs, Song of Songs, Ecclesiastes): the passage works
+     through image and metaphor, not argument — ask "what does this image assume about
+     the reader's prior experience, fear, or unspoken belief?" and "what does the poet
+     expect the reader to resist or find uncomfortable?"
+   - Law/Torah (Deuteronomy, Leviticus, covenant passages): the passage forms a people
+     through instruction — ask "what habit of fragmentation, compartmentalisation, or
+     self-exemption does this instruction implicitly resist?"
 
-IMPORTANT: Derive misreadings from the passage's own rhetorical structure — not from
-general statements about human nature. The misreading must be specific to this passage's
-argument, not applicable to any passage about the same broad topic.
+B. IDENTIFY THE PRIMARY AUDIENCE this passage addresses — not the characters in the
+   passage, but the people the author wrote it FOR. Misreadings belong to the reader,
+   not the narrative's antagonist. For prophetic passages especially: the oracle about
+   Babylon is written for the exiles, not for Babylon. The misreadings to surface are
+   those the exiles carry, not Babylon's errors.
+
+C. IDENTIFY 2-3 MISREADINGS this specific passage corrects in its primary audience.
+   Derive misreadings from the passage's own rhetorical structure — not from general
+   statements about human nature. Each misreading must be specific to this passage's
+   argument, not applicable to any passage on the same broad topic.
 
 These misreadings are your calibration target for Step 2. Do not mention them explicitly
 in your questions. Instead, write questions that would surface them — questions that make
@@ -582,19 +600,37 @@ Generate a Bible study question set for: "{ref}"
 
 STEP 1 — IDENTIFY MISREADINGS (internal reasoning only — do NOT include in output):
 
-Before writing any questions, read the passage rhetorically: ask not just "what does
-this passage say?" but "what prior assumption is this passage arguing against?" Every
-verse that corrects, reframes, or surprises a reader implies a wrong reading the author
-anticipated. Identify 2-3 of the most likely misreadings a careful but theologically
-untrained reader of "{ref}" would bring to the text.
+Before writing any questions, do three things:
 
-For each misreading, ask:
-- What does this reader wrongly assume before reading?
-- Which word, phrase, structural move, or verse implicitly corrects that assumption?
+A. IDENTIFY THE GENRE of "{ref}":
+   - Epistolary/didactic (Paul's letters, James, Hebrews): the passage makes explicit
+     arguments — ask "what assumption is this verse arguing against?"
+   - Narrative (Genesis, Gospels, Acts, Kings): the passage shows rather than argues —
+     ask "what does this story assume the reader will misidentify about the character,
+     motive, or outcome?"
+   - Prophetic oracle (Isaiah, Jeremiah, Ezekiel, Daniel): the passage addresses a
+     specific audience in crisis — first identify WHO the primary audience is and what
+     specific despair, pride, or self-deception they carry, THEN ask what the oracle
+     corrects in that audience. Do not diagnose the nations or enemies named in the
+     oracle — diagnose the people the oracle is written FOR.
+   - Poetry/Wisdom (Psalms, Proverbs, Song of Songs, Ecclesiastes): the passage works
+     through image and metaphor, not argument — ask "what does this image assume about
+     the reader's prior experience, fear, or unspoken belief?" and "what does the poet
+     expect the reader to resist or find uncomfortable?"
+   - Law/Torah (Deuteronomy, Leviticus, covenant passages): the passage forms a people
+     through instruction — ask "what habit of fragmentation, compartmentalisation, or
+     self-exemption does this instruction implicitly resist?"
 
-IMPORTANT: Derive misreadings from the passage's own rhetorical structure — not from
-general statements about human nature. The misreading must be specific to this passage's
-argument, not applicable to any passage about the same broad topic.
+B. IDENTIFY THE PRIMARY AUDIENCE this passage addresses — not the characters in the
+   passage, but the people the author wrote it FOR. Misreadings belong to the reader,
+   not the narrative's antagonist. For prophetic passages especially: the oracle about
+   Babylon is written for the exiles, not for Babylon. The misreadings to surface are
+   those the exiles carry, not Babylon's errors.
+
+C. IDENTIFY 2-3 MISREADINGS this specific passage corrects in its primary audience.
+   Derive misreadings from the passage's own rhetorical structure — not from general
+   statements about human nature. Each misreading must be specific to this passage's
+   argument, not applicable to any passage on the same broad topic.
 
 These misreadings are your calibration target for Step 2. Do not mention them explicitly
 in your questions. Instead, write questions that would surface them — questions that make
@@ -619,7 +655,7 @@ QUESTION-WRITING RULES (apply to all three):
 CALIBRATION FOR EXPLORE:
 - Observation: The question must be answerable differently by different readers — because a good observation question has no single right answer, only richer or thinner ones. Do NOT describe the passage or name what to look for. Do NOT ask about the relationship between two concepts (e.g. faith and works) — that names the theme. Instead ask something open like "what word or phrase in this passage is hardest to move past?" or "is there a moment in this passage that surprises you?" Different readers will notice different things. That variety is the point. For passages longer than 10 verses, use 2-3 observation sub-questions to guide the reader across different parts of the passage — each staying at the surface, together covering the passage's arc. Each sub-question should point to a different section or element, not press deeper into the same one.
 - Interpretation: Ask one accessible question about meaning without theological jargon. Connect what the reader might have noticed to what it could mean. For passages longer than 10 verses, 2 sub-questions may cover different aspects of meaning.
-- Application: Keep it open and inviting. Ask how the passage connects to ordinary experience without specifying domains, actions, or outcomes. Avoid "what might you do differently" framing.
+- Application: Keep it open and inviting. Ask how the passage connects to ordinary experience without specifying domains, actions, or outcomes. Avoid "what might you do differently" framing. The question must name a specific discomfort, resistance, or tension the passage could produce in the reader — not just invite reflection. "What does this passage make you want to look away from?" is better than "how does this connect to your life?" If a reader could answer the question without feeling any discomfort, rewrite it.
 
 DO NOT generate a 主題摘要 / Theme Summary section. Questions only — the summary is generated separately.
 
@@ -651,19 +687,37 @@ Generate a Bible study question set for: "{ref}"
 
 STEP 1 — IDENTIFY MISREADINGS (internal reasoning only — do NOT include in output):
 
-Before writing any questions, read the passage rhetorically: ask not just "what does
-this passage say?" but "what prior assumption is this passage arguing against?" Every
-verse that corrects, reframes, or surprises a reader implies a wrong reading the author
-anticipated. Identify 2-3 of the most likely misreadings a careful but theologically
-untrained reader of "{ref}" would bring to the text.
+Before writing any questions, do three things:
 
-For each misreading, ask:
-- What does this reader wrongly assume before reading?
-- Which word, phrase, structural move, or verse implicitly corrects that assumption?
+A. IDENTIFY THE GENRE of "{ref}":
+   - Epistolary/didactic (Paul's letters, James, Hebrews): the passage makes explicit
+     arguments — ask "what assumption is this verse arguing against?"
+   - Narrative (Genesis, Gospels, Acts, Kings): the passage shows rather than argues —
+     ask "what does this story assume the reader will misidentify about the character,
+     motive, or outcome?"
+   - Prophetic oracle (Isaiah, Jeremiah, Ezekiel, Daniel): the passage addresses a
+     specific audience in crisis — first identify WHO the primary audience is and what
+     specific despair, pride, or self-deception they carry, THEN ask what the oracle
+     corrects in that audience. Do not diagnose the nations or enemies named in the
+     oracle — diagnose the people the oracle is written FOR.
+   - Poetry/Wisdom (Psalms, Proverbs, Song of Songs, Ecclesiastes): the passage works
+     through image and metaphor, not argument — ask "what does this image assume about
+     the reader's prior experience, fear, or unspoken belief?" and "what does the poet
+     expect the reader to resist or find uncomfortable?"
+   - Law/Torah (Deuteronomy, Leviticus, covenant passages): the passage forms a people
+     through instruction — ask "what habit of fragmentation, compartmentalisation, or
+     self-exemption does this instruction implicitly resist?"
 
-IMPORTANT: Derive misreadings from the passage's own rhetorical structure — not from
-general statements about human nature. The misreading must be specific to this passage's
-argument, not applicable to any passage about the same broad topic.
+B. IDENTIFY THE PRIMARY AUDIENCE this passage addresses — not the characters in the
+   passage, but the people the author wrote it FOR. Misreadings belong to the reader,
+   not the narrative's antagonist. For prophetic passages especially: the oracle about
+   Babylon is written for the exiles, not for Babylon. The misreadings to surface are
+   those the exiles carry, not Babylon's errors.
+
+C. IDENTIFY 2-3 MISREADINGS this specific passage corrects in its primary audience.
+   Derive misreadings from the passage's own rhetorical structure — not from general
+   statements about human nature. Each misreading must be specific to this passage's
+   argument, not applicable to any passage on the same broad topic.
 
 These misreadings are your calibration target for Step 2. Do not mention them explicitly
 in your questions. Instead, write questions that would surface them — questions that make
@@ -720,19 +774,37 @@ Generate a Bible study question set for: "{ref}"
 
 STEP 1 — IDENTIFY MISREADINGS (internal reasoning only — do NOT include in output):
 
-Before writing any questions, read the passage rhetorically: ask not just "what does
-this passage say?" but "what prior assumption is this passage arguing against?" Every
-verse that corrects, reframes, or surprises a reader implies a wrong reading the author
-anticipated. Identify 2-3 of the most likely misreadings a careful but theologically
-untrained reader of "{ref}" would bring to the text.
+Before writing any questions, do three things:
 
-For each misreading, ask:
-- What does this reader wrongly assume before reading?
-- Which word, phrase, structural move, or verse implicitly corrects that assumption?
+A. IDENTIFY THE GENRE of "{ref}":
+   - Epistolary/didactic (Paul's letters, James, Hebrews): the passage makes explicit
+     arguments — ask "what assumption is this verse arguing against?"
+   - Narrative (Genesis, Gospels, Acts, Kings): the passage shows rather than argues —
+     ask "what does this story assume the reader will misidentify about the character,
+     motive, or outcome?"
+   - Prophetic oracle (Isaiah, Jeremiah, Ezekiel, Daniel): the passage addresses a
+     specific audience in crisis — first identify WHO the primary audience is and what
+     specific despair, pride, or self-deception they carry, THEN ask what the oracle
+     corrects in that audience. Do not diagnose the nations or enemies named in the
+     oracle — diagnose the people the oracle is written FOR.
+   - Poetry/Wisdom (Psalms, Proverbs, Song of Songs, Ecclesiastes): the passage works
+     through image and metaphor, not argument — ask "what does this image assume about
+     the reader's prior experience, fear, or unspoken belief?" and "what does the poet
+     expect the reader to resist or find uncomfortable?"
+   - Law/Torah (Deuteronomy, Leviticus, covenant passages): the passage forms a people
+     through instruction — ask "what habit of fragmentation, compartmentalisation, or
+     self-exemption does this instruction implicitly resist?"
 
-IMPORTANT: Derive misreadings from the passage's own rhetorical structure — not from
-general statements about human nature. The misreading must be specific to this passage's
-argument, not applicable to any passage about the same broad topic.
+B. IDENTIFY THE PRIMARY AUDIENCE this passage addresses — not the characters in the
+   passage, but the people the author wrote it FOR. Misreadings belong to the reader,
+   not the narrative's antagonist. For prophetic passages especially: the oracle about
+   Babylon is written for the exiles, not for Babylon. The misreadings to surface are
+   those the exiles carry, not Babylon's errors.
+
+C. IDENTIFY 2-3 MISREADINGS this specific passage corrects in its primary audience.
+   Derive misreadings from the passage's own rhetorical structure — not from general
+   statements about human nature. Each misreading must be specific to this passage's
+   argument, not applicable to any passage on the same broad topic.
 
 These misreadings are your calibration target for Step 2. Do not mention them explicitly
 in your questions. Instead, write questions that would surface them — questions that make
