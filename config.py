@@ -27,10 +27,10 @@ class Config:
     # ── Model names ───────────────────────────────────────────────────────────
 
     # Option 1 — Gemini direct (testing — both tasks use Flash)
-    GEMINI_MODEL_FAST = 'gemma-4-26b-a4b-it'    # summary, mapping, questions
-    # GEMINI_MODEL_FAST = 'gemini-2.5-flash'    # uncomment for fast runs
-    GEMINI_MODEL_QUALITY = 'gemma-4-31b-it'     # scenario, eval, follow-up
-    # GEMINI_MODEL_QUALITY = 'gemini-2.5-pro'   # uncomment for quality runs
+    GEMINI_MODEL_FAST = 'gemini-2.5-flash'    # summary, mapping, questions
+    # GEMINI_MODEL_FAST = 'gemma-4-26b-a4b-it'    # uncomment for fast runs
+    GEMINI_MODEL_QUALITY = 'gemini-2.5-flash'     # scenario, eval, follow-up
+    # GEMINI_MODEL_QUALITY = 'gemma-4-31b-it'   # uncomment for quality runs
 
     # Option 2 — Anthropic direct (mixed)
     ANTHROPIC_MODEL_QUALITY = 'claude-sonnet-4-6'      # scenario, eval, follow-up
