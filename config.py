@@ -21,7 +21,7 @@ class Config:
     #   USE_GLOO = True, USE_ANTHROPIC = False
     #   Fast tasks → gloo-google-gemini-2.5-flash | Quality → gloo-anthropic-claude-sonnet-4.6
     #
-    USE_GLOO = False
+    USE_GLOO = True
     USE_ANTHROPIC = False
 
     # ── Model names ───────────────────────────────────────────────────────────
@@ -38,9 +38,11 @@ class Config:
     ANTHROPIC_MODEL_FAST    = 'claude-haiku-4-5'       # summary, mapping, questions
 
     # Option 3 — Gloo mixed (cross-provider)
-    GLOO_MODEL_QUALITY = 'gloo-anthropic-claude-sonnet-4.6'       # quality tasks
+    GLOO_MODEL_QUALITY = 'gloo-google-gemma-4-31b'                # quality tasks
+    # GLOO_MODEL_QUALITY = 'gloo-anthropic-claude-sonnet-4.6'     # quality tasks
     # GLOO_MODEL_QUALITY = 'gloo-google-gemini-3.1-pro'           # alternative quality model
-    GLOO_MODEL_FAST = 'gloo-google-gemini-3-flash'                # fast tasks
+    GLOO_MODEL_FAST = 'gloo-google-gemma-4-26b'                   # fast tasks
+    # GLOO_MODEL_FAST = 'gloo-google-gemini-3-flash'              # fast tasks
     # GLOO_MODEL_FAST = 'gloo-google-gemini-2.5-flash'            # alternative fast model
 
     TEMPERATURE = 0.3
