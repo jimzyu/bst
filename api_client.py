@@ -9,9 +9,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 import requests
 import warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", FutureWarning)
-    import google.generativeai as genai
+from google import genai
+from google.genai import types as genai_types
 import gspread
 from google.oauth2.service_account import Credentials
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -41,9 +40,7 @@ class SheetsLogger:
     COL_TIMESTAMP = 1
     COL_REFERENCE = 2
     COL_MODE = 3
-    COL_DRAFT_1 = 4
-    COL_DRAFT_2 = 5
-    COL_DRAFT_3 = 6
+    # Cols 4-6 reserved (legacy draft columns — not populated in current flow)
     COL_FINAL_RESULT = 7
     COL_USER_ANS_OBS = 8
     COL_FEEDBACK_OBS = 9
@@ -354,6 +351,15 @@ class GlooTokenManager:
 
 
 
+def _get_thinking_config(model_name: str):
+    """Return ThinkingConfig only for models that support it.
+    Gemma 4 rejects thinking_budget; Gemini 2.5+ accepts thinking_budget=0."""
+    model_lower = model_name.lower()
+    if 'gemini-2.5' in model_lower or 'gemini-2.0-flash-thinking' in model_lower:
+        return genai_types.ThinkingConfig(thinking_budget=0)
+    return None
+
+
 class GeminiClient:
 
     # Neutral system instruction for scenario generation calls.
@@ -401,15 +407,8 @@ class GeminiClient:
             logger.info(f"Initialized Gloo client — quality: {Config.GLOO_MODEL_QUALITY} | fast: {Config.GLOO_MODEL_FAST}")
             self._warmup_gloo()
         else:
-            genai.configure(api_key=api_key)
-            generation_config = genai.types.GenerationConfig(
-                temperature=Config.TEMPERATURE
-            )
-            self.model = genai.GenerativeModel(
-                model_name=Config.GEMINI_MODEL_FAST,
-                generation_config=generation_config,
-                system_instruction=system_instruction
-            )
+            self._genai_client = genai.Client(api_key=api_key)
+            self._genai_system_instruction = system_instruction
             logger.info(f"Initialized Gemini client — quality: {Config.GEMINI_MODEL_QUALITY} | fast: {Config.GEMINI_MODEL_FAST}")
 
         # Initialize sheets logger if enabled
@@ -535,24 +534,21 @@ class GeminiClient:
                                                system_override=system_override)
             else:
                 # Option 1: Gemini direct — use quality model
-                if system_override is not None:
-                    quality_model = genai.GenerativeModel(
-                        model_name=Config.GEMINI_MODEL_QUALITY,
-                        generation_config=genai.types.GenerationConfig(
-                            temperature=Config.TEMPERATURE
-                        ),
-                        system_instruction=system_override
-                    )
-                else:
-                    quality_model = genai.GenerativeModel(
-                        model_name=Config.GEMINI_MODEL_QUALITY,
-                        generation_config=genai.types.GenerationConfig(
-                            temperature=Config.TEMPERATURE
-                        ),
-                        system_instruction=self.system_instruction
-                    )
-                response = quality_model.generate_content(prompt)
-                text = self.validate_response(response)
+                sys_inst = system_override if system_override is not None else self._genai_system_instruction
+                _tc = _get_thinking_config(Config.GEMINI_MODEL_QUALITY)
+                _cfg_q = genai_types.GenerateContentConfig(
+                    system_instruction=sys_inst,
+                    temperature=Config.TEMPERATURE,
+                    **(dict(thinking_config=_tc) if _tc else {})
+                )
+                response = self._genai_client.models.generate_content(
+                    model=Config.GEMINI_MODEL_QUALITY,
+                    contents=prompt,
+                    config=_cfg_q
+                )
+                text = response.text
+                if not text:
+                    raise GeminiAPIError("Empty response from Gemini quality model")
             logger.info(f"Quality content generated ({len(text)} chars)")
             return text
         except Exception as e:
@@ -561,7 +557,7 @@ class GeminiClient:
 
     @retry(
         stop=stop_after_attempt(Config.MAX_RETRIES),
-        wait=wait_exponential(multiplier=2, min=3, max=30),
+        wait=wait_exponential(multiplier=2, min=15, max=60),
         retry=retry_if_exception_type((GeminiAPIError, Exception)),
         reraise=True
     )
@@ -597,18 +593,21 @@ class GeminiClient:
                 # system_instruction is baked into self.model at construction time.
                 # If a system_override is provided, create a temporary model instance
                 # with the overridden instruction for this call only.
-                if system_override is not None:
-                    temp_model = genai.GenerativeModel(
-                        model_name=Config.GEMINI_MODEL_FAST,
-                        generation_config=genai.types.GenerationConfig(
-                            temperature=Config.TEMPERATURE
-                        ),
-                        system_instruction=system_override
-                    )
-                    response = temp_model.generate_content(prompt)
-                else:
-                    response = self.model.generate_content(prompt)
-                text = self.validate_response(response)
+                sys_inst = system_override if system_override is not None else self._genai_system_instruction
+                _tc = _get_thinking_config(Config.GEMINI_MODEL_FAST)
+                _cfg_f = genai_types.GenerateContentConfig(
+                    system_instruction=sys_inst,
+                    temperature=Config.TEMPERATURE,
+                    **(dict(thinking_config=_tc) if _tc else {})
+                )
+                response = self._genai_client.models.generate_content(
+                    model=Config.GEMINI_MODEL_FAST,
+                    contents=prompt,
+                    config=_cfg_f
+                )
+                text = response.text
+                if not text:
+                    raise GeminiAPIError("Empty response from Gemini fast model")
 
             logger.info(f"Successfully generated content (response length: {len(text)} chars)")
             return text
@@ -905,8 +904,8 @@ class GeminiClient:
         Runs four API calls concurrently: Explore, Understand, Apply, and Summary.
 
         Args:
-            reference: Bible reference (e.g. '雅各書1:19-27')
-            status_callback: Optional callable for UI status updates during generation
+            reference: Bible reference
+            status_callback: Optional callable for UI status updates
             result_callback: Optional callable(key, text) fired as each result arrives.
                              key is 'explore'/'understand'/'apply'/'summary'.
                              Enables Option C progressive card rendering.
@@ -917,7 +916,7 @@ class GeminiClient:
         from prompts import PromptTemplates
 
         prompts_dict = PromptTemplates.get_all_emphasis_prompts(reference)
-        emphasis_keys = list(prompts_dict.keys())  # ['explore', 'understand', 'apply']
+        emphasis_keys = list(prompts_dict.keys())
         summary_prompt = PromptTemplates.get_summary_prompt(reference)
 
         all_prompts = [prompts_dict[k] for k in emphasis_keys] + [summary_prompt]
@@ -939,13 +938,11 @@ class GeminiClient:
                 executor.submit(self.generate_content, prompt): i
                 for i, prompt in enumerate(all_prompts)
             }
-
             for future in as_completed(future_to_index):
                 index = future_to_index[future]
                 try:
                     text = future.result()
                     drafts[index] = text
-                    # Fire result_callback immediately as each call completes
                     if result_callback:
                         result_callback(result_keys[index], text)
                     if status_callback:
@@ -954,11 +951,9 @@ class GeminiClient:
                 except Exception as e:
                     logger.warning(
                         f"Prompt {index + 1} failed in parallel: {str(e)} — "
-                        f"will retry sequentially"
-                    )
+                        f"will retry sequentially")
                     failed_indices.append(index)
 
-        # Sequential retry for failed prompts
         for index in failed_indices:
             try:
                 logger.info(f"Retrying prompt {index + 1} sequentially...")
@@ -976,7 +971,6 @@ class GeminiClient:
 
         emphasis_results = {emphasis_keys[i]: drafts[i] for i in range(len(emphasis_keys))}
         summary_text = drafts[-1]
-
         return emphasis_results, summary_text
 
     def generate_followup_question(self, reference: str, question_type: str,
