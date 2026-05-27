@@ -355,6 +355,15 @@ class GlooTokenManager:
 
 
 
+def _get_thinking_config(model_name: str):
+    """Return ThinkingConfig only for models that support it.
+    Gemma 4 rejects thinking_budget; Gemini 2.5+ accepts thinking_budget=0."""
+    model_lower = model_name.lower()
+    if 'gemini-2.5' in model_lower or 'gemini-2.0-flash-thinking' in model_lower:
+        return genai_types.ThinkingConfig(thinking_budget=0)
+    return None
+
+
 class GeminiClient:
 
     # Neutral system instruction for scenario generation calls.
@@ -530,14 +539,16 @@ class GeminiClient:
             else:
                 # Option 1: Gemini direct — use quality model
                 sys_inst = system_override if system_override is not None else self._genai_system_instruction
+                _tc = _get_thinking_config(Config.GEMINI_MODEL_QUALITY)
+                _cfg_q = genai_types.GenerateContentConfig(
+                    system_instruction=sys_inst,
+                    temperature=Config.TEMPERATURE,
+                    **(dict(thinking_config=_tc) if _tc else {})
+                )
                 response = self._genai_client.models.generate_content(
                     model=Config.GEMINI_MODEL_QUALITY,
                     contents=prompt,
-                    config=genai_types.GenerateContentConfig(
-                        system_instruction=sys_inst,
-                        temperature=Config.TEMPERATURE,
-                        thinking_config=genai_types.ThinkingConfig(thinking_budget=0)
-                    )
+                    config=_cfg_q
                 )
                 text = response.text
                 if not text:
@@ -550,7 +561,7 @@ class GeminiClient:
 
     @retry(
         stop=stop_after_attempt(Config.MAX_RETRIES),
-        wait=wait_exponential(multiplier=2, min=3, max=30),
+        wait=wait_exponential(multiplier=2, min=15, max=60),
         retry=retry_if_exception_type((GeminiAPIError, Exception)),
         reraise=True
     )
@@ -587,14 +598,16 @@ class GeminiClient:
                 # If a system_override is provided, create a temporary model instance
                 # with the overridden instruction for this call only.
                 sys_inst = system_override if system_override is not None else self._genai_system_instruction
+                _tc = _get_thinking_config(Config.GEMINI_MODEL_FAST)
+                _cfg_f = genai_types.GenerateContentConfig(
+                    system_instruction=sys_inst,
+                    temperature=Config.TEMPERATURE,
+                    **(dict(thinking_config=_tc) if _tc else {})
+                )
                 response = self._genai_client.models.generate_content(
                     model=Config.GEMINI_MODEL_FAST,
                     contents=prompt,
-                    config=genai_types.GenerateContentConfig(
-                        system_instruction=sys_inst,
-                        temperature=Config.TEMPERATURE,
-                        thinking_config=genai_types.ThinkingConfig(thinking_budget=0)
-                    )
+                    config=_cfg_f
                 )
                 text = response.text
                 if not text:
@@ -604,8 +617,16 @@ class GeminiClient:
             return text
 
         except Exception as e:
-            logger.error(f"Error generating content: {str(e)}")
-            raise GeminiAPIError(f"Content generation failed: {str(e)}") from e
+            err_str = str(e)
+            logger.error(f"Error generating content: {err_str}")
+            # Extract retryDelay from Google's 429 response if present
+            if '429' in err_str or 'RESOURCE_EXHAUSTED' in err_str:
+                import re
+                delay_match = re.search(r"retry in (\d+(?:\.\d+)?)s", err_str, re.IGNORECASE)
+                if delay_match:
+                    suggested = float(delay_match.group(1))
+                    logger.info(f"Google suggests retry in {suggested}s — tenacity will wait at least 15s")
+            raise GeminiAPIError(f"Content generation failed: {err_str}") from e
 
     def _generate_via_anthropic(self, prompt: str, model: str = None,
                                  system_override: str = None) -> str:
