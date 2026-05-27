@@ -498,21 +498,38 @@ def process_study_request(reference: str):
 
 def process_emphasis_selection(reference: str, client):
     """
-    Generate all three emphasis question sets in parallel (Standard Mode —
-    misreading preamble, no theological context). The user selects instantly
-    with no wait. Summary depth is chosen separately after question display.
+    Generate all three emphasis question sets in parallel (Standard Mode).
+    Option C: each card appears as its API call completes — results stored
+    to session state immediately via result_callback, triggering reruns that
+    render available cards. User sees content within seconds of first call
+    completing rather than waiting for all four to finish.
     """
+    if 'emphasis_partial_results' not in st.session_state:
+        st.session_state.emphasis_partial_results = {}
+
     status_msg = "正在準備三種學習重點的問題組... Preparing all question sets..."
 
     with st.status(status_msg, expanded=True) as status:
         def cb(msg):
             status.update(label=f"生成中... {msg}")
 
+        def result_cb(key, text):
+            """Store each result immediately and rerun to render it."""
+            if key == 'summary':
+                st.session_state.emphasis_summary = text
+            else:
+                st.session_state.emphasis_partial_results[key] = text
+            st.rerun()
+
         all_results, summary_text = client.generate_all_emphasis_parallel(
-            reference, status_callback=cb)
+            reference,
+            status_callback=cb,
+            result_callback=result_cb
+        )
 
         SessionManager.start_emphasis(reference, all_results)
         st.session_state.emphasis_summary = summary_text
+        st.session_state.emphasis_partial_results = {}
 
         status.update(label="✅ 準備完成！Ready.", state="complete", expanded=False)
     st.rerun()
@@ -679,11 +696,22 @@ def display_emphasis_interface():
             'understand': ('var(--brown)',  'var(--brown-light)',  'var(--brown)'),
             'apply':      ('var(--purple)', 'var(--purple-light)', 'var(--purple)'),
         }
+
+        # Option C: partial results from progressive generation
+        partial = st.session_state.get('emphasis_partial_results', {})
+        all_results_store = st.session_state.get('emphasis_all_results', {})
+        is_generating = bool(partial) and len(partial) < 3
+
         cols = st.columns(3)
         for i, (key, opt) in enumerate(EMPHASIS_OPTIONS.items()):
             border_col, bg_col, text_col = card_styles[key]
             completed = required.issubset(all_answers.get(key, {}).keys())
             badge = '<span class="completion-badge">✓ 完成</span>' if completed else ''
+
+            # Determine if this card's result is available
+            card_ready = key in all_results_store or key in partial
+            loading_style = 'opacity:0.6;' if is_generating and not card_ready else ''
+
             with cols[i]:
                 st.markdown(f"""
 <div style="
@@ -693,17 +721,23 @@ def display_emphasis_interface():
     padding:1rem 1.1rem 0.6rem;
     margin-bottom:0.5rem;
     min-height:110px;
+    {loading_style}
 ">
   <div style="font-size:1.05rem;font-weight:700;color:{text_col};margin-bottom:0.3rem;">
     {opt['label']}{badge}
   </div>
   <div style="font-size:0.95rem;color:#333;margin-bottom:0.2rem;">{opt['desc']}</div>
   <div style="font-size:0.78rem;color:#777;">{opt['desc_en']}</div>
+  {f'<div style="font-size:0.75rem;color:#999;margin-top:0.3rem;">⏳ 生成中...</div>' if is_generating and not card_ready else ''}
+  {f'<div style="font-size:0.75rem;color:var(--green);margin-top:0.3rem;">✓ 就緒 Ready</div>' if is_generating and card_ready else ''}
 </div>
 """, unsafe_allow_html=True)
-                if st.button(f"選擇", key=f"emphasis_{key}", use_container_width=True):
+                # Only enable button if card result is available OR all done
+                button_disabled = is_generating and not card_ready
+                if st.button(f"選擇", key=f"emphasis_{key}",
+                             use_container_width=True,
+                             disabled=button_disabled):
                     SessionManager.select_emphasis(key)
-                    # Log selected question set to Google Sheets
                     selected_result = st.session_state.emphasis_all_results.get(key, '')
                     if selected_result and client.draft_logger:
                         try:
@@ -1408,7 +1442,7 @@ def main():
         reference = render_ui()
 
         # Process button click
-        if st.button("開始研讀 Start Study", type="primary"):
+        if st.button(Config.LABELS['button_text'], type="primary"):
             process_study_request(reference)
     
     # Optional: Debug info (comment out for production)
