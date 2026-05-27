@@ -8,7 +8,6 @@ from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 import requests
-import warnings
 from google import genai
 from google.genai import types as genai_types
 import gspread
