@@ -539,6 +539,7 @@ class GeminiClient:
                 _cfg_q = genai_types.GenerateContentConfig(
                     system_instruction=sys_inst,
                     temperature=Config.TEMPERATURE,
+                    http_options=genai_types.HttpOptions(timeout=300_000),
                     **(dict(thinking_config=_tc) if _tc else {})
                 )
                 response = self._genai_client.models.generate_content(
@@ -598,6 +599,7 @@ class GeminiClient:
                 _cfg_f = genai_types.GenerateContentConfig(
                     system_instruction=sys_inst,
                     temperature=Config.TEMPERATURE,
+                    http_options=genai_types.HttpOptions(timeout=180_000),
                     **(dict(thinking_config=_tc) if _tc else {})
                 )
                 response = self._genai_client.models.generate_content(
