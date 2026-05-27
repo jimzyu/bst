@@ -498,23 +498,14 @@ def process_study_request(reference: str):
 
 def process_emphasis_selection(reference: str, client):
     """
-    Generate all three emphasis question sets in parallel (Standard Mode).
-    Shows live progress inside the status box as each call completes,
-    then renders all cards immediately when generation finishes.
+    Generate all three emphasis question sets in parallel (Standard Mode —
+    misreading preamble, no theological context). The user selects instantly
+    with no wait. Summary depth is chosen separately after question display.
     """
     status_msg = "正在準備三種學習重點的問題組... Preparing all question sets..."
 
-    completed_labels = []
-
     with st.status(status_msg, expanded=True) as status:
-        # Placeholder inside the status box for live progress
-        progress_area = st.empty()
-
         def cb(msg):
-            completed_labels.append(msg)
-            # Show all completed items so far as a growing list
-            lines = "\n".join(f"　{l}" for l in completed_labels)
-            progress_area.markdown(lines)
             status.update(label=f"生成中... {msg}")
 
         all_results, summary_text = client.generate_all_emphasis_parallel(
@@ -523,7 +514,6 @@ def process_emphasis_selection(reference: str, client):
         SessionManager.start_emphasis(reference, all_results)
         st.session_state.emphasis_summary = summary_text
 
-        progress_area.empty()
         status.update(label="✅ 準備完成！Ready.", state="complete", expanded=False)
     st.rerun()
 

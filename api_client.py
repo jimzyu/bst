@@ -40,7 +40,7 @@ class SheetsLogger:
     COL_TIMESTAMP = 1
     COL_REFERENCE = 2
     COL_MODE = 3
-    # Cols 4-6 reserved (legacy draft columns — not populated in current flow)
+    # Cols 4-6 reserved (legacy draft columns)
     COL_FINAL_RESULT = 7
     COL_USER_ANS_OBS = 8
     COL_FEEDBACK_OBS = 9
@@ -896,31 +896,29 @@ class GeminiClient:
     def generate_all_emphasis_parallel(
             self,
             reference: str,
-            status_callback=None,
-            result_callback=None
+            status_callback=None
         ) -> tuple[dict[str, str], str]:
         """
         Generate all three emphasis question sets and a passage summary in parallel.
         Runs four API calls concurrently: Explore, Understand, Apply, and Summary.
 
         Args:
-            reference: Bible reference
-            status_callback: Optional callable for UI status updates
-            result_callback: Optional callable(key, text) fired as each result arrives.
-                             key is 'explore'/'understand'/'apply'/'summary'.
-                             Enables Option C progressive card rendering.
+            reference: Bible reference (e.g. '雅各書1:19-27')
+            status_callback: Optional callable for UI status updates during generation
 
         Returns:
-            Tuple of (emphasis_dict, summary_text)
+            Tuple of (emphasis_dict, summary_text):
+              - emphasis_dict: {'explore': text, 'understand': text, 'apply': text}
+              - summary_text: Raw summary text containing [CHINESE] and [ENGLISH] sections
         """
         from prompts import PromptTemplates
 
         prompts_dict = PromptTemplates.get_all_emphasis_prompts(reference)
-        emphasis_keys = list(prompts_dict.keys())
+        emphasis_keys = list(prompts_dict.keys())  # ['explore', 'understand', 'apply']
         summary_prompt = PromptTemplates.get_summary_prompt(reference)
 
+        # Run all four in parallel: 3 emphasis + 1 summary
         all_prompts = [prompts_dict[k] for k in emphasis_keys] + [summary_prompt]
-        result_keys = emphasis_keys + ['summary']
 
         logger.info(f"Generating 3 emphasis sets + summary in parallel for: {reference}")
         emphasis_labels = [
@@ -929,48 +927,12 @@ class GeminiClient:
             "應用問題生成完成 Apply ✓",
             "主題摘要生成完成 Summary ✓",
         ]
+        results_list = self.generate_drafts_parallel(
+            all_prompts, status_callback, labels=emphasis_labels)
 
-        drafts = [None] * len(all_prompts)
-        failed_indices = []
+        emphasis_results = {emphasis_keys[i]: results_list[i] for i in range(len(emphasis_keys))}
+        summary_text = results_list[-1]
 
-        with ThreadPoolExecutor(max_workers=min(len(all_prompts), 4)) as executor:
-            future_to_index = {
-                executor.submit(self.generate_content, prompt): i
-                for i, prompt in enumerate(all_prompts)
-            }
-            for future in as_completed(future_to_index):
-                index = future_to_index[future]
-                try:
-                    text = future.result()
-                    drafts[index] = text
-                    if result_callback:
-                        result_callback(result_keys[index], text)
-                    if status_callback:
-                        status_callback(emphasis_labels[index])
-                    logger.info(f"Prompt {index + 1} completed successfully")
-                except Exception as e:
-                    logger.warning(
-                        f"Prompt {index + 1} failed in parallel: {str(e)} — "
-                        f"will retry sequentially")
-                    failed_indices.append(index)
-
-        for index in failed_indices:
-            try:
-                logger.info(f"Retrying prompt {index + 1} sequentially...")
-                text = self.generate_content(all_prompts[index])
-                drafts[index] = text
-                if result_callback:
-                    result_callback(result_keys[index], text)
-                if status_callback:
-                    status_callback(emphasis_labels[index] + " (retry)")
-                logger.info(f"Prompt {index + 1} succeeded on sequential retry")
-            except Exception as e:
-                logger.error(f"Prompt {index + 1} failed after sequential retry: {str(e)}")
-                raise GeminiAPIError(
-                    f"Prompt {index + 1} generation failed after retry: {str(e)}") from e
-
-        emphasis_results = {emphasis_keys[i]: drafts[i] for i in range(len(emphasis_keys))}
-        summary_text = drafts[-1]
         return emphasis_results, summary_text
 
     def generate_followup_question(self, reference: str, question_type: str,
