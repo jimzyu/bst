@@ -499,10 +499,7 @@ def process_study_request(reference: str):
 def process_emphasis_selection(reference: str, client):
     """
     Generate all three emphasis question sets in parallel (Standard Mode).
-    Option C: each card appears as its API call completes — results stored
-    to session state immediately via result_callback, triggering reruns that
-    render available cards. User sees content within seconds of first call
-    completing rather than waiting for all four to finish.
+    Option C: each card appears as its API call completes via result_callback.
     """
     if 'emphasis_partial_results' not in st.session_state:
         st.session_state.emphasis_partial_results = {}
@@ -514,7 +511,6 @@ def process_emphasis_selection(reference: str, client):
             status.update(label=f"生成中... {msg}")
 
         def result_cb(key, text):
-            """Store each result immediately and rerun to render it."""
             if key == 'summary':
                 st.session_state.emphasis_summary = text
             else:
@@ -697,7 +693,6 @@ def display_emphasis_interface():
             'apply':      ('var(--purple)', 'var(--purple-light)', 'var(--purple)'),
         }
 
-        # Option C: partial results from progressive generation
         partial = st.session_state.get('emphasis_partial_results', {})
         all_results_store = st.session_state.get('emphasis_all_results', {})
         is_generating = bool(partial) and len(partial) < 3
@@ -707,11 +702,8 @@ def display_emphasis_interface():
             border_col, bg_col, text_col = card_styles[key]
             completed = required.issubset(all_answers.get(key, {}).keys())
             badge = '<span class="completion-badge">✓ 完成</span>' if completed else ''
-
-            # Determine if this card's result is available
             card_ready = key in all_results_store or key in partial
             loading_style = 'opacity:0.6;' if is_generating and not card_ready else ''
-
             with cols[i]:
                 st.markdown(f"""
 <div style="
@@ -732,7 +724,6 @@ def display_emphasis_interface():
   {f'<div style="font-size:0.75rem;color:var(--green);margin-top:0.3rem;">✓ 就緒 Ready</div>' if is_generating and card_ready else ''}
 </div>
 """, unsafe_allow_html=True)
-                # Only enable button if card result is available OR all done
                 button_disabled = is_generating and not card_ready
                 if st.button(f"選擇", key=f"emphasis_{key}",
                              use_container_width=True,
@@ -1442,7 +1433,7 @@ def main():
         reference = render_ui()
 
         # Process button click
-        if st.button(Config.LABELS['button_text'], type="primary"):
+        if st.button("開始研讀 Start Study", type="primary"):
             process_study_request(reference)
     
     # Optional: Debug info (comment out for production)
