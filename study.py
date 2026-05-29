@@ -110,9 +110,9 @@ def initialize_app():
 <style>
 /* ── SAGOS Design System ─────────────────────────────────────────────── */
 :root {
-    --green:       #2D7A2D;
-    --green-dark:  #1A5C1A;
-    --green-light: #EAF4EA;
+    --green:       #8B1A2A;
+    --green-dark:  #5C1018;
+    --green-light: #F4E8EA;
     --brown:       #7A4520;
     --brown-light: #F5EDE6;
     --purple:      #7B3B8B;
@@ -220,7 +220,7 @@ h1, h2, h3 { font-family: 'Lora', 'PingFang TC', serif; }
 }
 
 /* ── Emphasis cards ──────────────────────────────────────────────────── */
-/* Explore — green accent */
+/* Explore — burgundy accent */
 [data-testid="column"]:nth-child(1) .stButton > button {
     background: var(--green-light) !important;
     color: var(--green-dark) !important;
@@ -412,7 +412,7 @@ def render_ui():
     # Branded landing header
     st.markdown("""
 <div style="
-    background: linear-gradient(135deg, #1A5C1A 0%, #2D7A2D 60%, #4A9A4A 100%);
+    background: linear-gradient(135deg, #5C1018 0%, #8B1A2A 60%, #B03050 100%);
     border-radius: 16px;
     padding: 2rem 2.2rem 1.6rem;
     margin-bottom: 1.6rem;
