@@ -423,7 +423,7 @@ def render_ui():
     📖 聖經研讀工具
   </div>
   <div style="font-size:1.05rem;color:rgba(255,255,255,0.85);font-weight:400;">
-    Bible Study Tool &nbsp;·&nbsp; SAGOS Institute
+    Bible Study Tool
   </div>
 </div>
 """, unsafe_allow_html=True)
