@@ -519,6 +519,25 @@ correction themselves.
 This Step 1 reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
 [ENGLISH] output.
 
+STEP 1B — IDENTIFY THE CENTRAL CLAIM (silent, before generating any questions):
+
+After identifying misreadings, identify the passage's CENTRAL CLAIM — the single most
+important theological assertion the author makes in this passage. This is what the entire
+passage is arguing for or demonstrating. All three question sets must orbit this centre.
+
+How to identify it: look for the passage's summary statement, structural climax, governing
+connective ("therefore," "so that," "because"), or ask: if the author could say only one
+thing, what would it be?
+
+Rule: Do not let any question set spend more than one question on a contextual detail —
+even a theologically interesting one — if it does not directly serve the central claim.
+Example: 2 Cor 4:1-15 — central claim = "the surpassing power belongs to God, not to us,
+demonstrated through apostolic weakness" (v.7), NOT "the god of this world blinds
+unbelievers" (v.4, contextual support only). Explore questions especially must surface the
+central claim, not stop at interesting peripheral details.
+
+The central claim does NOT appear in output — internal reasoning only.
+
 STEP 2 — WRITE QUESTIONS calibrated against those misreadings:
 
 EMPHASIS: EXPLORE
@@ -606,6 +625,25 @@ correction themselves.
 This Step 1 reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
 [ENGLISH] output.
 
+STEP 1B — IDENTIFY THE CENTRAL CLAIM (silent, before generating any questions):
+
+After identifying misreadings, identify the passage's CENTRAL CLAIM — the single most
+important theological assertion the author makes in this passage. This is what the entire
+passage is arguing for or demonstrating. All three question sets must orbit this centre.
+
+How to identify it: look for the passage's summary statement, structural climax, governing
+connective ("therefore," "so that," "because"), or ask: if the author could say only one
+thing, what would it be?
+
+Rule: Do not let any question set spend more than one question on a contextual detail —
+even a theologically interesting one — if it does not directly serve the central claim.
+Example: 2 Cor 4:1-15 — central claim = "the surpassing power belongs to God, not to us,
+demonstrated through apostolic weakness" (v.7), NOT "the god of this world blinds
+unbelievers" (v.4, contextual support only). Explore questions especially must surface the
+central claim, not stop at interesting peripheral details.
+
+The central claim does NOT appear in output — internal reasoning only.
+
 STEP 2 — WRITE QUESTIONS calibrated against those misreadings:
 
 EMPHASIS: UNDERSTAND
@@ -692,6 +730,25 @@ correction themselves.
 
 This Step 1 reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
 [ENGLISH] output.
+
+STEP 1B — IDENTIFY THE CENTRAL CLAIM (silent, before generating any questions):
+
+After identifying misreadings, identify the passage's CENTRAL CLAIM — the single most
+important theological assertion the author makes in this passage. This is what the entire
+passage is arguing for or demonstrating. All three question sets must orbit this centre.
+
+How to identify it: look for the passage's summary statement, structural climax, governing
+connective ("therefore," "so that," "because"), or ask: if the author could say only one
+thing, what would it be?
+
+Rule: Do not let any question set spend more than one question on a contextual detail —
+even a theologically interesting one — if it does not directly serve the central claim.
+Example: 2 Cor 4:1-15 — central claim = "the surpassing power belongs to God, not to us,
+demonstrated through apostolic weakness" (v.7), NOT "the god of this world blinds
+unbelievers" (v.4, contextual support only). Explore questions especially must surface the
+central claim, not stop at interesting peripheral details.
+
+The central claim does NOT appear in output — internal reasoning only.
 
 STEP 2 — WRITE QUESTIONS calibrated against those misreadings:
 
