@@ -736,6 +736,207 @@ Reference: "{ref}"
 """
 
 
+    LESSON_PLAN_TEMPLATE = """
+Generate a two-layer Bible study lesson plan for: "{ref}"
+
+This is a lesson plan for a Chinese-American evangelical church group Bible study
+(1.5 hours). The output has TWO clearly separated layers:
+
+LAYER 1 — FACILITATOR GUIDE (引導者備課資料): Rich, interpretive, contextual.
+The facilitator reads this before the session. It is NOT shown to learners.
+
+LAYER 2 — LEARNER MATERIALS (學員材料): Open-ended, discovery-oriented.
+These are the only materials shown to or read aloud to the group.
+
+═══════════════════════════════════════════════════════════════
+GOVERNING PRINCIPLE FOR LEARNER MATERIALS:
+Every learner-facing element must DIRECT ATTENTION, not FORECLOSE DISCOVERY.
+
+✓ CORRECT — orients without pre-interpreting:
+「今天的段落是馬可福音的轉折點。彼得給出了一個答案——但接下來的問題是：
+這個答案意味著什麼？」
+
+✗ WRONG — tells learner what to discover:
+「彼得的認信標誌著門徒看見耶穌是誰，但這個看見仍然是不完整的。」
+
+Apply this test to EVERY element you write for Layer 2.
+═══════════════════════════════════════════════════════════════
+
+STEP 1 — INTERNAL ANALYSIS (do NOT include in output):
+
+A. Identify the passage's genre (narrative / epistle / prophecy / poetry / law).
+B. Identify the passage's CENTRAL CLAIM — the single most important theological
+   assertion the author makes. Everything else serves this centre.
+C. Identify the passage's natural structural divisions (2-4 sections).
+   Give each section a SHORT DESCRIPTIVE LABEL (5-8 Chinese characters) that
+   describes what happens — NOT what it means. Example: 「耶穌餵飽四千人」
+   not 「神的憐憫超越界限」.
+D. Identify 2-3 misreadings this passage corrects in its primary audience.
+E. Identify the key historical/cultural background details a facilitator needs.
+F. Formulate the ONE orienting question this passage is positioned to answer
+   — not the answer, just the question. This becomes 一句定位 in Layer 2.
+
+STEP 2 — GENERATE THE TWO-LAYER OUTPUT:
+
+═══════════════ LAYER 1: FACILITATOR GUIDE ═══════════════
+
+[LESSON_PLAN_LAYER1_CHINESE]
+
+## 引導者備課資料
+*（此部分僅供引導者使用，不向學員展示）*
+
+### 引言
+[2-3 paragraphs. Include: (1) connection to previous passage/lesson context,
+(2) why this passage matters theologically, (3) the central claim and how the
+passage argues for it. This is rich and interpretive — the facilitator needs
+to understand the passage fully to guide discovery well.]
+
+### 經文分段
+[List 2-4 structural sections. Format:
+• vv.X-Y — 「[5-8 character descriptive label]」
+Each label describes what happens, NOT what it means.]
+
+### 討論引導備注
+[Per-question facilitator notes. For each of the 6-8 discussion questions
+in Layer 2, provide:
+Q[N]: [one sentence — what to listen for in learner answers, or a redirect
+if the group goes off-track, or optional enrichment detail to deploy if
+relevant. Keep each note to 1-2 sentences.]
+]
+
+### 參考資料
+[Historical background, cultural context, original language details where
+significant. Organised under brief subheadings. 3-6 items.]
+
+### 歸納總意
+[The conclusion the facilitator delivers at the end — 2-3 sentences that
+OPEN a question rather than close one. End with an unanswered question
+drawn from the text itself. Do NOT provide a tidy theological summary.]
+
+### 時間分配建議
+[Table format:
+| 環節 | 時間 |
+|---|---|
+| 簡介 | 5分鐘 |
+| 破冰（選一題） | 8分鐘 |
+| 觀察問題 | X分鐘 |
+| 詮釋問題 | X分鐘 |
+| 應用問題 | X分鐘 |
+| 結論 | 7分鐘 |
+| **合計** | **100分鐘** |
+]
+
+[LESSON_PLAN_LAYER1_ENGLISH]
+
+## Facilitator Guide
+*(For facilitator use only — not shown to learners)*
+
+### Introduction
+[Direct English translation of 引言]
+
+### Passage Structure
+[Direct English translation of 經文分段]
+
+### Discussion Guide Notes
+[Direct English translation of 討論引導備注]
+
+### Reference Notes
+[Direct English translation of 參考資料]
+
+### Concluding Thought
+[Direct English translation of 歸納總意]
+
+### Suggested Time Allocation
+[Direct English translation of 時間分配建議]
+
+═══════════════ LAYER 2: LEARNER MATERIALS ═══════════════
+
+[LESSON_PLAN_LAYER2_CHINESE]
+
+## 學員材料
+
+### 一句定位
+[ONE sentence only. States: where we are in the book (if part of a series,
+reference the previous passage) + what question this passage will explore.
+NOT the answer. Format: 「[location/context]. [The question this passage
+is positioned to answer].」
+Example: 「上一課耶穌問門徒『你們還不明白嗎？』——今天的段落開始回答另一個問題：
+彼得已經說出了正確的答案，但這個答案意味著甚麼？」]
+
+### 生活分享 / 破冰討論
+*（選一題，開始查經前分享，各約一分鐘）*
+
+1. [Icebreaker 1 — opens from LIFE EXPERIENCE, not from the text. Should
+   prime the passage's theme without revealing it. Concrete and personal.]
+
+2. [Icebreaker 2 — a different angle on the same theme. One or both may
+   be used depending on group size and time.]
+
+### 討論問題
+
+*觀察 — 你看見什麼？*
+
+[2-3 observation questions. Each asks what is actually in the text —
+what the characters say, what happens, what words are used. Do NOT ask
+what things mean. Do NOT name the theme. Anchor each question to specific
+verses. Include optional facilitator hints in italics: *（引導方向：...）*]
+
+*詮釋 — 為什麼這樣說？*
+
+[2-3 interpretation questions. Each asks WHY — why did the author arrange
+it this way, what does this word/structure accomplish, what would the
+original audience have understood. Press on the passage's argument without
+giving away the central claim. Optional hints in italics.]
+
+*應用 — 讓經文來問你*
+
+[2 application questions. Each embeds a personal turn naturally — not
+"how does this apply?" but a question that already assumes the passage's
+claim and asks where it lands in the learner's life. The final question
+should require genuine self-examination. Do NOT suggest specific life
+domains or actions.]
+
+[LESSON_PLAN_LAYER2_ENGLISH]
+
+## Learner Materials
+
+### Orienting Statement
+[Direct English translation of 一句定位]
+
+### Life Sharing / Icebreakers
+*(Choose one to open the session — about 1 minute each)*
+
+1. [Direct English translation]
+2. [Direct English translation]
+
+### Discussion Questions
+
+*Observation — What do you see?*
+[Direct English translation of observation questions]
+
+*Interpretation — Why does it say this?*
+[Direct English translation of interpretation questions]
+
+*Application — Let the passage question you*
+[Direct English translation of application questions]
+
+═══════════════════════════════════════════════════════════════
+
+CRITICAL OUTPUT RULES:
+1. Layer 1 is rich and interpretive. Layer 2 is open and discovery-oriented.
+   NEVER let interpretive conclusions appear in Layer 2 question wording.
+2. The 一句定位 must be ONE sentence. It locates the learner without pre-digesting.
+3. Observation questions must be answerable from the text surface alone.
+4. Application questions must feel specific and honest — not generic or pious.
+5. Include [LESSON_PLAN_LAYER1_CHINESE], [LESSON_PLAN_LAYER1_ENGLISH],
+   [LESSON_PLAN_LAYER2_CHINESE], [LESSON_PLAN_LAYER2_ENGLISH] tags exactly.
+   The parser depends on these exact tags.
+6. Use full-width Chinese punctuation throughout Chinese sections.
+7. Total discussion questions: 6-8 (2-3 observation + 2-3 interpretation + 2 application).
+
+Reference: "{ref}"
+"""
+
     # Focus areas for deep mode
     FOCUS_AREAS = {
         'standard': "Standard balanced evangelical theology with clear, accessible explanations.",
@@ -743,6 +944,11 @@ Reference: "{ref}"
         'application': "Practical application for modern daily life. Focus on contemporary struggles, workplace challenges, family relationships, and personal spiritual growth."
     }
     
+    @classmethod
+    def get_lesson_plan_prompt(cls, reference: str) -> str:
+        """Get the two-layer lesson plan prompt for facilitator + learner materials."""
+        return cls.LESSON_PLAN_TEMPLATE.format(ref=reference)
+
     @classmethod
     def get_evaluation_prompt(cls, reference: str, question_type: str,
                              question: str, user_answer: str, ai_answer: str,

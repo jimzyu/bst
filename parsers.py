@@ -419,3 +419,58 @@ class ContentRenderer:
         
         with tab3:
             ContentRenderer.render_study_content(en_text, labels)
+
+
+class LessonPlanParser:
+    """Parser for two-layer lesson plan output."""
+
+    # Tags that delimit the four sections
+    TAG_L1_CH = "[LESSON_PLAN_LAYER1_CHINESE]"
+    TAG_L1_EN = "[LESSON_PLAN_LAYER1_ENGLISH]"
+    TAG_L2_CH = "[LESSON_PLAN_LAYER2_CHINESE]"
+    TAG_L2_EN = "[LESSON_PLAN_LAYER2_ENGLISH]"
+
+    @classmethod
+    def parse(cls, raw: str) -> dict:
+        """
+        Parse the two-layer lesson plan output into four sections.
+
+        Returns a dict with keys:
+            layer1_chinese, layer1_english,
+            layer2_chinese, layer2_english
+        Each value is a string (may be empty string if tag not found).
+        """
+        def _between(text: str, start_tag: str, end_tag: str) -> str:
+            start = text.find(start_tag)
+            if start == -1:
+                return ""
+            start += len(start_tag)
+            end = text.find(end_tag, start)
+            if end == -1:
+                return text[start:].strip()
+            return text[start:end].strip()
+
+        layer1_ch = _between(raw, cls.TAG_L1_CH, cls.TAG_L1_EN)
+        layer1_en = _between(raw, cls.TAG_L1_EN, cls.TAG_L2_CH)
+        layer2_ch = _between(raw, cls.TAG_L2_CH, cls.TAG_L2_EN)
+        layer2_en = _between(raw, cls.TAG_L2_EN, "\n\n\n")
+        if not layer2_en:
+            # Fallback: everything after the last tag
+            last_tag_pos = raw.rfind(cls.TAG_L2_EN)
+            if last_tag_pos != -1:
+                layer2_en = raw[last_tag_pos + len(cls.TAG_L2_EN):].strip()
+
+        return {
+            "layer1_chinese": layer1_ch,
+            "layer1_english": layer1_en,
+            "layer2_chinese": layer2_ch,
+            "layer2_english": layer2_en,
+        }
+
+    @classmethod
+    def is_valid(cls, parsed: dict) -> bool:
+        """Check that all four sections have content."""
+        return all(parsed.get(k) for k in [
+            "layer1_chinese", "layer1_english",
+            "layer2_chinese", "layer2_english"
+        ])

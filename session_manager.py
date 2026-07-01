@@ -108,6 +108,15 @@ class SessionManager:
             # When True, summary and scenario visible without completing questions first.
             st.session_state.facilitator_mode = False
 
+        if 'lesson_plan_active' not in st.session_state:
+            st.session_state.lesson_plan_active = False
+
+        if 'lesson_plan_reference' not in st.session_state:
+            st.session_state.lesson_plan_reference = None
+
+        if 'lesson_plan_result' not in st.session_state:
+            st.session_state.lesson_plan_result = None  # dict from LessonPlanParser.parse()
+
         if 'emphasis_all_feedbacks' not in st.session_state:
             # Persistent store: {emphasis: {question_type: feedback_text}}
             st.session_state.emphasis_all_feedbacks = {}

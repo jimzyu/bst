@@ -10,7 +10,7 @@ import logging
 from config import Config
 from name_generator import generate_name, build_context_paragraph
 from prompts import PromptTemplates
-from parsers import ResponseParser, ContentRenderer, QuizParser
+from parsers import ResponseParser, ContentRenderer, QuizParser, LessonPlanParser
 from api_client import GeminiClient, GeminiAPIError
 from session_manager import SessionManager
 
@@ -1391,6 +1391,136 @@ def display_bible_passage(reference: str, location: str = "expander"):
 
 
 
+def _generate_lesson_plan(reference: str, client) -> dict | None:
+    """
+    Generate the two-layer lesson plan for a passage.
+    Returns a parsed dict or None on failure.
+    """
+    from parsers import LessonPlanParser
+    prompt = PromptTemplates.get_lesson_plan_prompt(reference)
+    try:
+        raw = client.generate_content_quality(prompt)
+        parsed = LessonPlanParser.parse(raw)
+        if LessonPlanParser.is_valid(parsed):
+            return parsed
+        else:
+            logger.warning(f"Lesson plan parsed but incomplete for {reference}")
+            logger.warning(f"Keys present: { {k: bool(v) for k, v in parsed.items()} }")
+            return parsed  # Return partial — UI will handle missing sections
+    except Exception as e:
+        logger.error(f"Lesson plan generation failed: {e}")
+        return None
+
+
+def display_lesson_plan_interface():
+    """
+    Display the two-layer lesson plan — facilitator guide + learner materials.
+    Toggle between layers via a tab or toggle control.
+    """
+    from parsers import LessonPlanParser
+
+    reference = st.session_state.lesson_plan_reference
+    result = st.session_state.lesson_plan_result
+    client = st.session_state.gemini_client
+    cc = st.session_state.cc_converter
+
+    st.markdown(f"### 📋 {reference} — 備課計劃 Lesson Plan")
+
+    # ── Generate if not yet done ──────────────────────────────────────────
+    if result is None:
+        with st.spinner("正在生成備課計劃… Generating lesson plan…"):
+            result = _generate_lesson_plan(reference, client)
+        if result:
+            st.session_state.lesson_plan_result = result
+            st.rerun()
+        else:
+            st.error("備課計劃生成失敗，請重試。Lesson plan generation failed — please try again.")
+            if st.button("← 返回 Back"):
+                st.session_state.lesson_plan_active = False
+                st.rerun()
+            return
+
+    # ── Layer toggle ──────────────────────────────────────────────────────
+    layer = st.radio(
+        "查看模式 View mode",
+        options=["🔒 引導者備課資料 Facilitator Guide",
+                 "📄 學員材料 Learner Materials"],
+        horizontal=True,
+        key="lesson_plan_layer_toggle"
+    )
+    st.markdown("---")
+
+    is_facilitator = "引導者" in layer
+
+    if is_facilitator:
+        # ── LAYER 1: Facilitator Guide ────────────────────────────────────
+        l1_ch = result.get("layer1_chinese", "")
+        l1_en = result.get("layer1_english", "")
+
+        if not l1_ch:
+            st.warning("引導者備課資料未能生成。Facilitator guide section not available.")
+        else:
+            tab1, tab2, tab3 = st.tabs(["繁體中文", "简体中文", "English"])
+            with tab1:
+                st.markdown(l1_ch)
+            with tab2:
+                st.markdown(cc.convert(l1_ch))
+            with tab3:
+                st.markdown(l1_en or "")
+
+    else:
+        # ── LAYER 2: Learner Materials ────────────────────────────────────
+        l2_ch = result.get("layer2_chinese", "")
+        l2_en = result.get("layer2_english", "")
+
+        if not l2_ch:
+            st.warning("學員材料未能生成。Learner materials section not available.")
+        else:
+            tab1, tab2, tab3 = st.tabs(["繁體中文", "简体中文", "English"])
+            with tab1:
+                st.markdown(l2_ch)
+            with tab2:
+                st.markdown(cc.convert(l2_ch))
+            with tab3:
+                st.markdown(l2_en or "")
+
+    st.markdown("---")
+
+    # ── Download button ───────────────────────────────────────────────────
+    col1, col2 = st.columns(2)
+    with col1:
+        # Build full plain-text export
+        full_text = f"# {reference} — 備課計劃 Lesson Plan\n\n"
+        full_text += "=" * 60 + "\n"
+        full_text += "## 引導者備課資料 FACILITATOR GUIDE\n"
+        full_text += "=" * 60 + "\n\n"
+        full_text += result.get("layer1_chinese", "") + "\n\n"
+        full_text += result.get("layer1_english", "") + "\n\n"
+        full_text += "=" * 60 + "\n"
+        full_text += "## 學員材料 LEARNER MATERIALS\n"
+        full_text += "=" * 60 + "\n\n"
+        full_text += result.get("layer2_chinese", "") + "\n\n"
+        full_text += result.get("layer2_english", "")
+        filename = f"lesson-plan-{reference.replace(' ', '-').replace(':', '')}.txt"
+        st.download_button(
+            "⬇️ 下載完整計劃 Download Full Plan",
+            data=full_text,
+            file_name=filename,
+            mime="text/plain",
+            use_container_width=True
+        )
+    with col2:
+        if st.button("🔄 重新生成 Regenerate", use_container_width=True):
+            st.session_state.lesson_plan_result = None
+            st.rerun()
+
+    st.markdown("---")
+    if st.button("← 返回 Back", type="secondary"):
+        st.session_state.lesson_plan_active = False
+        st.session_state.lesson_plan_result = None
+        st.rerun()
+
+
 def main():
     """Main application entry point."""
     # Check sandbox authentication first
@@ -1400,16 +1530,33 @@ def main():
     # Initialize
     initialize_app()
     
+    # Check if lesson plan mode is active
+    if st.session_state.lesson_plan_active:
+        display_lesson_plan_interface()
     # Check if emphasis mode is active
-    if st.session_state.emphasis_active:
+    elif st.session_state.emphasis_active:
         display_emphasis_interface()
     else:
         # Render UI and get inputs
         reference = render_ui()
 
-        # Process button click
-        if st.button("開始研讀 Start Study", type="primary"):
-            process_study_request(reference)
+        # Two action buttons side by side
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("開始研讀 Start Study", type="primary", use_container_width=True):
+                process_study_request(reference)
+        with col2:
+            if st.button("📋 生成備課計劃 Lesson Plan", type="secondary",
+                         use_container_width=True,
+                         help="生成引導者備課資料與學員材料的雙層計劃 / Generate a two-layer facilitator guide + learner materials"):
+                ref = reference.strip() if reference else ""
+                if ref:
+                    st.session_state.lesson_plan_reference = ref
+                    st.session_state.lesson_plan_active = True
+                    st.session_state.lesson_plan_result = None
+                    st.rerun()
+                else:
+                    st.warning("請先輸入聖經段落。Please enter a Bible reference first.")
     
     # Optional: Debug info (comment out for production)
     # SessionManager.show_debug_info()
