@@ -835,6 +835,130 @@ Reference: "{ref}"
 """
 
 
+
+    QUESTION_BANK_TEMPLATE = """
+Generate a single, non-overlapping question bank for: "{ref}"
+
+This REPLACES the old three-set (Explore/Understand/Apply) format. Instead of three
+independent, uncoordinated question sets that inevitably repeat each other's territory,
+you will generate ONE pass over the whole passage — with the whole passage and the whole
+emerging question set in view simultaneously — producing a single tagged list of questions
+that collectively covers the passage without any two questions sending the learner back
+to the same verses.
+
+This is used by BOTH a facilitator (who picks questions to build a lesson) and a student
+(who picks one question to start an individual guided conversation elsewhere). Every
+question must stand on its own — the reader does not see the other questions in the same
+set the way group facilitators previously chose one of three parallel sets.
+
+═══════════════════════════════════════════════════════════════
+NON-OVERLAP IS THE GOVERNING CONSTRAINT — READ THIS FIRST:
+No two questions in the final bank may send the learner back to the SAME verses to notice
+the SAME thing, even if phrased differently or assigned to different levels. Before finalising
+each question, check it against every question already written: does this ask the learner to
+look at a verse range already claimed by an earlier question, for a similar purpose? If yes,
+either sharpen it to target genuinely different content in that range, or remove it.
+
+REPEATED METHODOLOGY VOCABULARY IS NOT A PROBLEM AND SHOULD NOT BE AVOIDED FOR ITS OWN SAKE.
+Using the same diagnostic term (對比, 重複, 因果關係, etc.) as an entry phrase across multiple
+questions is a legitimate and valuable teaching pattern — it trains the learner to reflexively
+recognise these features themselves. The failure mode is asking about the SAME TEXTUAL CONTENT
+twice, not using the SAME WORD twice. Two questions may both open with "有哪些對比" as long as
+they point at different contrasts in different parts of the passage.
+═══════════════════════════════════════════════════════════════
+
+STEP 1 — INTERNAL ANALYSIS (do NOT include in output):
+
+A. Identify the passage's genre (narrative / epistle / prophecy / poetry / law). This
+   determines which observation categories in step C are likely to apply — do not force
+   a category that doesn't fit this genre (e.g. do not manufacture a narrative climax in
+   a poem; substitute a structural/tonal shift instead where relevant).
+
+B. Identify the passage's CENTRAL CLAIM — the single most important theological assertion
+   the author makes. Everything else serves this centre.
+
+C. SCAN FOR KEY TEXTUAL FEATURES — a disciplined look at what is actually in the text,
+   separate from and prior to interpretation. For each feature found, note WHICH VERSES
+   it occurs in, so overlap can be checked later. Categories (use what genuinely applies;
+   not every passage has all of these):
+   - 對比/映襯 (Contrast): two things placed side by side to sharpen each other by difference
+   - 重複詞句 (Repetition): a word, phrase, or pattern recurring across the passage
+   - 主要連接詞 (Governing connectives): "therefore," "because," "but," "so that" and the
+     argumentative move each one makes
+   - 因果關係 (Causation): one thing stated or implied to produce another
+   - 遞進觀念 (Progression): an argument building in escalating, intensifying steps
+   - 神學觀念/鑰字 (Theological concepts/key terms): words carrying unusual argumentative weight
+   - 命令/應許 (Commands/Promises): direct imperatives or stated assurances
+   - 情節高潮 (Narrative climax — narrative passages only): the moment a story turns on
+
+D. IDENTIFY 2-3 MISREADINGS this passage corrects in its primary audience — what wrong
+   assumption is the passage arguing against? (Retained from the prior format — this
+   remains valuable for calibrating interpretation-level questions.)
+
+E. MAP OUT THE QUESTION BANK BEFORE WRITING IT. List, in verse order, which section of
+   the passage each planned question will target and at which level (觀察/詮釋/應用).
+   Check this map for the non-overlap constraint above BEFORE proceeding to Step 2 —
+   catching redundancy at the planning stage is far cheaper than writing overlapping
+   questions and trying to fix them after.
+
+STEP 2 — WRITE THE QUESTION BANK:
+
+Produce 8-12 questions total, spanning the WHOLE passage (not clustering in one section),
+ordered by verse position. Each question is tagged with its verse range and its level.
+
+LEVEL-SPECIFIC GUIDANCE:
+
+觀察 (Observation) questions — anchor tightly to a specific verse range and a specific
+textual feature found in Step 1C. Ask what is there, not what it means.
+Example form: "在v.X-Y中，[specific feature] — [what to notice about it]？"
+
+詮釋 (Interpretation) questions — ask why the author said it this way, what relationship
+exists between two observed features, or what a reading implies for the passage as a whole.
+May reference the misreadings from Step 1D to sharpen the question's diagnostic edge.
+
+應用 (Application) questions — THIS LEVEL HAS A SPECIFIC, VALIDATED TEMPLATE, extracted from
+testing across 6 passages (Mark, Romans, Isaiah, Psalms) where this style consistently produced
+the sharpest, most personally implicating questions in the whole set:
+  1. Name a CONCRETE, SPECIFIC situation or behaviour — not a general feeling or theme.
+     Weak: "How does this challenge you?" Strong: "在最近你對他人的不滿、批評或審判中
+     （無論是口頭上的還是心裡的），你在他人身上所指責的行為，在哪些隱密的地方也同樣
+     存在於你自己的生命中？"
+  2. Where possible, USE THE PASSAGE'S OWN IMAGERY as the vehicle for the question rather
+     than abstract language — e.g. using "癱瘓" (paralysis) from the healing narrative itself
+     to ask about the learner's own hidden paralysis, rather than asking generically "what
+     do you need Jesus to heal?"
+  3. Where it fits naturally, ADD A SECOND, MORE CONFRONTATIONAL LAYER after the first —
+     e.g. following "where do you feel abandoned by God" with "what do you actually turn to
+     instead of waiting on him — your own competence, others' approval, material security?"
+Do not let application questions default to generic "how does this apply to your life"
+phrasing — every application question should be answerable only with a specific, real
+example from the learner's own life, not a general reflection.
+
+FORMAT — return as a single tagged list, ordered by verse position:
+
+[QUESTION_BANK_CHINESE]
+
+[V.{{verse_range}}] [{{level}}] {{question text in Chinese}}
+
+(repeat for all 8-12 questions, in verse order)
+
+[QUESTION_BANK_ENGLISH]
+
+[V.{{verse_range}}] [{{level}}] {{English translation of each question, same order}}
+
+CRITICAL OUTPUT RULES:
+1. Use exactly the tag format [V.X-Y] [level] — level is one of 觀察/詮釋/應用 in the
+   Chinese section and Observation/Interpretation/Application in the English section.
+   The parser depends on this exact format.
+2. Questions must be ordered by verse position, not grouped by level.
+3. 8-12 questions total is the target — fewer if the passage is short, more only if the
+   passage is unusually long or rich; do not pad to hit a number.
+4. Re-check the full list against the non-overlap constraint before finalising output.
+5. Include [QUESTION_BANK_CHINESE] and [QUESTION_BANK_ENGLISH] tags exactly as shown.
+
+Reference: "{ref}"
+"""
+
     LESSON_PLAN_TEMPLATE = """
 Generate a two-layer Bible study lesson plan for: "{ref}"
 
@@ -1047,6 +1171,16 @@ Reference: "{ref}"
     def get_lesson_plan_prompt(cls, reference: str) -> str:
         """Get the two-layer lesson plan prompt for facilitator + learner materials."""
         return cls.LESSON_PLAN_TEMPLATE.format(ref=reference)
+
+    @classmethod
+    def get_question_bank_prompt(cls, reference: str) -> str:
+        """
+        Get the one-pass, non-overlapping question bank prompt.
+        Replaces the legacy three-set (Explore/Understand/Apply) format —
+        see NOTES.md 2026-07-08 for the six-passage validation record that
+        motivated this redesign.
+        """
+        return cls.QUESTION_BANK_TEMPLATE.format(ref=reference)
 
     @classmethod
     def get_evaluation_prompt(cls, reference: str, question_type: str,

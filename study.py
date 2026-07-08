@@ -1412,6 +1412,61 @@ def _generate_lesson_plan(reference: str, client) -> dict | None:
         return None
 
 
+# ── TEMPORARY TEST HOOK — one-pass question bank raw output (2026-07-08) ──────
+# Subtask 2 of the one-pass redesign (see NOTES.md 2026-07-08): test raw prompt
+# output BEFORE building the parser/UI (subtasks 3-4). No parsing here — just
+# displays exactly what the model returns so we can eyeball non-overlap, the
+# Apply-question template, and correct [V.X-Y] [level] tag formatting.
+# REMOVE this whole block once subtasks 3-4 (parser + real UI) are built and
+# tested — this is scaffolding, not the final feature.
+def display_question_bank_test_interface():
+    """TEMPORARY: raw, unparsed output of the one-pass question bank prompt."""
+    reference = st.session_state.get('qbank_test_reference', '')
+    st.markdown(f"### 🧪 Question Bank (test) — {reference}")
+    st.caption("Temporary test view — raw model output, no parsing yet. "
+               "Remove once the real parser/UI is built.")
+
+    result = st.session_state.get('qbank_test_result')
+    if result is None:
+        client = st.session_state.gemini_client
+        prompt = PromptTemplates.get_question_bank_prompt(reference)
+        with st.spinner("正在生成問題庫（測試）… Generating question bank (test)…"):
+            try:
+                raw = client.generate_content_quality(prompt)
+                st.session_state.qbank_test_result = raw
+                st.rerun()
+            except Exception as e:
+                logger.error(f"Question bank test generation failed: {e}")
+                st.error(f"生成失敗 Generation failed: {e}")
+                if st.button("← 返回 Back"):
+                    st.session_state.qbank_test_active = False
+                    st.rerun()
+                return
+
+    st.text_area("Raw output", value=result, height=600, key="qbank_test_raw_display")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🔄 重新生成 Regenerate", use_container_width=True):
+            st.session_state.qbank_test_result = None
+            st.rerun()
+    with col2:
+        st.download_button(
+            "⬇️ 下載 Download",
+            data=result or "",
+            file_name=f"qbank-test-{reference.replace(' ', '-').replace(':', '')}.txt",
+            mime="text/plain",
+            use_container_width=True
+        )
+
+    st.markdown("---")
+    if st.button("← 返回 Back", type="secondary"):
+        st.session_state.qbank_test_active = False
+        st.session_state.qbank_test_result = None
+        st.rerun()
+# ── END TEMPORARY TEST HOOK ────────────────────────────────────────────────────
+
+
 def display_lesson_plan_interface():
     """
     Display the two-layer lesson plan — facilitator guide + learner materials.
@@ -1533,6 +1588,9 @@ def main():
     # Check if lesson plan mode is active
     if st.session_state.lesson_plan_active:
         display_lesson_plan_interface()
+    # TEMPORARY: question bank test mode (see block above — remove together)
+    elif st.session_state.get('qbank_test_active', False):
+        display_question_bank_test_interface()
     # Check if emphasis mode is active
     elif st.session_state.emphasis_active:
         display_emphasis_interface()
@@ -1540,8 +1598,8 @@ def main():
         # Render UI and get inputs
         reference = render_ui()
 
-        # Two action buttons side by side
-        col1, col2 = st.columns(2)
+        # Action buttons
+        col1, col2, col3 = st.columns(3)
         with col1:
             if st.button("開始研讀 Start Study", type="primary", use_container_width=True):
                 process_study_request(reference)
@@ -1554,6 +1612,18 @@ def main():
                     st.session_state.lesson_plan_reference = ref
                     st.session_state.lesson_plan_active = True
                     st.session_state.lesson_plan_result = None
+                    st.rerun()
+                else:
+                    st.warning("請先輸入聖經段落。Please enter a Bible reference first.")
+        with col3:
+            if st.button("🧪 Question Bank (test)", type="secondary",
+                         use_container_width=True,
+                         help="TEMPORARY — raw one-pass question bank output, no parsing yet"):
+                ref = reference.strip() if reference else ""
+                if ref:
+                    st.session_state.qbank_test_reference = ref
+                    st.session_state.qbank_test_active = True
+                    st.session_state.qbank_test_result = None
                     st.rerun()
                 else:
                     st.warning("請先輸入聖經段落。Please enter a Bible reference first.")
