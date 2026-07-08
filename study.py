@@ -1412,62 +1412,118 @@ def _generate_lesson_plan(reference: str, client) -> dict | None:
         return None
 
 
-# ── TEMPORARY TEST HOOK — one-pass question bank raw output (2026-07-08) ──────
-# Subtask 2 of the one-pass redesign (see NOTES.md 2026-07-08): test raw prompt
-# output BEFORE building the parser/UI (subtasks 3-4). No parsing here — just
-# displays exactly what the model returns so we can eyeball non-overlap, the
-# Apply-question template, and correct [V.X-Y] [level] tag formatting.
-# REMOVE this whole block once subtasks 3-4 (parser + real UI) are built and
-# tested — this is scaffolding, not the final feature.
-def display_question_bank_test_interface():
-    """TEMPORARY: raw, unparsed output of the one-pass question bank prompt."""
-    reference = st.session_state.get('qbank_test_reference', '')
-    st.markdown(f"### 🧪 Question Bank (test) — {reference}")
-    st.caption("Temporary test view — raw model output, no parsing yet. "
-               "Remove once the real parser/UI is built.")
+# ── One-pass question bank display (Subtask 4, 2026-07-08) ────────────────────
+# Basic display of the parsed, grouped question bank. NOT the full clickable/
+# reference-only picker UI from the BST-to-BLT handoff vision (see NOTES.md
+# "BST-to-BLT Handoff" section) — that is deliberately a later, separate piece
+# of work. This is just enough to read the generated bank in a structured way,
+# grouped by verse range with stacked levels shown together.
+_LEVEL_DISPLAY = {
+    "observation":   ("觀察", "Observation", "#2563eb"),   # blue
+    "interpretation": ("詮釋", "Interpretation", "#7c3aed"), # purple
+    "application":   ("應用", "Application", "#059669"),   # green
+}
 
-    result = st.session_state.get('qbank_test_result')
-    if result is None:
+def display_question_bank_interface():
+    """Generate and display the one-pass question bank, parsed and grouped
+    by verse range, with stacked levels shown together within each group."""
+    from parsers import QuestionBankParser
+
+    reference = st.session_state.get('qbank_reference', '')
+    st.markdown(f"### 📚 問題庫 Question Bank — {reference}")
+    st.caption("一次生成、依經文順序排列、避免重複的問題庫。"
+               " A single-pass, verse-ordered, non-overlapping question bank.")
+
+    raw = st.session_state.get('qbank_raw_result')
+    if raw is None:
         client = st.session_state.gemini_client
         prompt = PromptTemplates.get_question_bank_prompt(reference)
-        with st.spinner("正在生成問題庫（測試）… Generating question bank (test)…"):
+        with st.spinner("正在生成問題庫… Generating question bank…"):
             try:
                 raw = client.generate_content_quality(
                     prompt,
                     system_override=PromptTemplates.QUESTION_BANK_SYSTEM
                 )
-                st.session_state.qbank_test_result = raw
+                st.session_state.qbank_raw_result = raw
                 st.rerun()
             except Exception as e:
-                logger.error(f"Question bank test generation failed: {e}")
+                logger.error(f"Question bank generation failed: {e}")
                 st.error(f"生成失敗 Generation failed: {e}")
                 if st.button("← 返回 Back"):
-                    st.session_state.qbank_test_active = False
+                    st.session_state.qbank_active = False
                     st.rerun()
                 return
 
-    st.text_area("Raw output", value=result, height=600, key="qbank_test_raw_display")
+    parsed = QuestionBankParser.parse(raw)
+
+    if not QuestionBankParser.is_valid(parsed):
+        st.warning("問題庫解析失敗，顯示原始輸出。Parsing failed — showing raw output instead.")
+        st.text_area("Raw output", value=raw, height=500)
+    else:
+        cc = st.session_state.cc_converter
+        lang = st.radio(
+            "顯示語言 Display language",
+            options=["繁體中文", "简体中文", "English"],
+            horizontal=True,
+            key="qbank_lang_toggle"
+        )
+
+        groups = parsed["questions"]
+        st.caption(f"共 {len(groups)} 個經文段落 · {len(QuestionBankParser.flat_list(parsed))} 個問題　"
+                   f"({len(groups)} verse-range groups · {len(QuestionBankParser.flat_list(parsed))} questions total)")
+        st.markdown("---")
+
+        for group in groups:
+            verse_label = f"v.{group['verse_range']}"
+            st.markdown(f"#### 📖 {verse_label}")
+
+            for level_key in ("observation", "interpretation", "application"):
+                q = group["questions_by_level"].get(level_key)
+                if not q:
+                    continue
+                label_zh, label_en, color = _LEVEL_DISPLAY[level_key]
+
+                if lang == "English":
+                    text = q["en"]
+                    badge = label_en
+                else:
+                    text = q["zh"] if lang == "繁體中文" else cc.convert(q["zh"])
+                    badge = label_zh
+
+                st.markdown(
+                    f'<div style="margin-bottom:0.7rem;">'
+                    f'<span style="display:inline-block;font-size:0.75rem;font-weight:600;'
+                    f'padding:0.15rem 0.5rem;border-radius:4px;margin-right:0.5rem;'
+                    f'background:{color}20;color:{color};">{badge}</span>'
+                    f'<span style="font-size:0.95rem;">{text}</span>'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+            st.markdown("---")
+
+    # Raw output kept available for debugging, collapsed by default
+    with st.expander("🔍 原始輸出 Raw output (debug)"):
+        st.text_area("Raw", value=raw, height=400, key="qbank_raw_debug", label_visibility="collapsed")
 
     col1, col2 = st.columns(2)
     with col1:
         if st.button("🔄 重新生成 Regenerate", use_container_width=True):
-            st.session_state.qbank_test_result = None
+            st.session_state.qbank_raw_result = None
             st.rerun()
     with col2:
         st.download_button(
             "⬇️ 下載 Download",
-            data=result or "",
-            file_name=f"qbank-test-{reference.replace(' ', '-').replace(':', '')}.txt",
+            data=raw or "",
+            file_name=f"qbank-{reference.replace(' ', '-').replace(':', '')}.txt",
             mime="text/plain",
             use_container_width=True
         )
 
     st.markdown("---")
     if st.button("← 返回 Back", type="secondary"):
-        st.session_state.qbank_test_active = False
-        st.session_state.qbank_test_result = None
+        st.session_state.qbank_active = False
+        st.session_state.qbank_raw_result = None
         st.rerun()
-# ── END TEMPORARY TEST HOOK ────────────────────────────────────────────────────
 
 
 def display_lesson_plan_interface():
@@ -1591,9 +1647,12 @@ def main():
     # Check if lesson plan mode is active
     if st.session_state.lesson_plan_active:
         display_lesson_plan_interface()
-    # TEMPORARY: question bank test mode (see block above — remove together)
-    elif st.session_state.get('qbank_test_active', False):
-        display_question_bank_test_interface()
+    # Check if question bank mode is active (one-pass redesign — see NOTES.md
+    # "One-Pass Question Bank" section, 2026-07-08. Not yet the default —
+    # coexists with the legacy emphasis flow and the two-layer lesson plan
+    # while under evaluation)
+    elif st.session_state.get('qbank_active', False):
+        display_question_bank_interface()
     # Check if emphasis mode is active
     elif st.session_state.emphasis_active:
         display_emphasis_interface()
@@ -1619,14 +1678,14 @@ def main():
                 else:
                     st.warning("請先輸入聖經段落。Please enter a Bible reference first.")
         with col3:
-            if st.button("🧪 Question Bank (test)", type="secondary",
+            if st.button("📚 問題庫 Question Bank", type="secondary",
                          use_container_width=True,
-                         help="TEMPORARY — raw one-pass question bank output, no parsing yet"):
+                         help="一次生成、依經文順序、無重複的問題庫 / Generate a single-pass, verse-ordered, non-overlapping question bank"):
                 ref = reference.strip() if reference else ""
                 if ref:
-                    st.session_state.qbank_test_reference = ref
-                    st.session_state.qbank_test_active = True
-                    st.session_state.qbank_test_result = None
+                    st.session_state.qbank_reference = ref
+                    st.session_state.qbank_active = True
+                    st.session_state.qbank_raw_result = None
                     st.rerun()
                 else:
                     st.warning("請先輸入聖經段落。Please enter a Bible reference first.")
