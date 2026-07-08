@@ -474,6 +474,35 @@ Reference: "{ref}"
 
     # ── EMPHASIS-BASED QUESTION TEMPLATES ─────────────────────────────────────
 
+    QUESTION_BANK_SYSTEM = """
+You are a Bible study guide serving Chinese-American evangelical Christians. You hold to the inerrancy and authority of scripture, and you believe that sound hermeneutical method — attending carefully to genre, historical context, literary structure, authorial intent, and canonical coherence — naturally leads to theologically sound understanding consistent with evangelical conviction.
+
+Your primary role is not to deliver correct interpretations but to ask questions that help students engage the text for themselves, develop their own interpretive capacity, and arrive at genuine understanding through careful observation, interpretation, and application. Trust the text to do its work when students are equipped to engage it carefully.
+
+HERMENEUTICAL COMMITMENTS:
+- Distinguish carefully between what the text says (observation), what it meant in its original context (interpretation), and what it requires of us today (application). Keep these steps distinct in question design rather than collapsing them.
+- For passages where interpretive questions are genuinely complex — including texts on gender roles, spiritual gifts, church governance, or other areas where careful evangelical scholars have reached different conclusions — present the complexity honestly and equip students to navigate it through the text itself, rather than bypassing it.
+- Prioritise questions that open the text over statements that close it.
+- Always ground application in careful observation and interpretation first.
+
+PUNCTUATION RULE: When writing in Chinese (Traditional or Simplified), always use full-width Chinese punctuation marks throughout (，。：；？！「」『』（） — never ASCII equivalents). Never mix half-width ASCII punctuation with Chinese text.
+
+OUTPUT DISCIPLINE:
+- Follow the output format specified in THIS PROMPT's user message exactly — this format is
+  DIFFERENT from and REPLACES any other output format you may have seen for other Bible study
+  tasks. Do not add explanations, preambles, commentary, confidence ratings, self-assessments,
+  or any section not explicitly requested in the user message.
+- Any reasoning steps marked "internal reasoning only" or "do NOT include in output" must NEVER
+  appear in your response. Perform that reasoning silently and output only the final result.
+- Do not repeat instructions back to the user. Begin the output directly.
+
+STRICT VALIDATION RULE:
+- Valid input: Bible references (e.g., "John 3:16", "創世記 1", "Psalm 23:1-6")
+- Invalid input: Non-biblical text
+- For INVALID input, respond EXACTLY with: [INVALID_REF]
+- For VALID input, follow the format specified in the user message exactly.
+"""
+
     EMPHASIS_EXPLORE = """
 Generate a Bible study question set for: "{ref}"
 
@@ -852,19 +881,36 @@ question must stand on its own — the reader does not see the other questions i
 set the way group facilitators previously chose one of three parallel sets.
 
 ═══════════════════════════════════════════════════════════════
-NON-OVERLAP IS THE GOVERNING CONSTRAINT — READ THIS FIRST:
-No two questions in the final bank may send the learner back to the SAME verses to notice
-the SAME thing, even if phrased differently or assigned to different levels. Before finalising
-each question, check it against every question already written: does this ask the learner to
-look at a verse range already claimed by an earlier question, for a similar purpose? If yes,
-either sharpen it to target genuinely different content in that range, or remove it.
+THE GOVERNING CONSTRAINT IS "NO REDUNDANT FOCUS" — NOT "NO REVISITING A VERSE RANGE."
+READ THIS CAREFULLY, IT HAS TWO HALVES:
+
+HALF 1 — what to avoid: no two questions may ask the learner to notice the SAME textual
+feature, for the SAME purpose, even if phrased differently or assigned to different levels.
+Before finalising each question, check it against every question already written: does this
+ask about a feature another question already targets? If yes, either sharpen it to a
+genuinely different feature, or remove it.
+
+HALF 2 — what is explicitly ENCOURAGED, not just permitted: the SAME verse range MAY be
+targeted by more than one question, at different levels, when the verses genuinely support
+more than one kind of question — e.g. an observation question noticing WHAT a verse says,
+and a separate interpretation question asking WHY the author says it that way, or a separate
+application question asking what it demands personally. This is not overlap — it is depth.
+Keep these as SEPARATE list entries (do not merge them into one compound question). A rich
+verse range deserves multiple angles; a thin one does not need to be padded to invent a
+second question it doesn't support. Let the passage's own weight decide, verse range by
+verse range, rather than defaulting to "move forward to new verses every time."
+
+The test for whether a same-range question is legitimate depth (keep) rather than disguised
+overlap (cut): would a learner who fully answered the first question still have something
+genuinely new to discover by answering the second? If yes, both stay. If the second question's
+answer is already implied by the first, cut it.
 
 REPEATED METHODOLOGY VOCABULARY IS NOT A PROBLEM AND SHOULD NOT BE AVOIDED FOR ITS OWN SAKE.
 Using the same diagnostic term (對比, 重複, 因果關係, etc.) as an entry phrase across multiple
 questions is a legitimate and valuable teaching pattern — it trains the learner to reflexively
 recognise these features themselves. The failure mode is asking about the SAME TEXTUAL CONTENT
 twice, not using the SAME WORD twice. Two questions may both open with "有哪些對比" as long as
-they point at different contrasts in different parts of the passage.
+they point at different contrasts (whether in different verse ranges or the same one).
 ═══════════════════════════════════════════════════════════════
 
 STEP 1 — INTERNAL ANALYSIS (do NOT include in output):
@@ -950,11 +996,23 @@ CRITICAL OUTPUT RULES:
 1. Use exactly the tag format [V.X-Y] [level] — level is one of 觀察/詮釋/應用 in the
    Chinese section and Observation/Interpretation/Application in the English section.
    The parser depends on this exact format.
-2. Questions must be ordered by verse position, not grouped by level.
+   NON-CONTIGUOUS VERSE REFERENCES ARE ALLOWED when a question tracks a feature that spans
+   separated verses — e.g. [V.24, 26, 28] for a threefold repeated phrase, or [V.1, 6-7] for
+   a comparison between two separated sections. Use commas to separate non-contiguous parts.
+2. Questions must be ordered by verse position (using the FIRST verse number in each tag
+   for ordering), not grouped by level. When more than one question shares the same verse
+   range (see governing constraint above), order them observation → interpretation →
+   application within that shared range.
 3. 8-12 questions total is the target — fewer if the passage is short, more only if the
-   passage is unusually long or rich; do not pad to hit a number.
-4. Re-check the full list against the non-overlap constraint before finalising output.
+   passage is unusually long or rich, or if several verse ranges genuinely support more
+   than one question (see governing constraint above); do not pad to hit a number, and do
+   not compress genuinely separate questions into one to stay under it.
+4. Re-check the full list against the governing constraint before finalising output.
 5. Include [QUESTION_BANK_CHINESE] and [QUESTION_BANK_ENGLISH] tags exactly as shown.
+6. Output ONLY the two tagged question lists. Do NOT add any other section, header,
+   meta-commentary, confidence rating, or self-assessment of any kind (e.g. do NOT add a
+   "META_ASSESSMENT" or similar block) — the output must end immediately after the last
+   English-section question.
 
 Reference: "{ref}"
 """

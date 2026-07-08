@@ -1432,7 +1432,10 @@ def display_question_bank_test_interface():
         prompt = PromptTemplates.get_question_bank_prompt(reference)
         with st.spinner("正在生成問題庫（測試）… Generating question bank (test)…"):
             try:
-                raw = client.generate_content_quality(prompt)
+                raw = client.generate_content_quality(
+                    prompt,
+                    system_override=PromptTemplates.QUESTION_BANK_SYSTEM
+                )
                 st.session_state.qbank_test_result = raw
                 st.rerun()
             except Exception as e:
