@@ -519,7 +519,40 @@ correction themselves.
 This Step 1 reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
 [ENGLISH] output.
 
-STEP 2 — WRITE QUESTIONS calibrated against those misreadings:
+STEP 1D — SCAN FOR KEY TEXTUAL FEATURES (internal reasoning only — do NOT include in output):
+
+Before writing questions, scan "{ref}" for the following observable features — this is a
+disciplined look at what is actually in the text, separate from and prior to any
+interpretation of what it means. Not every feature will be present in every passage; note
+only what is genuinely there.
+
+- 對比/映襯 (Contrast/Juxtaposition): are two things placed side by side to sharpen each other
+  by their difference? (e.g. flesh vs spirit, seen vs unseen, before vs after)
+- 重複詞句 (Repetition): does a specific word, phrase, or grammatical pattern recur across the
+  passage? Repetition across a passage usually signals the author's own emphasis.
+- 主要連接詞 (Governing connectives): where do "therefore," "because," "but," "so that" appear,
+  and what argumentative move does each one make?
+- 因果關係 (Causation): does the passage state or imply that one thing produces another?
+- 遞進觀念 (Progression): does the passage build an argument in escalating steps, where each
+  statement depends on and intensifies the one before it?
+- 神學觀念/鑰字 (Theological concepts/key terms): which specific words carry unusual theological
+  weight in this passage — words a casual reader might skim past without realising they are
+  doing the heaviest argumentative work?
+- 命令/應許 (Commands/Promises): does the passage contain a direct imperative, or a stated
+  assurance about what will happen?
+- 情節高潮 (Narrative climax, narrative passages only): if this is a story, where is the moment
+  the whole episode turns on?
+
+Use what you find here to make your Step 2 questions more textually anchored — a question
+built on a genuine repetition, contrast, or connective the passage actually contains is
+stronger than a question built only from the passage's general topic. This scan does not
+replace the misreading identification above; it supplies textual evidence a strong question
+can point to.
+
+This Step 1D reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
+[ENGLISH] output.
+
+STEP 2 — WRITE QUESTIONS calibrated against those misreadings AND the textual features found in Step 1D:
 
 EMPHASIS: EXPLORE
 The user wants to explore what the text says before drawing conclusions.
@@ -606,7 +639,40 @@ correction themselves.
 This Step 1 reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
 [ENGLISH] output.
 
-STEP 2 — WRITE QUESTIONS calibrated against those misreadings:
+STEP 1D — SCAN FOR KEY TEXTUAL FEATURES (internal reasoning only — do NOT include in output):
+
+Before writing questions, scan "{ref}" for the following observable features — this is a
+disciplined look at what is actually in the text, separate from and prior to any
+interpretation of what it means. Not every feature will be present in every passage; note
+only what is genuinely there.
+
+- 對比/映襯 (Contrast/Juxtaposition): are two things placed side by side to sharpen each other
+  by their difference? (e.g. flesh vs spirit, seen vs unseen, before vs after)
+- 重複詞句 (Repetition): does a specific word, phrase, or grammatical pattern recur across the
+  passage? Repetition across a passage usually signals the author's own emphasis.
+- 主要連接詞 (Governing connectives): where do "therefore," "because," "but," "so that" appear,
+  and what argumentative move does each one make?
+- 因果關係 (Causation): does the passage state or imply that one thing produces another?
+- 遞進觀念 (Progression): does the passage build an argument in escalating steps, where each
+  statement depends on and intensifies the one before it?
+- 神學觀念/鑰字 (Theological concepts/key terms): which specific words carry unusual theological
+  weight in this passage — words a casual reader might skim past without realising they are
+  doing the heaviest argumentative work?
+- 命令/應許 (Commands/Promises): does the passage contain a direct imperative, or a stated
+  assurance about what will happen?
+- 情節高潮 (Narrative climax, narrative passages only): if this is a story, where is the moment
+  the whole episode turns on?
+
+Use what you find here to make your Step 2 questions more textually anchored — a question
+built on a genuine repetition, contrast, or connective the passage actually contains is
+stronger than a question built only from the passage's general topic. This scan does not
+replace the misreading identification above; it supplies textual evidence a strong question
+can point to.
+
+This Step 1D reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
+[ENGLISH] output.
+
+STEP 2 — WRITE QUESTIONS calibrated against those misreadings AND the textual features found in Step 1D:
 
 EMPHASIS: UNDERSTAND
 The user wants to understand the passage more deeply — its argument, context, and theological weight.
@@ -693,7 +759,40 @@ correction themselves.
 This Step 1 reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
 [ENGLISH] output.
 
-STEP 2 — WRITE QUESTIONS calibrated against those misreadings:
+STEP 1D — SCAN FOR KEY TEXTUAL FEATURES (internal reasoning only — do NOT include in output):
+
+Before writing questions, scan "{ref}" for the following observable features — this is a
+disciplined look at what is actually in the text, separate from and prior to any
+interpretation of what it means. Not every feature will be present in every passage; note
+only what is genuinely there.
+
+- 對比/映襯 (Contrast/Juxtaposition): are two things placed side by side to sharpen each other
+  by their difference? (e.g. flesh vs spirit, seen vs unseen, before vs after)
+- 重複詞句 (Repetition): does a specific word, phrase, or grammatical pattern recur across the
+  passage? Repetition across a passage usually signals the author's own emphasis.
+- 主要連接詞 (Governing connectives): where do "therefore," "because," "but," "so that" appear,
+  and what argumentative move does each one make?
+- 因果關係 (Causation): does the passage state or imply that one thing produces another?
+- 遞進觀念 (Progression): does the passage build an argument in escalating steps, where each
+  statement depends on and intensifies the one before it?
+- 神學觀念/鑰字 (Theological concepts/key terms): which specific words carry unusual theological
+  weight in this passage — words a casual reader might skim past without realising they are
+  doing the heaviest argumentative work?
+- 命令/應許 (Commands/Promises): does the passage contain a direct imperative, or a stated
+  assurance about what will happen?
+- 情節高潮 (Narrative climax, narrative passages only): if this is a story, where is the moment
+  the whole episode turns on?
+
+Use what you find here to make your Step 2 questions more textually anchored — a question
+built on a genuine repetition, contrast, or connective the passage actually contains is
+stronger than a question built only from the passage's general topic. This scan does not
+replace the misreading identification above; it supplies textual evidence a strong question
+can point to.
+
+This Step 1D reasoning is private scaffolding. It does NOT appear in your [CHINESE] or
+[ENGLISH] output.
+
+STEP 2 — WRITE QUESTIONS calibrated against those misreadings AND the textual features found in Step 1D:
 
 EMPHASIS: APPLY
 The user wants to be personally challenged by the passage.
