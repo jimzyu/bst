@@ -474,3 +474,162 @@ class LessonPlanParser:
             "layer1_chinese", "layer1_english",
             "layer2_chinese", "layer2_english"
         ])
+
+
+class QuestionBankParser:
+    """
+    Parser for the one-pass question bank output (see prompts.py
+    QUESTION_BANK_TEMPLATE / get_question_bank_prompt).
+
+    Handles:
+    - Contiguous verse tags: [V.1-5]
+    - Single-verse tags: [V.27]
+    - Non-contiguous verse tags: [V.24, 26, 28], [V.1, 6-7]
+    - Multiple questions stacked on the same verse range (same-range depth —
+      e.g. an observation, interpretation, and application question all
+      targeting [V.1-12]) — these are grouped together, not treated as
+      unrelated independent items, per the parser requirement identified
+      during Subtask 2 testing (see NOTES.md 2026-07-08).
+    """
+
+    TAG_CHINESE = "[QUESTION_BANK_CHINESE]"
+    TAG_ENGLISH = "[QUESTION_BANK_ENGLISH]"
+
+    # Matches: [V.<verse spec>] [<level>] <question text, up to the next
+    # [V....] [...] tag or end of string>. DOTALL so a question may itself
+    # span multiple lines without breaking the match.
+    _QUESTION_PATTERN = re.compile(
+        r'\[V\.([^\]]+)\]\s*\[([^\]]+)\]\s*(.+?)(?=\n*\[V\.[^\]]+\]\s*\[|\Z)',
+        re.DOTALL
+    )
+
+    # Normalises whichever level label the model used (Chinese or English,
+    # either language's section) to one canonical internal key.
+    _LEVEL_MAP = {
+        '觀察': 'observation', 'observation': 'observation',
+        '詮釋': 'interpretation', 'interpretation': 'interpretation',
+        '應用': 'application', 'application': 'application',
+    }
+
+    @classmethod
+    def _extract_section(cls, text: str) -> list[dict]:
+        """Extract all [V.x] [level] question entries from one language section."""
+        results = []
+        for verse_range, level_raw, question in cls._QUESTION_PATTERN.findall(text):
+            level_key = cls._LEVEL_MAP.get(level_raw.strip(), level_raw.strip().lower())
+            results.append({
+                "verse_range": verse_range.strip(),
+                "level": level_key,
+                "level_label": level_raw.strip(),  # original label, for display
+                "question": question.strip(),
+            })
+        return results
+
+    @classmethod
+    def parse(cls, raw: str) -> dict:
+        """
+        Parse the one-pass question bank output.
+
+        Returns a dict:
+            {
+                "questions": [
+                    {
+                        "verse_range": "1-12",
+                        "questions_by_level": {
+                            "observation": {"zh": "...", "en": "..."} | None,
+                            "interpretation": {"zh": "...", "en": "..."} | None,
+                            "application": {"zh": "...", "en": "..."} | None,
+                        }
+                    },
+                    ...
+                ]
+            }
+        Ordered by first appearance in the Chinese section (verse position,
+        per the prompt's ordering rule). Each verse_range group may contain
+        one, two, or three levels depending on how much depth that range
+        received (same-range stacking — see NOTES.md 2026-07-08).
+        Returns {"questions": []} if parsing fails or no questions found.
+        """
+        ch_start = raw.find(cls.TAG_CHINESE)
+        en_start = raw.find(cls.TAG_ENGLISH)
+
+        if ch_start == -1 or en_start == -1:
+            return {"questions": []}
+
+        ch_text = raw[ch_start + len(cls.TAG_CHINESE):en_start]
+        en_text = raw[en_start + len(cls.TAG_ENGLISH):]
+
+        ch_entries = cls._extract_section(ch_text)
+        en_entries = cls._extract_section(en_text)
+
+        # Pair Chinese and English entries by position (same order, per
+        # the prompt's instruction that both sections list questions in
+        # identical sequence). If counts mismatch, pair what we can and
+        # log the shortfall rather than failing outright.
+        paired = []
+        n = min(len(ch_entries), len(en_entries))
+        for i in range(n):
+            ch, en = ch_entries[i], en_entries[i]
+            paired.append({
+                "verse_range": ch["verse_range"],
+                "level": ch["level"],
+                "level_label_zh": ch["level_label"],
+                "level_label_en": en["level_label"],
+                "zh": ch["question"],
+                "en": en["question"],
+            })
+
+        # Group consecutive entries sharing the same verse_range into one
+        # unit — this is the "same-range depth / stacking" grouping.
+        grouped: list[dict] = []
+        for entry in paired:
+            if grouped and grouped[-1]["verse_range"] == entry["verse_range"]:
+                grouped[-1]["questions_by_level"][entry["level"]] = {
+                    "zh": entry["zh"], "en": entry["en"],
+                    "level_label_zh": entry["level_label_zh"],
+                    "level_label_en": entry["level_label_en"],
+                }
+            else:
+                grouped.append({
+                    "verse_range": entry["verse_range"],
+                    "questions_by_level": {
+                        "observation": None,
+                        "interpretation": None,
+                        "application": None,
+                        entry["level"]: {
+                            "zh": entry["zh"], "en": entry["en"],
+                            "level_label_zh": entry["level_label_zh"],
+                            "level_label_en": entry["level_label_en"],
+                        }
+                    }
+                })
+
+        return {"questions": grouped}
+
+    @classmethod
+    def is_valid(cls, parsed: dict) -> bool:
+        """Check that at least one question was successfully parsed."""
+        return bool(parsed.get("questions"))
+
+    @classmethod
+    def flat_list(cls, parsed: dict) -> list[dict]:
+        """
+        Convenience accessor: flatten the grouped structure back into a
+        single ordered list of individual questions, each tagged with its
+        verse range and level. Useful for a simple UI that just wants to
+        iterate questions in verse order without caring about grouping.
+        """
+        flat = []
+        for group in parsed.get("questions", []):
+            for level in ("observation", "interpretation", "application"):
+                q = group["questions_by_level"].get(level)
+                if q:
+                    flat.append({
+                        "verse_range": group["verse_range"],
+                        "level": level,
+                        "level_label_zh": q["level_label_zh"],
+                        "level_label_en": q["level_label_en"],
+                        "zh": q["zh"],
+                        "en": q["en"],
+                    })
+        return flat
