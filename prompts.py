@@ -969,23 +969,35 @@ D. IDENTIFY 2-3 MISREADINGS this passage corrects in its primary audience — wh
    remains valuable for calibrating interpretation-level questions.)
 
 E. FOR PASSAGES WITH MULTIPLE UNITS (per your C2 density map) — SCAN FOR RELATIONSHIPS
-   BETWEEN THE UNITS, not just within each one. Once several units are identified, step back
-   and ask: does an earlier unit and a later unit share a pattern? Two structures are worth
-   checking for specifically:
+   BETWEEN THE UNITS, not just within each one. Once several units are identified, check EVERY
+   plausible pair, not just the most obvious one (the opening/closing pair is the most visually
+   salient candidate and easiest to spot — do not let finding it stop you from checking others).
+   THREE structures are worth checking for specifically:
    - 循環關係 (Inclusio / bracketing): does the passage's OPENING unit and CLOSING unit mirror
      each other — same type of scene, same key action or phrase, same character-role — framing
      everything between them? (e.g. two call narratives with the same "follow me" pattern and
      immediate-response structure bracketing a set of controversy stories between them)
    - 映襯 (Parallelism): do two or more NON-ADJACENT units follow the same underlying pattern
      even if the surface content differs, inviting the reader to compare them?
-   If you find a genuine inter-unit relationship (not a forced one — most passages will NOT
-   have this, and that is fine; do not manufacture a pattern that isn't really there), write
-   ONE additional question that asks the learner to notice the relationship directly, using a
-   combined verse tag referencing both units (e.g. [V.1:16-20, 2:13-17]). This is a distinct
-   question type from anything else in the bank — its whole purpose is to lift the learner's
-   eyes from individual units to the passage's larger architecture. Tag it at whichever level
-   (觀察/詮釋) fits — noticing the parallel itself is 觀察; asking what the frame accomplishes
-   theologically is 詮釋.
+   - 重複詞句 AT THE MACRO LEVEL (a word, phrase, or key term recurring across DIFFERENT units,
+     not just within one) — e.g. the same Greek/Hebrew concept-word or its translation appearing
+     in an early unit and again in a later, structurally distant unit, often marking escalation
+     or resolution (e.g. "authority" (ἐξουσία) named in a synagogue-teaching unit and again, at
+     a deeper level, in a much later forgiveness-of-sins unit — the repetition itself is the
+     author's signal that the two scenes are in dialogue with each other).
+   DO NOT STOP AFTER FINDING ONE RELATIONSHIP. It is common, especially in Gospel narratives,
+   for a passage to contain MORE THAN ONE genuine inter-unit relationship simultaneously — e.g.
+   an inclusio bracketing the whole passage AND a separate word-repetition pattern linking two
+   inner units. Check systematically across all units before moving to Step 2; write ONE
+   question PER genuine relationship you find (not one question total for the whole bank) —
+   if you find three genuine relationships, write three inter-unit questions; if you find none,
+   write none. Do not manufacture a pattern that isn't really there — most SHORT passages will
+   have zero or one such relationship, and that is fine.
+   Each inter-unit question uses a combined verse tag referencing the units involved (e.g.
+   [V.1:16-20, 2:13-17] or [V.1:21-28, 2:1-12]). This is a distinct question type from anything
+   else in the bank — its whole purpose is to lift the learner's eyes from individual units to
+   the passage's larger architecture. Tag each at whichever level (觀察/詮釋) fits — noticing
+   the parallel itself is 觀察; asking what the relationship accomplishes theologically is 詮釋.
 
 F. MAP OUT THE QUESTION BANK BEFORE WRITING IT. List, in verse order, which section of
    the passage each planned question will target and at which level (觀察/詮釋/應用).
@@ -1058,17 +1070,23 @@ CRITICAL OUTPUT RULES:
    for ordering), not grouped by level. When more than one question shares the same verse
    range (see governing constraint above), order them observation → interpretation →
    application within that shared range.
-3. THERE IS NO FIXED QUESTION COUNT TARGET. The number of questions must emerge from
-   your density map (step C2) — one question per HIGH density unit at minimum, more where
-   a unit genuinely supports multiple levels (same-range stacking, see governing
-   constraint above), none required for genuinely LOW density units. As a rough sanity
-   check only (NOT a target to aim for): a short, dense passage (e.g. a six-verse psalm)
-   might reasonably produce 8-12 questions if most units are high-density and several are
-   stacked; a long passage with substantial connective material might reasonably produce
-   fewer questions than its verse count alone would suggest, concentrated on its
-   high-density units. Do not pad to hit any particular number, and do not compress
-   genuinely separate questions into one to stay under it. Trust the density map, not a
-   count.
+3. THERE IS NO FIXED QUESTION COUNT TARGET. The number of questions must emerge from TWO
+   independent sources, both counted in full — do not let one crowd out the other:
+   (a) your density map (step C2) — one question per HIGH density unit at minimum, more where
+   a unit genuinely supports multiple levels (same-range stacking, see governing constraint
+   above), none required for genuinely LOW density units; and
+   (b) your inter-unit relationship scan (step E) — one question per genuine relationship found,
+   which for a rich, interlocking passage (common in Gospel narratives) may add several
+   questions beyond what the density map alone would suggest. A passage can be simultaneously
+   rich in both ways — many high-density units AND multiple genuine inter-unit relationships —
+   and if so, the bank should reflect BOTH, even if that means a longer passage produces more
+   questions than earlier rough guidance implied.
+   As a rough sanity check only (NOT a target to aim for): a short, dense passage (e.g. a
+   six-verse psalm) might reasonably produce 8-12 questions from density alone; a long,
+   richly-interlocking narrative passage may reasonably exceed that once inter-unit
+   relationship questions are added on top. Do not pad to hit any particular number, and do
+   not compress genuinely separate questions into one to stay under it. Trust the density map
+   and the relationship scan together, not a count.
 4. Re-check the full list against the governing constraint before finalising output.
 5. Include [QUESTION_BANK_CHINESE] and [QUESTION_BANK_ENGLISH] tags exactly as shown.
 6. Output ONLY the two tagged question lists. Do NOT add any other section, header,
