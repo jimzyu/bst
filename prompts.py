@@ -937,15 +937,44 @@ C. SCAN FOR KEY TEXTUAL FEATURES — a disciplined look at what is actually in t
    - 命令/應許 (Commands/Promises): direct imperatives or stated assurances
    - 情節高潮 (Narrative climax — narrative passages only): the moment a story turns on
 
+C2. MAP THE PASSAGE'S THEOLOGICAL DENSITY — this determines how many questions the bank
+    needs and where they belong. Divide the passage into its natural sub-units (not
+    mechanical verse chunks — genuine units: a scene, an argument-step, a stanza, a
+    greeting, a list). For EACH unit, judge its density as HIGH (a thesis statement,
+    title/superscription, a turning point, a theologically loaded claim — deserves at
+    least one question, often more) or LOW (connective tissue — travel plans, a greeting's
+    routine pleasantries, a transitional phrase — may need only brief or no dedicated
+    question if genuinely thin).
+    MANDATORY CHECK — do this explicitly, every time, before moving on: examine the
+    passage's OPENING few verses and CLOSING few verses specifically. Openings very
+    often contain a title, thesis, or superscription that the rest of the passage
+    depends on (e.g. Mark 1:1 names the whole book's subject; Romans 1:16-17 states the
+    letter's thesis; a psalm's opening line often sets its entire frame) — these are
+    HIGH density by default and must not be silently skipped even when a more visually
+    "active" scene later in the passage draws attention away from them. If, after
+    genuine consideration, the opening or closing verses really are low-density
+    connective material, that is an acceptable conclusion — but it must be a decision,
+    not an omission.
+    Let the passage's LENGTH interact with density, not override it: a SHORT passage
+    where most units are high-density (e.g. Psalm 23) naturally supports going deep on
+    most of it, including same-range stacking (see constraint above) across many units.
+    A LONG passage with several genuinely low-density connective units (e.g. a letter's
+    travel-plan report) should NOT be padded with a question for every unit merely to
+    "cover" it — spend the bank's attention on the high-density units, and it is fine
+    for low-density units to receive brief or no dedicated question, once that judgment
+    has genuinely been made rather than defaulted into.
+
 D. IDENTIFY 2-3 MISREADINGS this passage corrects in its primary audience — what wrong
    assumption is the passage arguing against? (Retained from the prior format — this
    remains valuable for calibrating interpretation-level questions.)
 
 E. MAP OUT THE QUESTION BANK BEFORE WRITING IT. List, in verse order, which section of
    the passage each planned question will target and at which level (觀察/詮釋/應用).
-   Check this map for the non-overlap constraint above BEFORE proceeding to Step 2 —
-   catching redundancy at the planning stage is far cheaper than writing overlapping
-   questions and trying to fix them after.
+   Cross-check this map against your density map (step C2) — every HIGH density unit,
+   including the opening and closing check, should have at least one question; LOW
+   density units may legitimately have none. Check this map for the non-overlap
+   constraint above BEFORE proceeding to Step 2 — catching a gap or a redundancy at the
+   planning stage is far cheaper than fixing it after questions are written.
 
 STEP 2 — WRITE THE QUESTION BANK:
 
@@ -1003,10 +1032,17 @@ CRITICAL OUTPUT RULES:
    for ordering), not grouped by level. When more than one question shares the same verse
    range (see governing constraint above), order them observation → interpretation →
    application within that shared range.
-3. 8-12 questions total is the target — fewer if the passage is short, more only if the
-   passage is unusually long or rich, or if several verse ranges genuinely support more
-   than one question (see governing constraint above); do not pad to hit a number, and do
-   not compress genuinely separate questions into one to stay under it.
+3. THERE IS NO FIXED QUESTION COUNT TARGET. The number of questions must emerge from
+   your density map (step C2) — one question per HIGH density unit at minimum, more where
+   a unit genuinely supports multiple levels (same-range stacking, see governing
+   constraint above), none required for genuinely LOW density units. As a rough sanity
+   check only (NOT a target to aim for): a short, dense passage (e.g. a six-verse psalm)
+   might reasonably produce 8-12 questions if most units are high-density and several are
+   stacked; a long passage with substantial connective material might reasonably produce
+   fewer questions than its verse count alone would suggest, concentrated on its
+   high-density units. Do not pad to hit any particular number, and do not compress
+   genuinely separate questions into one to stay under it. Trust the density map, not a
+   count.
 4. Re-check the full list against the governing constraint before finalising output.
 5. Include [QUESTION_BANK_CHINESE] and [QUESTION_BANK_ENGLISH] tags exactly as shown.
 6. Output ONLY the two tagged question lists. Do NOT add any other section, header,
