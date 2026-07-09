@@ -972,6 +972,14 @@ E. FOR PASSAGES WITH MULTIPLE UNITS (per your C2 density map) — SCAN FOR RELAT
    BETWEEN THE UNITS, not just within each one. Once several units are identified, check EVERY
    plausible pair, not just the most obvious one (the opening/closing pair is the most visually
    salient candidate and easiest to spot — do not let finding it stop you from checking others).
+   IMPORTANT: check ALL units identified in your C2 division, INCLUDING units you rated LOW
+   density and gave no individual question to. Standalone density and relational significance
+   are DIFFERENT things — a unit can be too thin to deserve its own question yet still matter
+   because of how it connects to another unit elsewhere in the passage (e.g. a brief, easily
+   overlooked healing scene may share a meaningful action or motif — such as Jesus physically
+   touching someone — with a much more prominent healing scene later; the two only become
+   individually significant when read together). Do not silently narrow this scan to only the
+   HIGH-density units you already selected for their own questions.
    FOUR structures are worth checking for specifically:
    - 循環關係 (Inclusio / bracketing): does the passage's OPENING unit and CLOSING unit mirror
      each other — same type of scene, same key action or phrase, same character-role — framing
@@ -1084,10 +1092,23 @@ CRITICAL OUTPUT RULES:
    chapter number in EVERY tag in the bank, with NO space after "V." and a colon between
    chapter and verse (e.g. [V.1:21-28], [V.2:1-12]) — never mix the two notations within one
    bank, and never insert a space between "V." and the chapter number.
-2. Questions must be ordered by verse position (using the FIRST verse number in each tag
-   for ordering), not grouped by level. When more than one question shares the same verse
-   range (see governing constraint above), order them observation → interpretation →
-   application within that shared range.
+2. Questions must be ordered by verse position, not grouped by level. For a single-unit tag,
+   this means the first verse number in the tag. FOR COMBINED/INTER-UNIT TAGS (step E), order
+   by the LATER unit referenced, NOT the earlier one — an inter-unit question compares two
+   units, and the learner needs to have already encountered BOTH before being asked to compare
+   them. Placing it by the earlier unit's position (e.g. treating [V.1:21-28, 2:1-12] as if it
+   belonged right after 1:21-28) asks the learner to compare something they have not yet seen —
+   wrong. Place it after the LATER unit's position instead.
+   Within that later unit's own set of questions, the inter-unit question goes AFTER that
+   unit's own observation/interpretation questions (the learner needs the unit's own content
+   established first) but BEFORE that unit's application question if it has one — the
+   inter-unit comparison deepens the interpretation, and that deepened interpretation should
+   feed the application that follows, not arrive after it as an afterthought. Order within a
+   unit is therefore: this unit's own 觀察 → this unit's own 詮釋 → any inter-unit 觀察/詮釋
+   question placing this unit as the LATER member of a pair → this unit's own 應用.
+   When more than one question shares the exact same single-unit verse range (same-range
+   stacking, see governing constraint above), order them observation → interpretation →
+   application within that shared range as before.
 3. THERE IS NO FIXED QUESTION COUNT TARGET. The number of questions must emerge from TWO
    independent sources, both counted in full — do not let one crowd out the other:
    (a) your density map (step C2) — one question per HIGH density unit at minimum, more where
