@@ -972,32 +972,50 @@ E. FOR PASSAGES WITH MULTIPLE UNITS (per your C2 density map) — SCAN FOR RELAT
    BETWEEN THE UNITS, not just within each one. Once several units are identified, check EVERY
    plausible pair, not just the most obvious one (the opening/closing pair is the most visually
    salient candidate and easiest to spot — do not let finding it stop you from checking others).
-   THREE structures are worth checking for specifically:
+   FOUR structures are worth checking for specifically:
    - 循環關係 (Inclusio / bracketing): does the passage's OPENING unit and CLOSING unit mirror
      each other — same type of scene, same key action or phrase, same character-role — framing
-     everything between them? (e.g. two call narratives with the same "follow me" pattern and
-     immediate-response structure bracketing a set of controversy stories between them)
+     everything between them?
    - 映襯 (Parallelism): do two or more NON-ADJACENT units follow the same underlying pattern
      even if the surface content differs, inviting the reader to compare them?
    - 重複詞句 AT THE MACRO LEVEL (a word, phrase, or key term recurring across DIFFERENT units,
-     not just within one) — e.g. the same Greek/Hebrew concept-word or its translation appearing
-     in an early unit and again in a later, structurally distant unit, often marking escalation
-     or resolution (e.g. "authority" (ἐξουσία) named in a synagogue-teaching unit and again, at
-     a deeper level, in a much later forgiveness-of-sins unit — the repetition itself is the
-     author's signal that the two scenes are in dialogue with each other).
+     not just within one) — the same concept-word appearing in an early unit and again in a
+     later, structurally distant unit, marking that the two scenes are in dialogue.
+   - 遞進觀念 AT THE MACRO LEVEL (escalation across units): the clearest and strongest kind of
+     inter-unit relationship — a word, claim, or theme that does not just REPEAT across two
+     units but INTENSIFIES, where the second occurrence makes a stronger or more consequential
+     claim than the first (e.g. "authority" (ἐξουσία) named where the crowd marvels at authority
+     over unclean spirits in one unit, then named again where Jesus claims authority to forgive
+     sins in a later unit — the second claim is categorically greater than the first, and the
+     repeated word is the author's signal tracking that escalation). When this pattern exists,
+     prefer it — it produces the sharpest inter-unit questions, per direct comparison testing.
+
+   WHAT MAKES AN INTER-UNIT QUESTION STRONG — use this as the bar, not just "do these look
+   similar": (1) cite the EXACT verse locations of BOTH occurrences of the linking feature, so
+   the learner has a precise textual anchor rather than an open-ended "are these similar?";
+   (2) name the specific linking feature itself (the repeated word, the shared action-sequence)
+   directly in the question, don't leave the learner to guess what to compare; (3) commit to
+   ONE clear payoff rather than splitting the question across two purposes — if there is a
+   second, distinct insight (e.g. what a specific character's identity within one of the units
+   reveals), that belongs in a SEPARATE question tagged to that unit alone, not folded into the
+   inter-unit question; (4) FOR INCLUSIO SPECIFICALLY, the question must ask not just "are the
+   opening and closing units similar" but what the BRACKETING ITSELF accomplishes for the
+   material framed between them — a frame's real payoff is that it tells the reader how to
+   interpret everything inside it, not merely that two endpoints resemble each other.
+
    DO NOT STOP AFTER FINDING ONE RELATIONSHIP. It is common, especially in Gospel narratives,
    for a passage to contain MORE THAN ONE genuine inter-unit relationship simultaneously — e.g.
-   an inclusio bracketing the whole passage AND a separate word-repetition pattern linking two
-   inner units. Check systematically across all units before moving to Step 2; write ONE
-   question PER genuine relationship you find (not one question total for the whole bank) —
-   if you find three genuine relationships, write three inter-unit questions; if you find none,
-   write none. Do not manufacture a pattern that isn't really there — most SHORT passages will
-   have zero or one such relationship, and that is fine.
+   an inclusio bracketing the whole passage AND a separate escalation pattern linking two inner
+   units. Check systematically across all units before moving to Step 2; write ONE question PER
+   genuine relationship you find (not one question total for the whole bank) — if you find three
+   genuine relationships, write three inter-unit questions; if you find none, write none. Do not
+   manufacture a pattern that isn't really there — most SHORT passages will have zero or one
+   such relationship, and that is fine.
    Each inter-unit question uses a combined verse tag referencing the units involved (e.g.
    [V.1:16-20, 2:13-17] or [V.1:21-28, 2:1-12]). This is a distinct question type from anything
    else in the bank — its whole purpose is to lift the learner's eyes from individual units to
    the passage's larger architecture. Tag each at whichever level (觀察/詮釋) fits — noticing
-   the parallel itself is 觀察; asking what the relationship accomplishes theologically is 詮釋.
+   the relationship itself is 觀察; asking what it accomplishes theologically is 詮釋.
 
 F. MAP OUT THE QUESTION BANK BEFORE WRITING IT. List, in verse order, which section of
    the passage each planned question will target and at which level (觀察/詮釋/應用).
