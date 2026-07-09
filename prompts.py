@@ -968,13 +968,33 @@ D. IDENTIFY 2-3 MISREADINGS this passage corrects in its primary audience — wh
    assumption is the passage arguing against? (Retained from the prior format — this
    remains valuable for calibrating interpretation-level questions.)
 
-E. MAP OUT THE QUESTION BANK BEFORE WRITING IT. List, in verse order, which section of
+E. FOR PASSAGES WITH MULTIPLE UNITS (per your C2 density map) — SCAN FOR RELATIONSHIPS
+   BETWEEN THE UNITS, not just within each one. Once several units are identified, step back
+   and ask: does an earlier unit and a later unit share a pattern? Two structures are worth
+   checking for specifically:
+   - 循環關係 (Inclusio / bracketing): does the passage's OPENING unit and CLOSING unit mirror
+     each other — same type of scene, same key action or phrase, same character-role — framing
+     everything between them? (e.g. two call narratives with the same "follow me" pattern and
+     immediate-response structure bracketing a set of controversy stories between them)
+   - 映襯 (Parallelism): do two or more NON-ADJACENT units follow the same underlying pattern
+     even if the surface content differs, inviting the reader to compare them?
+   If you find a genuine inter-unit relationship (not a forced one — most passages will NOT
+   have this, and that is fine; do not manufacture a pattern that isn't really there), write
+   ONE additional question that asks the learner to notice the relationship directly, using a
+   combined verse tag referencing both units (e.g. [V.1:16-20, 2:13-17]). This is a distinct
+   question type from anything else in the bank — its whole purpose is to lift the learner's
+   eyes from individual units to the passage's larger architecture. Tag it at whichever level
+   (觀察/詮釋) fits — noticing the parallel itself is 觀察; asking what the frame accomplishes
+   theologically is 詮釋.
+
+F. MAP OUT THE QUESTION BANK BEFORE WRITING IT. List, in verse order, which section of
    the passage each planned question will target and at which level (觀察/詮釋/應用).
    Cross-check this map against your density map (step C2) — every HIGH density unit,
    including the opening and closing check, should have at least one question; LOW
-   density units may legitimately have none. Check this map for the non-overlap
-   constraint above BEFORE proceeding to Step 2 — catching a gap or a redundancy at the
-   planning stage is far cheaper than fixing it after questions are written.
+   density units may legitimately have none. Include the inter-unit relationship question
+   from step E if one was found. Check this map for the non-overlap constraint above BEFORE
+   proceeding to Step 2 — catching a gap or a redundancy at the planning stage is far
+   cheaper than fixing it after questions are written.
 
 STEP 2 — WRITE THE QUESTION BANK:
 
@@ -1028,6 +1048,12 @@ CRITICAL OUTPUT RULES:
    NON-CONTIGUOUS VERSE REFERENCES ARE ALLOWED when a question tracks a feature that spans
    separated verses — e.g. [V.24, 26, 28] for a threefold repeated phrase, or [V.1, 6-7] for
    a comparison between two separated sections. Use commas to separate non-contiguous parts.
+   CHAPTER NOTATION — DECIDE ONCE, APPLY CONSISTENTLY THROUGHOUT THE WHOLE BANK: if the
+   passage requested is entirely within a single chapter, omit the chapter number in every
+   tag (e.g. [V.21-28]). If the passage requested SPANS MORE THAN ONE CHAPTER, include the
+   chapter number in EVERY tag in the bank, with NO space after "V." and a colon between
+   chapter and verse (e.g. [V.1:21-28], [V.2:1-12]) — never mix the two notations within one
+   bank, and never insert a space between "V." and the chapter number.
 2. Questions must be ordered by verse position (using the FIRST verse number in each tag
    for ordering), not grouped by level. When more than one question shares the same verse
    range (see governing constraint above), order them observation → interpretation →
