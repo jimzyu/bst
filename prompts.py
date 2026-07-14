@@ -983,6 +983,21 @@ D. IDENTIFY 2-3 MISREADINGS this passage corrects in its primary audience — wh
    assumption is the passage arguing against? (Retained from the prior format — this
    remains valuable for calibrating interpretation-level questions.)
 
+D2. IDENTIFY LIKELY MODERN-READER MISREADINGS — added 2026-07-14, parallel to but
+    distinct from step D above: step D is about the wrong assumption the ORIGINAL
+    audience held; this is about a wrong REASONING PATTERN a modern learner is likely to
+    fall into when answering one of the questions you are about to write, drawn from this
+    fixed set of six: 斷章取義 (context-stripping — ignoring what precedes/follows),
+    以偏概全 (overgeneralization — one case treated as an absolute rule), 同一律/
+    equivocation (a term shifting meaning mid-answer), argument-from-silence (concluding
+    from what the text does NOT say), root-fallacy (a word's origin overriding its actual
+    usage here), forced-harmonization (an apparent tension resolved too quickly without
+    being named honestly). Most questions will trigger none of these — only flag one where
+    a specific, likely wrong turn is genuinely foreseeable for THAT question on THIS
+    passage, not as a routine check applied to every question. See FORMAT below for how
+    to attach this to a specific question — it is an internal tag, never shown to the
+    learner directly.
+
 E. FOR PASSAGES WITH MULTIPLE UNITS (per your C2 density map) — SCAN FOR RELATIONSHIPS
    BETWEEN THE UNITS, not just within each one. Once several units are identified, check EVERY
    plausible pair, not just the most obvious one (the opening/closing pair is the most visually
@@ -1086,13 +1101,18 @@ FORMAT — return as a single tagged list, ordered by verse position:
 
 [QUESTION_BANK_CHINESE]
 
-[V.{{verse_range}}] [{{level}}] {{question text in Chinese}}
+[V.{{verse_range}}] [{{level}}] {{question text in Chinese}}[MISREAD: <pattern name>]
+
+(the [MISREAD: ...] tag is OPTIONAL — include it ONLY when step D2 identified a specific
+likely modern-reader misreading for THIS question; omit it entirely for questions where
+none applies, which will be most questions. When present, place it immediately after the
+question text, before the next [V....] tag, with no blank line in between.)
 
 (repeat for all 8-12 questions, in verse order)
 
 [QUESTION_BANK_ENGLISH]
 
-[V.{{verse_range}}] [{{level}}] {{English translation of each question, same order}}
+[V.{{verse_range}}] [{{level}}] {{English translation of each question, same order}}[MISREAD: <same pattern name as the Chinese section, in English>]
 
 CRITICAL OUTPUT RULES:
 1. Use exactly the tag format [V.X-Y] [level] — level is one of 觀察/詮釋/應用 in the
@@ -1107,6 +1127,10 @@ CRITICAL OUTPUT RULES:
    chapter number in EVERY tag in the bank, with NO space after "V." and a colon between
    chapter and verse (e.g. [V.1:21-28], [V.2:1-12]) — never mix the two notations within one
    bank, and never insert a space between "V." and the chapter number.
+1b. The optional trailing [MISREAD: ...] tag (see step D2 and FORMAT above) must use the
+    SAME pattern name in both the Chinese and English sections for the same question (e.g.
+    both say "以偏概全," or both say "root-fallacy" — do not translate the pattern name
+    differently in each section). Use it sparingly — most questions should have none.
 2. Questions must be ordered by verse position, not grouped by level. For a single-unit tag,
    this means the first verse number in the tag. FOR COMBINED/INTER-UNIT TAGS (step E), order
    by the LATER unit referenced, NOT the earlier one — an inter-unit question compares two

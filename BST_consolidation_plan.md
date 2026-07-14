@@ -86,11 +86,15 @@ views.
 
 ## 3. Staged plan
 
-1. **Port step G into `QUESTION_BANK_TEMPLATE`.** Small, immediate, no design risk.
-   Closes a gap created today — step G (modern-reader misreading identification) only
-   exists in `LESSON_PLAN_TEMPLATE` right now, confirmed working live in the 2 Cor
-   6:11-7:4 test (Q4/Q5 correctly named 斷章取義 and 以偏概全). Not yet ported to the
-   bank, so the two paths are already inconsistent with each other on this point.
+1. **~~Port step G into `QUESTION_BANK_TEMPLATE`.~~ DONE 2026-07-14.** Turned out to need
+   a parser change too, not just a prompt change — `QuestionBankParser`'s regex would have
+   shown a `[MISREAD: ...]` tag to the student verbatim without it. New `misread` field
+   added to the parsed structure (`None` for the common no-tag case), not yet consumed by
+   anything downstream — that's for steps 3-4, where it can hint `EVALUATION_TEMPLATE`'s
+   `[PATTERN: ...]` flag for whichever bank question a student actually answers. Also
+   corrected an assumption from this plan's original scoping: Question Bank already had
+   parity with Lesson Plan's *original-audience* misreading step (its own step D) — the
+   real gap was narrower, just the modern-reader half. Not yet tested live.
 
 2. **Promote `QUESTION_BANK_TEMPLATE`'s Step 1 to a canonical shared core analysis.**
    It's already the most developed of the five paths — density mapping, inter-unit

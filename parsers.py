@@ -531,6 +531,16 @@ class QuestionBankParser:
         re.DOTALL
     )
 
+    # Matches an optional trailing [MISREAD: <pattern>] tag at the end of a
+    # captured question block — added 2026-07-14 alongside QUESTION_BANK_TEMPLATE's
+    # new step D2. Must be stripped from the display text and returned separately;
+    # it is an internal annotation (feeds EVALUATION_TEMPLATE's [PATTERN: ...] tag
+    # later), never shown to the learner directly.
+    _MISREAD_PATTERN = re.compile(
+        r'\s*\[MISREAD:\s*(.+?)\]\s*$',
+        re.IGNORECASE | re.DOTALL
+    )
+
     # Normalises whichever level label the model used (Chinese or English,
     # either language's section) to one canonical internal key.
     _LEVEL_MAP = {
@@ -543,13 +553,21 @@ class QuestionBankParser:
     def _extract_section(cls, text: str) -> list[dict]:
         """Extract all [V.x] [level] question entries from one language section."""
         results = []
-        for verse_range, level_raw, question in cls._QUESTION_PATTERN.findall(text):
+        for verse_range, level_raw, question_raw in cls._QUESTION_PATTERN.findall(text):
             level_key = cls._LEVEL_MAP.get(level_raw.strip(), level_raw.strip().lower())
+            misread_match = cls._MISREAD_PATTERN.search(question_raw)
+            if misread_match:
+                misread = misread_match.group(1).strip()
+                question = question_raw[:misread_match.start()].strip()
+            else:
+                misread = None
+                question = question_raw.strip()
             results.append({
                 "verse_range": verse_range.strip(),
                 "level": level_key,
                 "level_label": level_raw.strip(),  # original label, for display
-                "question": question.strip(),
+                "question": question,
+                "misread": misread,  # None if step D2 found nothing for this question
             })
         return results
 
@@ -605,6 +623,11 @@ class QuestionBankParser:
                 "level_label_en": en["level_label"],
                 "zh": ch["question"],
                 "en": en["question"],
+                # Prefer the Chinese section's tag if both are present but differ
+                # (shouldn't happen per the prompt's instruction to match them,
+                # but don't fail silently if the model didn't comply); None if
+                # step D2 found nothing for this question, which is the common case.
+                "misread": ch["misread"] or en["misread"],
             })
 
         # Group consecutive entries sharing the same verse_range into one
@@ -616,6 +639,7 @@ class QuestionBankParser:
                     "zh": entry["zh"], "en": entry["en"],
                     "level_label_zh": entry["level_label_zh"],
                     "level_label_en": entry["level_label_en"],
+                    "misread": entry["misread"],
                 }
             else:
                 grouped.append({
@@ -628,6 +652,7 @@ class QuestionBankParser:
                             "zh": entry["zh"], "en": entry["en"],
                             "level_label_zh": entry["level_label_zh"],
                             "level_label_en": entry["level_label_en"],
+                            "misread": entry["misread"],
                         }
                     }
                 })
@@ -646,6 +671,14 @@ class QuestionBankParser:
         single ordered list of individual questions, each tagged with its
         verse range and level. Useful for a simple UI that just wants to
         iterate questions in verse order without caring about grouping.
+
+        Each entry includes "misread" (str | None) — the internal step-D2
+        annotation naming a likely modern-reader misreading for this specific
+        question, added 2026-07-14. None for the common case where no
+        specific misreading was foreseeable. This is NOT display text — do
+        not show it to the learner; it exists to eventually feed
+        EVALUATION_TEMPLATE's [PATTERN: ...] hint when this question is
+        answered (see NOTES.md "BST Consolidation Plan").
         """
         flat = []
         for group in parsed.get("questions", []):
@@ -659,5 +692,6 @@ class QuestionBankParser:
                         "level_label_en": q["level_label_en"],
                         "zh": q["zh"],
                         "en": q["en"],
+                        "misread": q.get("misread"),
                     })
         return flat
