@@ -1141,7 +1141,14 @@ FORMAT — return as a single tagged list, ordered by verse position:
 (the [MISREAD: ...] tag is OPTIONAL — include it ONLY when step D2 identified a specific
 likely modern-reader misreading for THIS question; omit it entirely for questions where
 none applies, which will be most questions. When present, place it immediately after the
-question text, before the next [V....] tag, with no blank line in between.)
+question text, before the next [V....] tag, with no blank line in between.
+CRITICAL — added 2026-07-14 after a live-test finding: the tag content must be ONE OF THE
+SIX PATTERN NAMES ONLY (斷章取義 / 以偏概全 / 同一律 / argument-from-silence / root-fallacy
+/ forced-harmonization), never a full sentence describing the misconception. WRONG:
+[MISREAD: 認為只要不是蓄意偷竊，因疏忽造成的損失就不需要賠償] — this is a description, not
+a pattern name. RIGHT: [MISREAD: 以偏概全] — if you find yourself writing more than the
+pattern name itself inside the brackets, you are doing it wrong; the specific misconception
+belongs in the question text itself, not the tag.)
 
 (repeat for all 8-12 questions, in verse order)
 
@@ -1436,7 +1443,14 @@ FORMAT — return as a single tagged list, ordered by verse position:
 (the [MISREAD: ...] tag is OPTIONAL — include it ONLY when step D2 identified a specific
 likely modern-reader misreading for THIS question; omit it entirely for questions where
 none applies, which will be most questions. When present, place it immediately after the
-question text, before the next [V....] tag, with no blank line in between.)
+question text, before the next [V....] tag, with no blank line in between.
+CRITICAL — added 2026-07-14 after a live-test finding: the tag content must be ONE OF THE
+SIX PATTERN NAMES ONLY (斷章取義 / 以偏概全 / 同一律 / argument-from-silence / root-fallacy
+/ forced-harmonization), never a full sentence describing the misconception. WRONG:
+[MISREAD: 認為只要不是蓄意偷竊，因疏忽造成的損失就不需要賠償] — this is a description, not
+a pattern name. RIGHT: [MISREAD: 以偏概全] — if you find yourself writing more than the
+pattern name itself inside the brackets, you are doing it wrong; the specific misconception
+belongs in the question text itself, not the tag.)
 
 (repeat for all 8-12 questions, in verse order)
 

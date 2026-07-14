@@ -115,10 +115,16 @@ views.
    narrative. Consistency across independent runs held up. Cost finding stands: for one
    bank in isolation the two-call approach is not cheaper — the saving is in avoiding
    redundant analysis across multiple consumers, which only materializes at step 4.
-   **Still open:** the negative-case question (does the model correctly report near-
-   nothing when little is genuinely there) — Mark 5 turned out structurally richer than
-   expected, so this wasn't actually tested. A third, deliberately low-structure passage
-   is queued in NOTES.md Pending Tests.
+   **A third live test (Exodus 22:1-15, law genre) confirmed the parser fix was durable**
+   (counts matched a manual count of raw text exactly, no repeat of the bug) and gave a
+   more nuanced answer to the negative-case question than a simple pass/fail: rather than
+   reporting fewer relationships, the model found a genre-appropriate DIFFERENT KIND of
+   relationship (comparative legal logic, not an envelope structure) — arguably a better
+   demonstration of restraint than a lower count would have been. One small new finding
+   (a `[MISREAD:...]` tag drifting into free text instead of a pattern name) was caught and
+   fixed the same day. **Three genres now validated (epistle, narrative, law); step 2 is
+   considered sufficiently tested to build on — see NOTES.md for full detail on all three
+   tests.**
 
 3. **Make the question bank the single source of questions**, generated once per
    passage from that core analysis.
