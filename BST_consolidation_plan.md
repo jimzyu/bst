@@ -97,22 +97,28 @@ views.
    real gap was narrower, just the modern-reader half. Not yet tested live.
 
 2. **~~Promote `QUESTION_BANK_TEMPLATE`'s Step 1 to a canonical shared core analysis.~~
-   DONE 2026-07-14, LIVE-TESTED 2026-07-14.** Extracted steps A-E into `CORE_ANALYSIS_TEMPLATE` +
-   `get_core_analysis_prompt()`, producing a real, structured, output-format artifact for
-   the first time (previously this reasoning existed only inside one call, explicitly
-   marked "do not include in output"). Added a consume-mode `QUESTION_BANK_FROM_ANALYSIS_TEMPLATE`
-   and a new `CoreAnalysisParser`. `QUESTION_BANK_TEMPLATE` itself is untouched — mechanically
-   verified byte-identical, and `get_question_bank_prompt()`'s no-argument path confirmed
-   unchanged. A real multi-range parsing bug was caught in testing (not before it) and fixed.
+   DONE 2026-07-14, LIVE-TESTED 2026-07-14 (twice, with a correction along the way).**
+   Extracted steps A-E into `CORE_ANALYSIS_TEMPLATE` + `get_core_analysis_prompt()`,
+   producing a real, structured, output-format artifact for the first time. Added a
+   consume-mode `QUESTION_BANK_FROM_ANALYSIS_TEMPLATE` and a new `CoreAnalysisParser`.
+   `QUESTION_BANK_TEMPLATE` itself is untouched — mechanically verified byte-identical.
 
-   **Live test (2 Cor 6:11-7:4, Gemini 3.5 Flash) passed cleanly** — well-formed output,
-   sparse sections meaningfully populated (found an inter-unit relationship the test didn't
-   anticipate), the inclusio confirmed a third independent time, `[MISREAD:...]` tags
-   well-targeted, consistency across independent runs comparable to the existing baseline.
-   **Honest finding: for one bank in isolation, the two-call approach costs slightly MORE
-   (~22,960 chars across two calls vs 21,269 in one) — the cost case was always about
-   avoiding redundant analysis across multiple consumers, not a single-bank saving, and
-   that only materializes once step 4 lands.** Full detail in NOTES.md.
+   **First live test (2 Cor 6:11-7:4) was initially reported as passing cleanly — this was
+   wrong.** A second live test (Mark 5:1-20) surfaced a real parser bug (the model uses a
+   fullwidth Chinese colon `：` as the category/note separator; the regex only handled
+   ASCII `:`) that had ALSO silently corrupted test 1's results — a plausible-looking count
+   masked garbled field contents. Fixed and re-verified against both real outputs (not
+   synthetic data, which never exercised this path). Full correction in NOTES.md.
+
+   **Genuine result once correctly parsed:** both tests now show clean, well-grounded
+   content across genres (epistle, narrative), with 情節高潮 correctly firing for
+   narrative. Consistency across independent runs held up. Cost finding stands: for one
+   bank in isolation the two-call approach is not cheaper — the saving is in avoiding
+   redundant analysis across multiple consumers, which only materializes at step 4.
+   **Still open:** the negative-case question (does the model correctly report near-
+   nothing when little is genuinely there) — Mark 5 turned out structurally richer than
+   expected, so this wasn't actually tested. A third, deliberately low-structure passage
+   is queued in NOTES.md Pending Tests.
 
 3. **Make the question bank the single source of questions**, generated once per
    passage from that core analysis.

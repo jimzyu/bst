@@ -731,16 +731,34 @@ class CoreAnalysisParser:
     _BLOCK_PATTERN = re.compile(
         r'\[CORE_ANALYSIS\](.*?)\[END_CORE_ANALYSIS\]', re.DOTALL
     )
-    _GENRE_PATTERN = re.compile(r'GENRE:\s*(.+)')
-    _CLAIM_PATTERN = re.compile(r'CENTRAL_CLAIM:\s*(.+)')
+    _GENRE_PATTERN = re.compile(r'GENRE[:\uff1a]\s*(.+)')
+    _CLAIM_PATTERN = re.compile(r'CENTRAL_CLAIM[:\uff1a]\s*(.+)')
     # Captures the WHOLE bracket content as one group (single range or multiple,
     # comma-separated, each optionally prefixed "V."), then the category/type label,
     # then the note. Splitting multi-range content is done in a second step below —
     # NOT by trying to match each range with its own regex group, which fails to
     # split "6:11-13, V.7:2-4" correctly (see 2026-07-14 test finding: a greedy
     # single-group match swallowed a second "V." range whole instead of splitting on it).
+    #
+    # BUG FOUND AND FIXED 2026-07-14, live test 2 (Mark 5:1-20): the model consistently
+    # writes the category/note separator as a FULLWIDTH colon "：" (U+FF1A), not ASCII
+    # ":" — natural since the surrounding text is Chinese. The original pattern only
+    # excluded/matched ASCII ":", so [^:]+ treated "：" as an ordinary character and kept
+    # consuming past it, across the newline, into the NEXT [V...] line's own bracket and
+    # content, before finally stopping at whatever ASCII ":" it found next (often inside
+    # a later multi-chapter verse tag like "V.6:14-16"). This was worse than an obvious
+    # failure: live test 1 (2 Cor 6:11-7:4, a multi-chapter reference whose verse tags
+    # happen to contain ASCII colons) still returned a plausible-looking COUNT (e.g.
+    # "textual_features found: 3") while the actual category/note fields were silently
+    # garbled — bleeding across multiple lines. Live test 2 (Mark 5:1-20, single-chapter,
+    # no ASCII colons anywhere in its verse tags per CORE_ANALYSIS_TEMPLATE's own tag
+    # convention) had nothing for the runaway match to latch onto, so it failed to match
+    # at all and correctly reported 0 — a more visible, more honest failure than test 1's
+    # quietly-wrong 3. Neither run was actually correct before this fix. Confirmed fixed
+    # against BOTH real live outputs (not just synthetic test data, which used ASCII
+    # colons throughout and never exercised this path) — see NOTES.md for full detail.
     _TAGGED_LINE_PATTERN = re.compile(
-        r'\[([^\]]+)\]\s*([^:]+):\s*(.+)'
+        r'\[([^\]]+)\]\s*([^:\uff1a]+)[:\uff1a]\s*(.+)'
     )
     _BULLET_PATTERN = re.compile(r'^\s*-\s*(.+)$', re.MULTILINE)
 
