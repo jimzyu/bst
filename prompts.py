@@ -880,6 +880,336 @@ Reference: "{ref}"
 
 
 
+    # Added 2026-07-14 — BST Consolidation Plan step 2. Extracts QUESTION_BANK_TEMPLATE's
+    # Step 1 (A-E) into its own standalone, output-producing artifact, so it can be
+    # generated ONCE per passage and reused by multiple features instead of each one
+    # re-deriving it independently. QUESTION_BANK_TEMPLATE itself is UNCHANGED below —
+    # this is purely additive. See NOTES.md "BST Consolidation Plan" for the full design.
+    CORE_ANALYSIS_TEMPLATE = """
+Perform a complete passage analysis for: "{ref}"
+
+This analysis is the SHARED FOUNDATION for BST's question bank, lesson plan, and related features (see NOTES.md "BST Consolidation Plan," step 2, 2026-07-14) — it is generated ONCE per passage and reused, rather than each feature re-deriving its own version independently. Do the analysis with that shared, downstream use in mind: be precise and verse-anchored, not just adequate for one immediate purpose.
+
+STEP 1 — INTERNAL ANALYSIS (do NOT include in output):
+
+A. Identify the passage's genre (narrative / epistle / prophecy / poetry / law). This
+   determines which observation categories in step C are likely to apply — do not force
+   a category that doesn't fit this genre (e.g. do not manufacture a narrative climax in
+   a poem; substitute a structural/tonal shift instead where relevant).
+
+B. Identify the passage's CENTRAL CLAIM — the single most important theological assertion
+   the author makes. Everything else serves this centre.
+
+C. SCAN FOR KEY TEXTUAL FEATURES — a disciplined look at what is actually in the text,
+   separate from and prior to interpretation. For each feature found, note WHICH VERSES
+   it occurs in, so overlap can be checked later. Categories (use what genuinely applies;
+   not every passage has all of these):
+   - 對比/映襯 (Contrast): two things placed side by side to sharpen each other by difference
+   - 重複詞句 (Repetition): a word, phrase, or pattern recurring across the passage
+   - 主要連接詞 (Governing connectives): "therefore," "because," "but," "so that" and the
+     argumentative move each one makes
+   - 因果關係 (Causation): one thing stated or implied to produce another
+   - 遞進觀念 (Progression): an argument building in escalating, intensifying steps
+   - 神學觀念/鑰字 (Theological concepts/key terms): words carrying unusual argumentative weight
+   - 命令/應許 (Commands/Promises): direct imperatives or stated assurances
+   - 情節高潮 (Narrative climax — narrative passages only): the moment a story turns on
+
+C2. MAP THE PASSAGE'S THEOLOGICAL DENSITY — this determines how many questions the bank
+    needs and where they belong. Divide the passage into its natural sub-units (not
+    mechanical verse chunks — genuine units: a scene, an argument-step, a stanza, a
+    greeting, a list). For EACH unit, judge its density as HIGH (a thesis statement,
+    title/superscription, a turning point, a theologically loaded claim — deserves at
+    least one question, often more) or LOW (connective tissue — travel plans, a greeting's
+    routine pleasantries, a transitional phrase — may need only brief or no dedicated
+    question if genuinely thin).
+    MANDATORY CHECK — do this explicitly, every time, before moving on: examine the
+    passage's OPENING few verses and CLOSING few verses specifically. Openings very
+    often contain a title, thesis, or superscription that the rest of the passage
+    depends on (e.g. Mark 1:1 names the whole book's subject; Romans 1:16-17 states the
+    letter's thesis; a psalm's opening line often sets its entire frame) — these are
+    HIGH density by default and must not be silently skipped even when a more visually
+    "active" scene later in the passage draws attention away from them. If, after
+    genuine consideration, the opening or closing verses really are low-density
+    connective material, that is an acceptable conclusion — but it must be a decision,
+    not an omission.
+    Let the passage's LENGTH interact with density, not override it: a SHORT passage
+    where most units are high-density (e.g. Psalm 23) naturally supports going deep on
+    most of it, including same-range stacking (see constraint above) across many units.
+    A LONG passage with several genuinely low-density connective units (e.g. a letter's
+    travel-plan report) should NOT be padded with a question for every unit merely to
+    "cover" it — spend the bank's attention on the high-density units, and it is fine
+    for low-density units to receive brief or no dedicated question, once that judgment
+    has genuinely been made rather than defaulted into.
+
+D. IDENTIFY 2-3 MISREADINGS this passage corrects in its primary audience — what wrong
+   assumption is the passage arguing against? (Retained from the prior format — this
+   remains valuable for calibrating interpretation-level questions.)
+
+D2. IDENTIFY LIKELY MODERN-READER MISREADINGS — added 2026-07-14, parallel to but
+    distinct from step D above: step D is about the wrong assumption the ORIGINAL
+    audience held; this is about a wrong REASONING PATTERN a modern learner is likely to
+    fall into when answering one of the questions you are about to write, drawn from this
+    fixed set of six: 斷章取義 (context-stripping — ignoring what precedes/follows),
+    以偏概全 (overgeneralization — one case treated as an absolute rule), 同一律/
+    equivocation (a term shifting meaning mid-answer), argument-from-silence (concluding
+    from what the text does NOT say), root-fallacy (a word's origin overriding its actual
+    usage here), forced-harmonization (an apparent tension resolved too quickly without
+    being named honestly). Most questions will trigger none of these — only flag one where
+    a specific, likely wrong turn is genuinely foreseeable for THAT question on THIS
+    passage, not as a routine check applied to every question. See FORMAT below for how
+    to attach this to a specific question — it is an internal tag, never shown to the
+    learner directly.
+
+E. FOR PASSAGES WITH MULTIPLE UNITS (per your C2 density map) — SCAN FOR RELATIONSHIPS
+   BETWEEN THE UNITS, not just within each one. Once several units are identified, check EVERY
+   plausible pair, not just the most obvious one (the opening/closing pair is the most visually
+   salient candidate and easiest to spot — do not let finding it stop you from checking others).
+   IMPORTANT: check ALL units identified in your C2 division, INCLUDING units you rated LOW
+   density and gave no individual question to. Standalone density and relational significance
+   are DIFFERENT things — a unit can be too thin to deserve its own question yet still matter
+   because of how it connects to another unit elsewhere in the passage (e.g. a brief, easily
+   overlooked healing scene may share a meaningful action or motif — such as Jesus physically
+   touching someone — with a much more prominent healing scene later; the two only become
+   individually significant when read together). Do not silently narrow this scan to only the
+   HIGH-density units you already selected for their own questions.
+   FOUR structures are worth checking for specifically:
+   - 循環關係 (Inclusio / bracketing): does the passage's OPENING unit and CLOSING unit mirror
+     each other — same type of scene, same key action or phrase, same character-role — framing
+     everything between them?
+   - 映襯 (Parallelism): do two or more NON-ADJACENT units follow the same underlying pattern
+     even if the surface content differs, inviting the reader to compare them?
+   - 重複詞句 AT THE MACRO LEVEL (a word, phrase, or key term recurring across DIFFERENT units,
+     not just within one) — the same concept-word appearing in an early unit and again in a
+     later, structurally distant unit, marking that the two scenes are in dialogue.
+   - 遞進觀念 AT THE MACRO LEVEL (escalation across units): the clearest and strongest kind of
+     inter-unit relationship — a word, claim, or theme that does not just REPEAT across two
+     units but INTENSIFIES, where the second occurrence makes a stronger or more consequential
+     claim than the first (e.g. "authority" (ἐξουσία) named where the crowd marvels at authority
+     over unclean spirits in one unit, then named again where Jesus claims authority to forgive
+     sins in a later unit — the second claim is categorically greater than the first, and the
+     repeated word is the author's signal tracking that escalation). When this pattern exists,
+     prefer it — it produces the sharpest inter-unit questions, per direct comparison testing.
+
+   WHAT MAKES AN INTER-UNIT QUESTION STRONG — use this as the bar, not just "do these look
+   similar": (1) cite the EXACT verse locations of BOTH occurrences of the linking feature, so
+   the learner has a precise textual anchor rather than an open-ended "are these similar?";
+   (2) name the specific linking feature itself (the repeated word, the shared action-sequence)
+   directly in the question, don't leave the learner to guess what to compare; (3) commit to
+   ONE clear payoff rather than splitting the question across two purposes — if there is a
+   second, distinct insight (e.g. what a specific character's identity within one of the units
+   reveals), that belongs in a SEPARATE question tagged to that unit alone, not folded into the
+   inter-unit question; (4) FOR INCLUSIO SPECIFICALLY, the question must ask not just "are the
+   opening and closing units similar" but what the BRACKETING ITSELF accomplishes for the
+   material framed between them — a frame's real payoff is that it tells the reader how to
+   interpret everything inside it, not merely that two endpoints resemble each other.
+
+   DO NOT STOP AFTER FINDING ONE RELATIONSHIP. It is common, especially in Gospel narratives,
+   for a passage to contain MORE THAN ONE genuine inter-unit relationship simultaneously — e.g.
+   an inclusio bracketing the whole passage AND a separate escalation pattern linking two inner
+   units. Check systematically across all units before moving to Step 2; write ONE question PER
+   genuine relationship you find (not one question total for the whole bank) — if you find three
+   genuine relationships, write three inter-unit questions; if you find none, write none. Do not
+   manufacture a pattern that isn't really there — most SHORT passages will have zero or one
+   such relationship, and that is fine.
+   Each inter-unit question uses a combined verse tag referencing the units involved (e.g.
+   [V.1:16-20, 2:13-17] or [V.1:21-28, 2:1-12]). This is a distinct question type from anything
+   else in the bank — its whole purpose is to lift the learner's eyes from individual units to
+   the passage's larger architecture. Tag each at whichever level (觀察/詮釋) fits — noticing
+   the relationship itself is 觀察; asking what it accomplishes theologically is 詮釋.
+
+
+
+═══════════════════════════════════════════════════════════════
+OUTPUT FORMAT — added 2026-07-14 for standalone use. This analysis is now a SHARED
+artifact, reused by the question bank, lesson plan, and (eventually) other BST features —
+unlike prior uses of this same analysis process, THIS call must actually OUTPUT it, using
+the exact structure below, not silently discard it.
+
+[CORE_ANALYSIS]
+
+GENRE: <one word or short phrase — narrative / epistle / prophecy / poetry / law>
+
+CENTRAL_CLAIM: <one sentence — the single most important theological assertion, per step B>
+
+TEXTUAL_FEATURES:
+[V.<verse range>] <category from step C, e.g. 對比, 重複詞句, 因果關係>: <what was noticed>
+(one line per feature found in step C — omit this whole section if genuinely none apply)
+
+DENSITY_MAP:
+[V.<verse range>] <HIGH|LOW>: <short unit description, per step C2>
+(one line per natural sub-unit identified in step C2, in verse order)
+
+MISREADINGS_ORIGINAL_AUDIENCE:
+- <misreading 1, per step D>
+- <misreading 2>
+(2-3 items, per step D)
+
+MISREADINGS_MODERN_READER:
+[V.<verse range>] <pattern name>: <why this specific pattern is foreseeable here>
+(0 or more lines, per step D2 — most passages will have few or none; do not pad this list)
+
+INTER_UNIT_RELATIONSHIPS:
+[V.<range 1>, V.<range 2>] <inclusio | parallelism | repetition | progression>: <what the relationship accomplishes>
+(0 or more lines, per step E — most short passages will have zero or one; do not manufacture one that isn't genuinely there)
+
+[END_CORE_ANALYSIS]
+
+Output ONLY this block — no preamble, no meta-commentary, no restating the reference.
+═══════════════════════════════════════════════════════════════
+
+Reference: "{ref}"
+"""
+
+    # Added 2026-07-14 — consumes a pre-computed CORE_ANALYSIS_TEMPLATE output (via the
+    # {core_analysis} placeholder) instead of re-deriving steps A-E. Shares step F and
+    # Step 2 verbatim with the original QUESTION_BANK_TEMPLATE below (same extracted text,
+    # not a separately-maintained copy) so the two paths cannot silently drift apart on
+    # how questions are actually written, only on how the upstream analysis was obtained.
+    QUESTION_BANK_FROM_ANALYSIS_TEMPLATE = """
+
+Generate a single, non-overlapping question bank for: "{ref}"
+
+You are given a PRE-COMPUTED CORE ANALYSIS below — this already performed steps A through E
+of the original process (genre, central claim, textual features, density map, both
+misreading types, inter-unit relationships). DO NOT REDERIVE any of this — use it directly.
+Your only job in this call is step F (map the question bank) and Step 2 (write it).
+
+═══════════════════════════════════════════════════════════════
+PRE-COMPUTED CORE ANALYSIS:
+
+{core_analysis}
+═══════════════════════════════════════════════════════════════
+
+This bank is used by BOTH a facilitator (who picks questions to build a lesson) and a
+student (who picks questions to answer individually). Every question must stand on its own.
+
+THE GOVERNING CONSTRAINT IS "NO REDUNDANT FOCUS" — NOT "NO REVISITING A VERSE RANGE."
+No two questions may ask the learner to notice the SAME textual feature for the SAME
+purpose. The SAME verse range MAY be targeted by more than one question at different
+levels when the verses genuinely support more than one kind of question — this is depth,
+not overlap. Use the DENSITY_MAP and INTER_UNIT_RELATIONSHIPS above to decide where that
+applies, exactly as step F below instructs.
+
+F. MAP OUT THE QUESTION BANK BEFORE WRITING IT. List, in verse order, which section of
+   the passage each planned question will target and at which level (觀察/詮釋/應用).
+   Cross-check this map against your density map (step C2) — every HIGH density unit,
+   including the opening and closing check, should have at least one question; LOW
+   density units may legitimately have none. Include the inter-unit relationship question
+   from step E if one was found. Check this map for the non-overlap constraint above BEFORE
+   proceeding to Step 2 — catching a gap or a redundancy at the planning stage is far
+   cheaper than fixing it after questions are written.
+
+STEP 2 — WRITE THE QUESTION BANK:
+
+Produce 8-12 questions total, spanning the WHOLE passage (not clustering in one section),
+ordered by verse position. Each question is tagged with its verse range and its level.
+
+LEVEL-SPECIFIC GUIDANCE:
+
+觀察 (Observation) questions — anchor tightly to a specific verse range and a specific
+textual feature found in Step 1C. Ask what is there, not what it means.
+Example form: "在v.X-Y中，[specific feature] — [what to notice about it]？"
+
+詮釋 (Interpretation) questions — ask why the author said it this way, what relationship
+exists between two observed features, or what a reading implies for the passage as a whole.
+May reference the misreadings from Step 1D to sharpen the question's diagnostic edge.
+
+應用 (Application) questions — THIS LEVEL HAS A SPECIFIC, VALIDATED TEMPLATE, extracted from
+testing across 6 passages (Mark, Romans, Isaiah, Psalms) where this style consistently produced
+the sharpest, most personally implicating questions in the whole set:
+  1. Name a CONCRETE, SPECIFIC situation or behaviour — not a general feeling or theme.
+     Weak: "How does this challenge you?" Strong: "在最近你對他人的不滿、批評或審判中
+     （無論是口頭上的還是心裡的），你在他人身上所指責的行為，在哪些隱密的地方也同樣
+     存在於你自己的生命中？"
+  2. Where possible, USE THE PASSAGE'S OWN IMAGERY as the vehicle for the question rather
+     than abstract language — e.g. using "癱瘓" (paralysis) from the healing narrative itself
+     to ask about the learner's own hidden paralysis, rather than asking generically "what
+     do you need Jesus to heal?"
+  3. Where it fits naturally, ADD A SECOND, MORE CONFRONTATIONAL LAYER after the first —
+     e.g. following "where do you feel abandoned by God" with "what do you actually turn to
+     instead of waiting on him — your own competence, others' approval, material security?"
+Do not let application questions default to generic "how does this apply to your life"
+phrasing — every application question should be answerable only with a specific, real
+example from the learner's own life, not a general reflection.
+
+FORMAT — return as a single tagged list, ordered by verse position:
+
+[QUESTION_BANK_CHINESE]
+
+[V.{{verse_range}}] [{{level}}] {{question text in Chinese}}[MISREAD: <pattern name>]
+
+(the [MISREAD: ...] tag is OPTIONAL — include it ONLY when step D2 identified a specific
+likely modern-reader misreading for THIS question; omit it entirely for questions where
+none applies, which will be most questions. When present, place it immediately after the
+question text, before the next [V....] tag, with no blank line in between.)
+
+(repeat for all 8-12 questions, in verse order)
+
+[QUESTION_BANK_ENGLISH]
+
+[V.{{verse_range}}] [{{level}}] {{English translation of each question, same order}}[MISREAD: <same pattern name as the Chinese section, in English>]
+
+CRITICAL OUTPUT RULES:
+1. Use exactly the tag format [V.X-Y] [level] — level is one of 觀察/詮釋/應用 in the
+   Chinese section and Observation/Interpretation/Application in the English section.
+   The parser depends on this exact format.
+   NON-CONTIGUOUS VERSE REFERENCES ARE ALLOWED when a question tracks a feature that spans
+   separated verses — e.g. [V.24, 26, 28] for a threefold repeated phrase, or [V.1, 6-7] for
+   a comparison between two separated sections. Use commas to separate non-contiguous parts.
+   CHAPTER NOTATION — DECIDE ONCE, APPLY CONSISTENTLY THROUGHOUT THE WHOLE BANK: if the
+   passage requested is entirely within a single chapter, omit the chapter number in every
+   tag (e.g. [V.21-28]). If the passage requested SPANS MORE THAN ONE CHAPTER, include the
+   chapter number in EVERY tag in the bank, with NO space after "V." and a colon between
+   chapter and verse (e.g. [V.1:21-28], [V.2:1-12]) — never mix the two notations within one
+   bank, and never insert a space between "V." and the chapter number.
+1b. The optional trailing [MISREAD: ...] tag (see step D2 and FORMAT above) must use the
+    SAME pattern name in both the Chinese and English sections for the same question (e.g.
+    both say "以偏概全," or both say "root-fallacy" — do not translate the pattern name
+    differently in each section). Use it sparingly — most questions should have none.
+2. Questions must be ordered by verse position, not grouped by level. For a single-unit tag,
+   this means the first verse number in the tag. FOR COMBINED/INTER-UNIT TAGS (step E), order
+   by the LATER unit referenced, NOT the earlier one — an inter-unit question compares two
+   units, and the learner needs to have already encountered BOTH before being asked to compare
+   them. Placing it by the earlier unit's position (e.g. treating [V.1:21-28, 2:1-12] as if it
+   belonged right after 1:21-28) asks the learner to compare something they have not yet seen —
+   wrong. Place it after the LATER unit's position instead.
+   Within that later unit's own set of questions, the inter-unit question goes AFTER that
+   unit's own observation/interpretation questions (the learner needs the unit's own content
+   established first) but BEFORE that unit's application question if it has one — the
+   inter-unit comparison deepens the interpretation, and that deepened interpretation should
+   feed the application that follows, not arrive after it as an afterthought. Order within a
+   unit is therefore: this unit's own 觀察 → this unit's own 詮釋 → any inter-unit 觀察/詮釋
+   question placing this unit as the LATER member of a pair → this unit's own 應用.
+   When more than one question shares the exact same single-unit verse range (same-range
+   stacking, see governing constraint above), order them observation → interpretation →
+   application within that shared range as before.
+3. THERE IS NO FIXED QUESTION COUNT TARGET. The number of questions must emerge from TWO
+   independent sources, both counted in full — do not let one crowd out the other:
+   (a) your density map (step C2) — one question per HIGH density unit at minimum, more where
+   a unit genuinely supports multiple levels (same-range stacking, see governing constraint
+   above), none required for genuinely LOW density units; and
+   (b) your inter-unit relationship scan (step E) — one question per genuine relationship found,
+   which for a rich, interlocking passage (common in Gospel narratives) may add several
+   questions beyond what the density map alone would suggest. A passage can be simultaneously
+   rich in both ways — many high-density units AND multiple genuine inter-unit relationships —
+   and if so, the bank should reflect BOTH, even if that means a longer passage produces more
+   questions than earlier rough guidance implied.
+   As a rough sanity check only (NOT a target to aim for): a short, dense passage (e.g. a
+   six-verse psalm) might reasonably produce 8-12 questions from density alone; a long,
+   richly-interlocking narrative passage may reasonably exceed that once inter-unit
+   relationship questions are added on top. Do not pad to hit any particular number, and do
+   not compress genuinely separate questions into one to stay under it. Trust the density map
+   and the relationship scan together, not a count.
+4. Re-check the full list against the governing constraint before finalising output.
+5. Include [QUESTION_BANK_CHINESE] and [QUESTION_BANK_ENGLISH] tags exactly as shown.
+6. Output ONLY the two tagged question lists. Do NOT add any other section, header,
+   meta-commentary, confidence rating, or self-assessment of any kind (e.g. do NOT add a
+   "META_ASSESSMENT" or similar block) — the output must end immediately after the last
+   English-section question.
+
+Reference: "{ref}"
+"""
+
     QUESTION_BANK_TEMPLATE = """
 Generate a single, non-overlapping question bank for: "{ref}"
 
@@ -1405,13 +1735,39 @@ Reference: "{ref}"
         return cls.LESSON_PLAN_TEMPLATE.format(ref=reference)
 
     @classmethod
-    def get_question_bank_prompt(cls, reference: str) -> str:
+    def get_core_analysis_prompt(cls, reference: str) -> str:
+        """
+        Added 2026-07-14 — BST Consolidation Plan step 2.
+        Get the standalone shared core-analysis prompt (genre, central claim, textual
+        features, density map, both misreading types, inter-unit relationships) — the
+        same analysis QUESTION_BANK_TEMPLATE has always performed internally, now
+        extracted so it can be generated ONCE per passage and reused across features
+        rather than re-derived independently by each one. Parse the result with
+        CoreAnalysisParser (parsers.py) before passing it to get_question_bank_prompt()'s
+        core_analysis parameter.
+        """
+        return cls.CORE_ANALYSIS_TEMPLATE.format(ref=reference)
+
+    @classmethod
+    def get_question_bank_prompt(cls, reference: str, core_analysis: str = None) -> str:
         """
         Get the one-pass, non-overlapping question bank prompt.
         Replaces the legacy three-set (Explore/Understand/Apply) format —
         see NOTES.md 2026-07-08 for the six-passage validation record that
         motivated this redesign.
+
+        core_analysis: optional, added 2026-07-14. If provided (raw text output from
+        get_core_analysis_prompt(), typically re-serialized from CoreAnalysisParser's
+        parsed structure), the question bank SKIPS re-deriving genre/central claim/density
+        map/misreadings/inter-unit relationships and consumes this instead — the
+        QUESTION_BANK_FROM_ANALYSIS_TEMPLATE path. If None (default), behaves exactly as
+        before this change — the original, fully self-contained QUESTION_BANK_TEMPLATE,
+        which derives everything itself in one call. Existing callers are unaffected.
         """
+        if core_analysis:
+            return cls.QUESTION_BANK_FROM_ANALYSIS_TEMPLATE.format(
+                ref=reference, core_analysis=core_analysis
+            )
         return cls.QUESTION_BANK_TEMPLATE.format(ref=reference)
 
     @classmethod

@@ -96,10 +96,16 @@ views.
    parity with Lesson Plan's *original-audience* misreading step (its own step D) — the
    real gap was narrower, just the modern-reader half. Not yet tested live.
 
-2. **Promote `QUESTION_BANK_TEMPLATE`'s Step 1 to a canonical shared core analysis.**
-   It's already the most developed of the five paths — density mapping, inter-unit
-   scanning, both misreading types (once #1 lands). This becomes the one place passage
-   structure gets figured out.
+2. **~~Promote `QUESTION_BANK_TEMPLATE`'s Step 1 to a canonical shared core analysis.~~
+   DONE 2026-07-14.** Extracted steps A-E into `CORE_ANALYSIS_TEMPLATE` +
+   `get_core_analysis_prompt()`, producing a real, structured, output-format artifact for
+   the first time (previously this reasoning existed only inside one call, explicitly
+   marked "do not include in output"). Added a consume-mode `QUESTION_BANK_FROM_ANALYSIS_TEMPLATE`
+   and a new `CoreAnalysisParser`. `QUESTION_BANK_TEMPLATE` itself is untouched — mechanically
+   verified byte-identical, and `get_question_bank_prompt()`'s no-argument path confirmed
+   unchanged. A real multi-range parsing bug was caught in testing (not before it) and fixed.
+   Not yet wired into `study.py` or any live feature, and not yet tested against a real
+   model call — see NOTES.md Pending Tests.
 
 3. **Make the question bank the single source of questions**, generated once per
    passage from that core analysis.

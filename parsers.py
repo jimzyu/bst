@@ -695,3 +695,192 @@ class QuestionBankParser:
                         "misread": q.get("misread"),
                     })
         return flat
+
+
+class CoreAnalysisParser:
+    """
+    Parser for the shared core-analysis output (see prompts.py CORE_ANALYSIS_TEMPLATE /
+    get_core_analysis_prompt). Added 2026-07-14 — BST Consolidation Plan step 2.
+
+    Expects the [CORE_ANALYSIS] ... [END_CORE_ANALYSIS] block described in
+    CORE_ANALYSIS_TEMPLATE's OUTPUT FORMAT section:
+
+        [CORE_ANALYSIS]
+        GENRE: ...
+        CENTRAL_CLAIM: ...
+        TEXTUAL_FEATURES:
+        [V.x] category: description
+        DENSITY_MAP:
+        [V.x] HIGH|LOW: description
+        MISREADINGS_ORIGINAL_AUDIENCE:
+        - ...
+        MISREADINGS_MODERN_READER:
+        [V.x] pattern: why
+        INTER_UNIT_RELATIONSHIPS:
+        [V.x, V.y] type: what it accomplishes
+        [END_CORE_ANALYSIS]
+
+    Sections are all optional in practice (a passage may have zero inter-unit
+    relationships, zero modern misreadings, etc.) except GENRE and CENTRAL_CLAIM, which
+    the prompt always requires. Parsing degrades gracefully — a missing or malformed
+    section returns an empty list/string for that section rather than failing the whole
+    parse, since a downstream consumer (question bank, lesson plan) can still use whatever
+    parsed correctly.
+    """
+
+    _BLOCK_PATTERN = re.compile(
+        r'\[CORE_ANALYSIS\](.*?)\[END_CORE_ANALYSIS\]', re.DOTALL
+    )
+    _GENRE_PATTERN = re.compile(r'GENRE:\s*(.+)')
+    _CLAIM_PATTERN = re.compile(r'CENTRAL_CLAIM:\s*(.+)')
+    # Captures the WHOLE bracket content as one group (single range or multiple,
+    # comma-separated, each optionally prefixed "V."), then the category/type label,
+    # then the note. Splitting multi-range content is done in a second step below —
+    # NOT by trying to match each range with its own regex group, which fails to
+    # split "6:11-13, V.7:2-4" correctly (see 2026-07-14 test finding: a greedy
+    # single-group match swallowed a second "V." range whole instead of splitting on it).
+    _TAGGED_LINE_PATTERN = re.compile(
+        r'\[([^\]]+)\]\s*([^:]+):\s*(.+)'
+    )
+    _BULLET_PATTERN = re.compile(r'^\s*-\s*(.+)$', re.MULTILINE)
+
+    @staticmethod
+    def _split_verse_ranges(bracket_content: str) -> list:
+        """
+        Split a bracket's raw content into one or more verse ranges, handling both
+        single-range ([V.6:11-13]) and multi-range inter-unit ([V.6:11-13, V.7:2-4])
+        tags. Strips the leading "V." from each part.
+        """
+        parts = re.split(r',\s*', bracket_content)
+        ranges = []
+        for p in parts:
+            p = p.strip()
+            if p.upper().startswith('V.'):
+                p = p[2:].strip()
+            if p:
+                ranges.append(p)
+        return ranges
+
+    @classmethod
+    def _section_text(cls, block: str, header: str, next_headers: list) -> str:
+        """Extract the raw text between `header:` and the next known section header."""
+        start = block.find(header)
+        if start == -1:
+            return ''
+        start += len(header)
+        end = len(block)
+        for nh in next_headers:
+            idx = block.find(nh, start)
+            if idx != -1:
+                end = min(end, idx)
+        return block[start:end].strip()
+
+    @classmethod
+    def parse(cls, raw: str) -> dict:
+        """
+        Parse the core analysis output.
+
+        Returns a dict:
+            {
+                "genre": str,
+                "central_claim": str,
+                "textual_features": [{"verse_range": str, "category": str, "note": str}],
+                "density_map": [{"verse_range": str, "density": "HIGH"|"LOW", "note": str}],
+                "misreadings_original_audience": [str, ...],
+                "misreadings_modern_reader": [{"verse_range": str, "pattern": str, "note": str}],
+                "inter_unit_relationships": [{"verse_ranges": [str, str], "type": str, "note": str}],
+                "raw": str,  # the original [CORE_ANALYSIS]...[END_CORE_ANALYSIS] block,
+                             # for re-injection into get_question_bank_prompt()'s
+                             # core_analysis parameter — most callers should pass THIS,
+                             # not try to re-serialize the parsed dict.
+            }
+        Returns a dict of empty values (not an exception) if the block is missing entirely,
+        so a caller can check truthiness of "genre" to decide whether parsing succeeded.
+        """
+        match = cls._BLOCK_PATTERN.search(raw)
+        if not match:
+            return {
+                "genre": "", "central_claim": "",
+                "textual_features": [], "density_map": [],
+                "misreadings_original_audience": [], "misreadings_modern_reader": [],
+                "inter_unit_relationships": [], "raw": "",
+            }
+
+        block = match.group(1)
+        raw_block = raw[match.start():match.end()]
+
+        headers = [
+            'TEXTUAL_FEATURES:', 'DENSITY_MAP:', 'MISREADINGS_ORIGINAL_AUDIENCE:',
+            'MISREADINGS_MODERN_READER:', 'INTER_UNIT_RELATIONSHIPS:'
+        ]
+
+        genre_m = cls._GENRE_PATTERN.search(block)
+        claim_m = cls._CLAIM_PATTERN.search(block)
+        genre = genre_m.group(1).strip() if genre_m else ""
+        central_claim = claim_m.group(1).strip() if claim_m else ""
+
+        textual_features = []
+        for bracket_content, category, note in cls._TAGGED_LINE_PATTERN.findall(
+            cls._section_text(block, 'TEXTUAL_FEATURES:', headers[1:])
+        ):
+            ranges = cls._split_verse_ranges(bracket_content)
+            textual_features.append({
+                "verse_range": ', '.join(ranges) if ranges else bracket_content.strip(),
+                "category": category.strip(),
+                "note": note.strip(),
+            })
+
+        density_map = []
+        for bracket_content, density, note in cls._TAGGED_LINE_PATTERN.findall(
+            cls._section_text(block, 'DENSITY_MAP:', headers[2:])
+        ):
+            ranges = cls._split_verse_ranges(bracket_content)
+            density_map.append({
+                "verse_range": ', '.join(ranges) if ranges else bracket_content.strip(),
+                "density": density.strip().upper(),
+                "note": note.strip(),
+            })
+
+        misreadings_original_audience = [
+            b.strip() for b in cls._BULLET_PATTERN.findall(
+                cls._section_text(block, 'MISREADINGS_ORIGINAL_AUDIENCE:', headers[3:])
+            ) if b.strip()
+        ]
+
+        misreadings_modern_reader = []
+        for bracket_content, pattern, note in cls._TAGGED_LINE_PATTERN.findall(
+            cls._section_text(block, 'MISREADINGS_MODERN_READER:', headers[4:])
+        ):
+            ranges = cls._split_verse_ranges(bracket_content)
+            misreadings_modern_reader.append({
+                "verse_range": ', '.join(ranges) if ranges else bracket_content.strip(),
+                "pattern": pattern.strip(),
+                "note": note.strip(),
+            })
+
+        inter_unit_relationships = []
+        for bracket_content, rel_type, note in cls._TAGGED_LINE_PATTERN.findall(
+            cls._section_text(block, 'INTER_UNIT_RELATIONSHIPS:', [])
+        ):
+            ranges = cls._split_verse_ranges(bracket_content)
+            inter_unit_relationships.append({
+                "verse_ranges": ranges if ranges else [bracket_content.strip()],
+                "type": rel_type.strip(),
+                "note": note.strip(),
+            })
+
+        return {
+            "genre": genre,
+            "central_claim": central_claim,
+            "textual_features": textual_features,
+            "density_map": density_map,
+            "misreadings_original_audience": misreadings_original_audience,
+            "misreadings_modern_reader": misreadings_modern_reader,
+            "inter_unit_relationships": inter_unit_relationships,
+            "raw": raw_block,
+        }
+
+    @classmethod
+    def is_valid(cls, parsed: dict) -> bool:
+        """Check that at least genre and central claim were successfully parsed."""
+        return bool(parsed.get("genre")) and bool(parsed.get("central_claim"))
