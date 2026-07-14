@@ -97,15 +97,22 @@ views.
    real gap was narrower, just the modern-reader half. Not yet tested live.
 
 2. **~~Promote `QUESTION_BANK_TEMPLATE`'s Step 1 to a canonical shared core analysis.~~
-   DONE 2026-07-14.** Extracted steps A-E into `CORE_ANALYSIS_TEMPLATE` +
+   DONE 2026-07-14, LIVE-TESTED 2026-07-14.** Extracted steps A-E into `CORE_ANALYSIS_TEMPLATE` +
    `get_core_analysis_prompt()`, producing a real, structured, output-format artifact for
    the first time (previously this reasoning existed only inside one call, explicitly
    marked "do not include in output"). Added a consume-mode `QUESTION_BANK_FROM_ANALYSIS_TEMPLATE`
    and a new `CoreAnalysisParser`. `QUESTION_BANK_TEMPLATE` itself is untouched — mechanically
    verified byte-identical, and `get_question_bank_prompt()`'s no-argument path confirmed
    unchanged. A real multi-range parsing bug was caught in testing (not before it) and fixed.
-   Not yet wired into `study.py` or any live feature, and not yet tested against a real
-   model call — see NOTES.md Pending Tests.
+
+   **Live test (2 Cor 6:11-7:4, Gemini 3.5 Flash) passed cleanly** — well-formed output,
+   sparse sections meaningfully populated (found an inter-unit relationship the test didn't
+   anticipate), the inclusio confirmed a third independent time, `[MISREAD:...]` tags
+   well-targeted, consistency across independent runs comparable to the existing baseline.
+   **Honest finding: for one bank in isolation, the two-call approach costs slightly MORE
+   (~22,960 chars across two calls vs 21,269 in one) — the cost case was always about
+   avoiding redundant analysis across multiple consumers, not a single-bank saving, and
+   that only materializes once step 4 lands.** Full detail in NOTES.md.
 
 3. **Make the question bank the single source of questions**, generated once per
    passage from that core analysis.
