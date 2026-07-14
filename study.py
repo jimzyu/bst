@@ -1426,8 +1426,26 @@ _LEVEL_DISPLAY = {
 
 def display_question_bank_interface():
     """Generate and display the one-pass question bank, parsed and grouped
-    by verse range, with stacked levels shown together within each group."""
-    from parsers import QuestionBankParser
+    by verse range, with stacked levels shown together within each group.
+
+    Added 2026-07-14 — BST Consolidation Plan step 3: generates the shared core analysis
+    ONCE per reference (cached in st.session_state.qbank_core_analysis, invalidated when
+    the reference changes at the entry point — see qbank_reference assignment below), then
+    builds the question bank FROM that analysis via QUESTION_BANK_FROM_ANALYSIS_TEMPLATE,
+    instead of each generation re-deriving genre/central claim/density map/misreadings/
+    inter-unit relationships from scratch. "Regenerate" (below) intentionally reuses the
+    cached analysis rather than forcing a fresh one — the passage's structure hasn't
+    changed, only the specific question phrasing might benefit from a retry, and reusing
+    the cache is exactly the saving this step exists for.
+
+    FALLBACK, not a hard requirement: if the core-analysis call or parse fails
+    (CoreAnalysisParser.is_valid() False, or the API call itself errors), this falls back
+    to the original self-contained QUESTION_BANK_TEMPLATE path (core_analysis=None) rather
+    than blocking the feature — see NOTES.md "BST Consolidation Plan" for why step 2 was
+    built additive/backward-compatible in the first place. This is that guarantee actually
+    being exercised.
+    """
+    from parsers import QuestionBankParser, CoreAnalysisParser
 
     reference = st.session_state.get('qbank_reference', '')
     st.markdown(f"### 📚 問題庫 Question Bank — {reference}")
@@ -1437,7 +1455,42 @@ def display_question_bank_interface():
     raw = st.session_state.get('qbank_raw_result')
     if raw is None:
         client = st.session_state.gemini_client
-        prompt = PromptTemplates.get_question_bank_prompt(reference)
+
+        # Step 1 of 2 — get or reuse the shared core analysis for this reference.
+        cached = st.session_state.get('qbank_core_analysis')
+        core_analysis_raw = None
+        if cached and cached.get('reference') == reference:
+            core_analysis_raw = cached.get('raw')  # reuse — no API call, no spinner needed
+        else:
+            with st.spinner("正在分析經文結構… Analysing passage structure…"):
+                try:
+                    analysis_prompt = PromptTemplates.get_core_analysis_prompt(reference)
+                    analysis_raw = client.generate_content_quality(
+                        analysis_prompt,
+                        system_override=PromptTemplates.QUESTION_BANK_SYSTEM
+                    )
+                    parsed_analysis = CoreAnalysisParser.parse(analysis_raw)
+                    if CoreAnalysisParser.is_valid(parsed_analysis):
+                        core_analysis_raw = parsed_analysis['raw']
+                        st.session_state.qbank_core_analysis = {
+                            'reference': reference, 'raw': core_analysis_raw
+                        }
+                    else:
+                        logger.warning(
+                            f"Core analysis parsed but invalid for {reference} "
+                            f"(missing genre/central_claim) — falling back to "
+                            f"self-contained question bank generation."
+                        )
+                except Exception as e:
+                    logger.warning(
+                        f"Core analysis generation failed for {reference}: {e} — "
+                        f"falling back to self-contained question bank generation."
+                    )
+                    # core_analysis_raw stays None — falls through to the original path.
+
+        # Step 2 of 2 — generate the bank, from the analysis if we have one, otherwise
+        # the original self-contained template (same behaviour as before this step).
+        prompt = PromptTemplates.get_question_bank_prompt(reference, core_analysis=core_analysis_raw)
         with st.spinner("正在生成問題庫… Generating question bank…"):
             try:
                 raw = client.generate_content_quality(

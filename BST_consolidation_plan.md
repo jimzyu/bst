@@ -126,8 +126,17 @@ views.
    considered sufficiently tested to build on — see NOTES.md for full detail on all three
    tests.**
 
-3. **Make the question bank the single source of questions**, generated once per
-   passage from that core analysis.
+3. **~~Make the question bank the single source of questions, generated once per
+   passage from that core analysis.~~ DONE 2026-07-14.** `display_question_bank_interface()`
+   now generates/reuses a shared core analysis (cached per-reference in
+   `st.session_state.qbank_core_analysis`) before building the bank. "Regenerate"
+   deliberately reuses the cached analysis rather than forcing a fresh one — the first
+   place this whole plan's cost saving becomes concretely visible (one API call instead
+   of two on a retry). Falls back gracefully to the original self-contained path if
+   analysis generation or parsing fails, exercising the backward-compatible design step 2
+   was built with. First live-app code in this consolidation effort — everything before
+   this was standalone test scripts. **Not yet tested through the actual Streamlit UI** —
+   compiled and reviewed only. See NOTES.md Pending Tests.
 
 4. **Refactor Lesson Plan and Start Study to consume the shared bank + core analysis**
    rather than regenerate independently. See §4 below — this step has a worked-out design
