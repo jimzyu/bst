@@ -197,13 +197,28 @@ class QuizParser:
         """
         Extract the evaluation flag and associated note from feedback text.
 
-        The EVALUATION_TEMPLATE instructs the model to embed one of three flags
+        The EVALUATION_TEMPLATE instructs the model to embed one of four flags
         in its response, along with an optional note that is forwarded to the
         follow-up / redirect question generators:
 
             [COMPLETE]
             [INCOMPLETE] [MISSING: <what was not covered>]
-            [INACCURATE] [CORRECTION: <what was misunderstood>]
+            [DEFENSIBLE_ALTERNATE] [NOTE: <alternate reading and why it's defensible>]
+            [INACCURATE] [CORRECTION: <what was misunderstood>] [PATTERN: <named reasoning error, or 'general'>]
+
+        DEFENSIBLE_ALTERNATE added 2026-07-14 (see NOTES.md "BST 承認無知" entry) — a
+        genuinely contested interpretive point where the student's answer differs from
+        the model's own default reading but is textually defensible, not an error. Treated
+        like COMPLETE for follow-up purposes (see study.py — not in the INCOMPLETE/INACCURATE
+        tuple that triggers a redirect loop), but returned as its own explicit flag rather
+        than silently falling through to COMPLETE, so the distinction is preserved for
+        anyone inspecting the raw flag later (e.g. analytics, or a future UI treatment).
+
+        PATTERN added the same day — when INACCURATE fires, the model names which of six
+        known reasoning-error patterns fits (斷章取義/以偏概全/同一律/argument-from-silence/
+        root-fallacy/forced-harmonization), folded into the returned note so the existing
+        2-tuple contract doesn't change for callers, giving REDIRECT_QUESTION_TEMPLATE a more
+        precisely-targeted correction_note without any call-site changes.
 
         Falls back to 'COMPLETE' if no flag is found so that the quiz can
         always proceed rather than hanging in a follow-up loop.
@@ -213,14 +228,14 @@ class QuizParser:
 
         Returns:
             Tuple of (flag, note) where:
-              - flag: 'COMPLETE', 'INCOMPLETE', or 'INACCURATE'
+              - flag: 'COMPLETE', 'INCOMPLETE', 'DEFENSIBLE_ALTERNATE', or 'INACCURATE'
               - note: detail string for follow-up/redirect prompt, or ''
         """
         if not feedback_text:
             return 'COMPLETE', ''
 
-        # Order matters: check INCOMPLETE and INACCURATE before COMPLETE
-        # to avoid COMPLETE matching inside e.g. [INCOMPLETE]
+        # Order matters: check INCOMPLETE, DEFENSIBLE_ALTERNATE, and INACCURATE before
+        # COMPLETE, to avoid COMPLETE matching inside e.g. [INCOMPLETE]
         incomplete_match = re.search(
             r'\[INCOMPLETE\](?:\s*\[MISSING:\s*(.+?)\])?',
             feedback_text, re.IGNORECASE | re.DOTALL
@@ -229,12 +244,25 @@ class QuizParser:
             note = (incomplete_match.group(1) or '').strip()
             return 'INCOMPLETE', note
 
+        alternate_match = re.search(
+            r'\[DEFENSIBLE_ALTERNATE\](?:\s*\[NOTE:\s*(.+?)\])?',
+            feedback_text, re.IGNORECASE | re.DOTALL
+        )
+        if alternate_match:
+            note = (alternate_match.group(1) or '').strip()
+            return 'DEFENSIBLE_ALTERNATE', note
+
         inaccurate_match = re.search(
-            r'\[INACCURATE\](?:\s*\[CORRECTION:\s*(.+?)\])?',
+            r'\[INACCURATE\](?:\s*\[CORRECTION:\s*(.+?)\])?(?:\s*\[PATTERN:\s*(.+?)\])?',
             feedback_text, re.IGNORECASE | re.DOTALL
         )
         if inaccurate_match:
-            note = (inaccurate_match.group(1) or '').strip()
+            correction = (inaccurate_match.group(1) or '').strip()
+            pattern = (inaccurate_match.group(2) or '').strip()
+            if pattern and pattern.lower() != 'general':
+                note = f"（常見錯誤類型 pattern: {pattern}）{correction}" if correction else f"（pattern: {pattern}）"
+            else:
+                note = correction
             return 'INACCURATE', note
 
         # COMPLETE — explicit or fallback

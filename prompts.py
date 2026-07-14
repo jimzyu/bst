@@ -117,6 +117,19 @@ AI'S MODEL ANSWER:
 STUDENT'S ANSWER:
 {user_answer}
 
+BEFORE YOU GRADE — CHECK FOR GENUINE INTERPRETIVE UNCERTAINTY (承認無知): some passages are
+genuinely debated among sound, faithful interpreters — not because the student is wrong, but
+because the text itself does not fully settle the question (e.g. Gen 6:1-4's "sons of God,"
+1 Cor 15:29's "baptised for the dead"). Before scoring, ask yourself: is this one of those
+points? If the student's answer represents a DIFFERENT reading than the one you'd naturally
+reach for, but it is textually defensible — grounded in the passage's own words, not a
+misreading — do NOT grade it down for disagreeing with your own default reading. Score it on
+its own merits, and if you are genuinely uncertain which reading is stronger, say so in your
+feedback rather than grading with more confidence than the passage itself warrants. This is
+different from the student simply being wrong — the test is whether a thoughtful interpreter
+could hold their reading in good faith from this text, not whether it matches your first
+instinct.
+
 YOUR TASK:
 Provide qualitative, constructive feedback comparing the student's answer to the model answer, AND assign a holistic score from 0-10. Calibrate your feedback tone and expectations based on the emphasis selected.
 
@@ -171,12 +184,14 @@ IMPORTANT FORMATTING RULES:
 EVALUATION FLAG — append exactly one of the following on a new line AFTER the [ENGLISH] block:
 - If the answer demonstrates adequate understanding for this emphasis level: [COMPLETE]
 - If the answer shows genuine engagement but is missing one or more important elements: [INCOMPLETE] [MISSING: <one sentence describing what was not covered — used to generate a targeted follow-up question>]
-- If the answer contains a factual misreading of the text or a significant theological error: [INACCURATE] [CORRECTION: <one sentence describing what was misunderstood — used to generate a gentle redirect back to the text>]
+- If the answer diverges from your own expected reading but is a textually defensible alternate interpretation of a genuinely contested point (see 承認無知 check above) — NOT an error: [DEFENSIBLE_ALTERNATE] [NOTE: <one sentence naming the alternate reading and why it's defensible — used only for internal record, does not trigger a redirect>]
+- If the answer contains a factual misreading of the text or a significant theological error: [INACCURATE] [CORRECTION: <one sentence describing what was misunderstood — used to generate a gentle redirect back to the text>] [PATTERN: <name the specific reasoning error if one of these fits, else 'general' — 斷章取義 (context-stripping: ignores what precedes/follows), 以偏概全 (overgeneralization: one case treated as an absolute rule), 同一律 (equivocation: a term shifting meaning within their own answer), argument-from-silence (concluding from what the text does NOT say), root-fallacy (a word's origin overriding its actual usage here), forced-harmonization (an apparent tension resolved too quickly without being stated honestly) — used to sharpen the redirect question's target, not shown to the student>]
 
 CALIBRATION FOR FLAGS:
 - EXPLORE: flag INCOMPLETE only if the student missed something they could notice from the text surface; flag INACCURATE rarely — reward genuine engagement generously
 - UNDERSTAND: flag INCOMPLETE if core argument or theological weight is missing; flag INACCURATE if the passage's claim is reversed or significantly distorted
 - APPLY: flag INCOMPLETE if the answer remains abstract when personal specificity was needed; flag INACCURATE only for clear factual error, not for different honest self-readings
+- ALL LEVELS: prefer [DEFENSIBLE_ALTERNATE] over [INACCURATE] whenever the 承認無知 check above applies — do not let disagreement with your own default reading masquerade as a factual error
 
 CRITICAL: Be constructive and educational. The score should reflect holistic understanding calibrated to the emphasis, not perfection. NEVER use Markdown numbered or bulleted lists - keep everything as flowing prose with inline numbering if needed.
 """
@@ -1175,6 +1190,18 @@ D. Identify 2-3 misreadings this passage corrects in its primary audience.
 E. Identify the key historical/cultural background details a facilitator needs.
 F. Formulate the ONE orienting question this passage is positioned to answer
    — not the answer, just the question. This becomes 一句定位 in Layer 2.
+G. FOR EACH discussion question you plan (step below), identify whether this
+   passage is prone to any of six known MODERN reader reasoning errors — distinct
+   from step D's original-audience misreadings; this is about the group's likely
+   error today, not the ancient audience's: 斷章取義 (context-stripping — ignoring
+   what precedes/follows), 以偏概全 (overgeneralization — one case treated as an
+   absolute rule), 同一律/equivocation (a term shifting meaning mid-discussion),
+   argument-from-silence (concluding from what the text does NOT say), root-fallacy
+   (a word's origin overriding its actual usage here), forced-harmonization (an
+   apparent tension resolved too quickly without being named honestly). Most
+   questions will trigger none of these — only note one where a specific, likely
+   wrong turn is genuinely foreseeable for THIS passage, not as a routine checklist
+   item for every question.
 
 STEP 2 — GENERATE THE TWO-LAYER OUTPUT:
 
@@ -1199,9 +1226,13 @@ Each label describes what happens, NOT what it means.]
 ### 討論引導備注
 [Per-question facilitator notes. For each of the 6-8 discussion questions
 in Layer 2, provide:
-Q[N]: [one sentence — what to listen for in learner answers, or a redirect
-if the group goes off-track, or optional enrichment detail to deploy if
-relevant. Keep each note to 1-2 sentences.]
+Q[N]: [one sentence — what to listen for in learner answers. If step G above
+identified a specific likely modern misreading for this question, name it
+plainly here (e.g. "小心：這問題容易讓小組把應許當作無例外的絕對規則（以偏概全）
+——可提醒他們留意弗六3後半的普遍性應許用語") so the facilitator can catch it live,
+rather than a generic "redirect if off-track." If step G found nothing specific
+for this question, a brief note on what a strong answer looks like is enough —
+do not force a misreading note where none was genuinely identified.]
 ]
 
 ### 參考資料
