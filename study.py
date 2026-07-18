@@ -1689,7 +1689,7 @@ def display_single_question_interface():
         st.rerun()
 
 
-
+def display_lesson_plan_interface():
     """
     Display the two-layer lesson plan — facilitator guide + learner materials.
     Toggle between layers via a tab or toggle control.
