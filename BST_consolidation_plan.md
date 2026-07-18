@@ -286,9 +286,16 @@ validated, not something being ruled out.
    feedback. Two real issues caught during wiring (an assumed sub-field parser that
    doesn't exist; missing module-level imports) before either reached runtime. Verified:
    full compile, and `_select_next_threads_candidates()`'s actual code (not a
-   reproduction) tested directly against a realistic multi-question bank. **Not yet
-   tested against a real model call** — this is the first BST build today with zero live
-   testing so far.
+   reproduction) tested directly against a realistic multi-question bank.
+
+   **Live-tested 2026-07-16 (John 1)** — full chain confirmed working end to end: real
+   reflection rendered in the intended warm register, `next_threads` correctly pulling
+   real bank content. One gap found and deliberately deferred: `next_threads` items have
+   no answer button (the reflection currently returns plain reworded text, not the
+   verse_range/level needed to wire one) — real fix is a schema change
+   (`next_threads` → `{verse_range, level, text}` objects), logged for later, not
+   blocking the build sequence. INCOMPLETE/INACCURATE followup branch not yet
+   specifically exercised live.
 3. **Wire the completion gate to the new shape** — "answered the one selected question"
    unlocks the new reflection artifact from step 1, replacing the old
    summary-and-scenario unlock.
