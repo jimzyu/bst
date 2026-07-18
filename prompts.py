@@ -1602,6 +1602,16 @@ STEP 2 — GENERATE THE TWO-LAYER OUTPUT:
 passage argues for it. This is rich and interpretive — the facilitator needs
 to understand the passage fully to guide discovery well.]
 
+### 經文的診斷
+[Added 2026-07-16 — ported from the retired Start Study summary feature, the one field
+with no other equivalent in this lesson plan. 1-2 sentences naming the SPECIFIC human
+condition this passage addresses — what does it call out in the reader that the reader
+might not have named themselves? Be precise rather than generic. Do NOT simply paraphrase
+a verse. Avoid "this passage challenges us to..." or "people tend to..." — instead name
+the specific tendency, pattern, or self-deception with enough precision that a facilitator
+would recognise it in themselves, and could recognise it surfacing in the group's own
+answers during discussion.]
+
 ### 經文分段
 [List 2-4 structural sections. Format:
 • vv.X-Y — 「[5-8 character descriptive label]」
@@ -1648,6 +1658,9 @@ drawn from the text itself. Do NOT provide a tidy theological summary.]
 
 ### Introduction
 [Direct English translation of 引言]
+
+### Passage Diagnosis
+[Direct English translation of 經文的診斷]
 
 ### Passage Structure
 [Direct English translation of 經文分段]
@@ -1819,6 +1832,16 @@ STEP 2 — GENERATE THE TWO-LAYER OUTPUT:
 passage argues for it. This is rich and interpretive — the facilitator needs
 to understand the passage fully to guide discovery well.]
 
+### 經文的診斷
+[Added 2026-07-16 — ported from the retired Start Study summary feature, the one field
+with no other equivalent in this lesson plan. 1-2 sentences naming the SPECIFIC human
+condition this passage addresses — what does it call out in the reader that the reader
+might not have named themselves? Be precise rather than generic. Do NOT simply paraphrase
+a verse. Avoid "this passage challenges us to..." or "people tend to..." — instead name
+the specific tendency, pattern, or self-deception with enough precision that a facilitator
+would recognise it in themselves, and could recognise it surfacing in the group's own
+answers during discussion.]
+
 ### 經文分段
 [List 2-4 structural sections. Format:
 • vv.X-Y — 「[5-8 character descriptive label]」
@@ -1865,6 +1888,9 @@ drawn from the text itself. Do NOT provide a tidy theological summary.]
 
 ### Introduction
 [Direct English translation of 引言]
+
+### Passage Diagnosis
+[Direct English translation of 經文的診斷]
 
 ### Passage Structure
 [Direct English translation of 經文分段]

@@ -898,43 +898,45 @@ class GeminiClient:
             self,
             reference: str,
             status_callback=None
-        ) -> tuple[dict[str, str], str]:
+        ) -> dict[str, str]:
         """
-        Generate all three emphasis question sets and a passage summary in parallel.
-        Runs four API calls concurrently: Explore, Understand, Apply, and Summary.
+        Generate all three emphasis question sets in parallel.
+        Runs three API calls concurrently: Explore, Understand, Apply.
+
+        UPDATED 2026-07-16 — BST Consolidation Plan §4, Start Study retirement build
+        step 4. Previously ran a fourth parallel call for a passage summary
+        (summary_text, second element of a returned tuple) — removed, since summary
+        generation is retired from Start Study entirely (moved to Lesson Plan). This is
+        a real cost reduction, not just a display change: three API calls instead of
+        four for every Start Study session. Return type changed from
+        tuple[dict[str, str], str] to dict[str, str] — the one caller
+        (process_emphasis_selection in study.py) was updated in the same change.
 
         Args:
             reference: Bible reference (e.g. '雅各書1:19-27')
             status_callback: Optional callable for UI status updates during generation
 
         Returns:
-            Tuple of (emphasis_dict, summary_text):
-              - emphasis_dict: {'explore': text, 'understand': text, 'apply': text}
-              - summary_text: Raw summary text containing [CHINESE] and [ENGLISH] sections
+            emphasis_dict: {'explore': text, 'understand': text, 'apply': text}
         """
         from prompts import PromptTemplates
 
         prompts_dict = PromptTemplates.get_all_emphasis_prompts(reference)
         emphasis_keys = list(prompts_dict.keys())  # ['explore', 'understand', 'apply']
-        summary_prompt = PromptTemplates.get_summary_prompt(reference)
+        all_prompts = [prompts_dict[k] for k in emphasis_keys]
 
-        # Run all four in parallel: 3 emphasis + 1 summary
-        all_prompts = [prompts_dict[k] for k in emphasis_keys] + [summary_prompt]
-
-        logger.info(f"Generating 3 emphasis sets + summary in parallel for: {reference}")
+        logger.info(f"Generating 3 emphasis sets in parallel for: {reference}")
         emphasis_labels = [
             "探索問題生成完成 Explore ✓",
             "理解問題生成完成 Understand ✓",
             "應用問題生成完成 Apply ✓",
-            "主題摘要生成完成 Summary ✓",
         ]
         results_list = self.generate_drafts_parallel(
             all_prompts, status_callback, labels=emphasis_labels)
 
         emphasis_results = {emphasis_keys[i]: results_list[i] for i in range(len(emphasis_keys))}
-        summary_text = results_list[-1]
 
-        return emphasis_results, summary_text
+        return emphasis_results
 
     def generate_followup_question(self, reference: str, question_type: str,
                                     emphasis: str, original_question: str,

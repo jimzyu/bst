@@ -299,9 +299,18 @@ validated, not something being ruled out.
 3. **Wire the completion gate to the new shape** — "answered the one selected question"
    unlocks the new reflection artifact from step 1, replacing the old
    summary-and-scenario unlock.
-4. **Move summary and scenario generation to Lesson Plan exclusively** — retire their
-   Start-Study-facing role. This is effectively step 5's summary-half, done now because
-   this design requires it, not deferred.
+4. **~~Move summary and scenario generation to Lesson Plan exclusively.~~ Summary DONE
+   2026-07-16; scenario deliberately deferred.** Checked for structural conflicts before
+   building: 3 of summary's 4 fields already existed in Lesson Plan's Layer 1 (引言,
+   參考資料); the 4th (經文的診斷, the sharp specific-diagnosis field) had no equivalent
+   and was added to both physical copies of the Lesson Plan template. Scenario turned out
+   to be a genuinely bigger sub-feature (context selectors, teaching-point mapping, not a
+   simple block) with no Lesson Plan equivalent at all — its Start-Study display was
+   removed but the underlying generation machinery left completely intact, unused, for a
+   real design pass later rather than a rushed migration. `generate_all_emphasis_parallel()`
+   dropped from 4 parallel API calls to 3 — a real cost reduction. **Not yet live-tested**
+   — this is the first change today touching `display_emphasis_interface()`, the
+   still-default old Start Study flow.
 5. **Retire the question-generation portion of `process_emphasis_selection()` /
    `generate_all_emphasis_parallel()`** — once 1-3 work, not before.
 6. **Emphasis-as-grading-tone toggle** — smaller now than originally scoped, since
