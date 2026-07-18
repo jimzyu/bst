@@ -2199,3 +2199,107 @@ matches what the passage names, not just a generic action-gap situation.
             'apply': cls.EMPHASIS_APPLY.format(ref=reference),
         }
 
+
+    # Added 2026-07-16 — BST Consolidation Plan §4, Start Study retirement step 1.
+    # Replaces the AI-generated passage summary as the learner-facing "reward" for
+    # completing a question (see NOTES.md "BST Consolidation Plan — Start Study
+    # Retirement, Design Revision"). Modeled on BLT's learning-map schema
+    # (touched/deepen/next_threads per layer) but adapted for a SINGLE answered
+    # question rather than a flowing conversation.
+    #
+    # DESIGN CHOICE, recorded because the alternative was seriously considered: this is a
+    # small LLM synthesis call, not a zero-cost reformatting of EVALUATION_TEMPLATE's raw
+    # feedback fields. Pure reformatting (優點→touched, 建議→deepen) would be free, but
+    # that feedback is written in a "teacher grading you" register — real risk of reading
+    # as "your feedback with different headers" rather than BLT's warm, reflective voice,
+    # which matters more here since this is the actual reward moment. Kept cheap anyway:
+    # it works from ALREADY-COMPUTED judgments (does not re-evaluate the answer from
+    # scratch) and next_threads candidates are selected PROGRAMMATICALLY from the bank
+    # (study.py, not this prompt) rather than invented — much lighter than
+    # CORE_ANALYSIS_TEMPLATE's fresh full-passage analysis.
+    BST_REFLECTION_TEMPLATE = """
+Generate a short, warm, personal reflection for a Bible study learner who just answered
+ONE question from a larger question bank on: "{ref}"
+
+THE QUESTION THEY ANSWERED:
+[{level}] [V.{verse_range}] {question}
+
+THEIR ANSWER:
+{answer}
+
+EVALUATION ALREADY COMPUTED (do not re-evaluate — use this, don't redo it):
+- Strengths noted: {eval_strengths}
+- Suggestion given: {eval_suggestion}
+- Flag: {eval_flag}
+- Note (only present for DEFENSIBLE_ALTERNATE or INACCURATE with a pattern): {eval_note}
+
+OTHER QUESTIONS FROM THE SAME BANK, NOT YET ANSWERED (use ONLY these for next_threads
+below — do not invent new ones; if a level has no candidates listed, its next_threads
+must be empty):
+{next_threads_candidates}
+
+YOUR TASK: write ONE reflective entry for the layer matching what they answered
+({level}), and next_threads for all three layers. Voice: warm, personal, like a friend
+who noticed something in your answer — NOT a teacher restating a grade. Never say "your
+score was" or reference the evaluation mechanics directly.
+
+RULES:
+- touched (the answered layer ONLY, max 1 item): reflect what they ACTUALLY said,
+  specifically — not a generic restatement. Ground it in their own words or reasoning.
+- deepen (the answered layer ONLY, max 1 item, OPTIONAL): ONLY include this if the
+  Flag is COMPLETE or DEFENSIBLE_ALTERNATE (a genuinely correct or defensible answer with
+  more available) AND the suggestion/note above points to something specific and real —
+  never write a deepen item for INCOMPLETE or INACCURATE (those are gaps, not "you're
+  right, and there's more" — do not conflate the two). If the answered layer is
+  "應用" (application), NEVER include deepen — application is about personal
+  connection, not textual depth, the same rule as everywhere else in this framework.
+  Leave this empty far more often than you fill it — most single answers won't warrant it.
+- next_threads (all three layers, max 3 items each, drawn ONLY from the candidates
+  provided above): phrase each as an inviting question, reusing the bank question's own
+  wording closely rather than paraphrasing it into something different — the learner may
+  click one of these to answer it next, so it needs to match what they'd actually see.
+- narrative_summary: 1-2 warm sentences reflecting on this one answer and what it opened
+  up — not a passage summary, a reflection on THEIR engagement specifically.
+
+OUTPUT FORMAT — valid JSON only, no markdown fences, no preamble:
+
+{{
+  "layer": "{level}",
+  "touched": ["..."],
+  "deepen": [],
+  "next_threads": {{
+    "observation": ["..."],
+    "interpretation": ["..."],
+    "application": ["..."]
+  }},
+  "narrative_summary": "...",
+  "narrative_summary_en": "..."
+}}
+"""
+
+    @classmethod
+    def get_reflection_prompt(cls, reference: str, verse_range: str, level: str,
+                               question: str, answer: str, eval_strengths: str,
+                               eval_suggestion: str, eval_flag: str, eval_note: str,
+                               next_threads_candidates: str) -> str:
+        """
+        Get the BST reflection prompt — the learner-facing "reward" replacing the old
+        AI-generated passage summary. See BST_REFLECTION_TEMPLATE above for the full
+        design rationale.
+
+        next_threads_candidates: pre-formatted string listing 1-3 unanswered bank
+        questions per OTHER level (and optionally same-level, if more than one exists at
+        that level), selected programmatically by the caller — NOT generated by this
+        prompt. Expected format, one per line:
+            [observation] [V.1-3] <question text>
+            [application] [V.7-9] <question text>
+        Levels with no remaining unanswered questions should simply be absent from this
+        string, not padded with a placeholder.
+        """
+        return cls.BST_REFLECTION_TEMPLATE.format(
+            ref=reference, verse_range=verse_range, level=level,
+            question=question, answer=answer,
+            eval_strengths=eval_strengths or "（無）", eval_suggestion=eval_suggestion or "（無）",
+            eval_flag=eval_flag, eval_note=eval_note or "（無）",
+            next_threads_candidates=next_threads_candidates or "（無其他未答問題）"
+        )

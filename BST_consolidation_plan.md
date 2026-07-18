@@ -263,10 +263,18 @@ validated, not something being ruled out.
 
 ### 4.2 Proposed build sequence for this revised scope
 
-1. **Design + build the BST learning-map artifact** — the biggest net-new piece. A new
-   template/parser generating a personalized touched/deepen/continue-exploring reflection
-   from one answered question's `EVALUATION_TEMPLATE` feedback. Worth getting this right in
-   isolation before wiring it into any UI.
+1. **~~Design + build the BST learning-map artifact.~~ DONE 2026-07-16.**
+   `BST_REFLECTION_TEMPLATE` + `get_reflection_prompt()` (prompts.py) and
+   `ReflectionParser` (parsers.py). Deliberately built as a small LLM synthesis call
+   rather than a zero-cost reformat of `EVALUATION_TEMPLATE`'s feedback — considered and
+   rejected the free option because raw evaluation feedback reads as "teacher grading
+   you," not BLT's reflective voice, and this is the actual reward moment. Kept cheap
+   anyway: works from already-computed judgments, and `next_threads` candidates are
+   selected programmatically by the caller, not invented by the model. A real bug was
+   caught in testing (smart-quote normalization corrupting otherwise-valid JSON when
+   applied unconditionally) and fixed — now a fallback-after-failure only. Unit-tested
+   against clean, fence-wrapped, and broken synthetic input; **not yet tested against a
+   real model call.**
 2. **Build the single-select bank-browsing screen**, replacing
    `display_emphasis_interface()`'s current "SCREEN 1" emphasis-card selection with a
    verse-ordered list of bank questions and a single pick.

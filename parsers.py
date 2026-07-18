@@ -2,6 +2,8 @@
 Response parsing and content rendering utilities.
 """
 import re
+import json
+import logging
 import streamlit as st
 from typing import Optional, Tuple
 
@@ -902,3 +904,111 @@ class CoreAnalysisParser:
     def is_valid(cls, parsed: dict) -> bool:
         """Check that at least genre and central claim were successfully parsed."""
         return bool(parsed.get("genre")) and bool(parsed.get("central_claim"))
+
+
+class ReflectionParser:
+    """
+    Parser for BST_REFLECTION_TEMPLATE's JSON output — the learner-facing "reward"
+    replacing the old AI-generated passage summary. Added 2026-07-16, BST Consolidation
+    Plan §4, Start Study retirement step 1.
+
+    The output is JSON, unlike the other BST parsers in this file (which are all
+    tagged-text). Proactively guards against the same failure cause already documented
+    for BLT's learning-map JSON generation (SKILL_BLT.md): smart/curly quotes
+    (\u201c\u201d\u2018\u2019) in Chinese model output break JSON parsing, and models
+    sometimes wrap JSON in markdown code fences despite being told not to — both are
+    stripped/normalized before every parse attempt, rather than waiting to discover this
+    failure mode the same way it was found for BLT.
+    """
+
+    @staticmethod
+    def _strip_fences(raw: str) -> str:
+        """Strip markdown code fences if present, despite being told not to use them."""
+        text = raw.strip()
+        if text.startswith('```'):
+            text = re.sub(r'^```(?:json)?\s*', '', text)
+            text = re.sub(r'\s*```$', '', text)
+        return text.strip()
+
+    @staticmethod
+    def _normalise_smart_quotes(text: str) -> str:
+        """Normalise smart/curly quotes to straight quotes — same failure cause
+        documented for BLT's learning map (SKILL_BLT.md), where the model sometimes
+        uses a smart quote AS the JSON string delimiter instead of straight ASCII \".
+
+        IMPORTANT, found during testing 2026-07-16: this must be a FALLBACK tried only
+        after a plain parse fails, never applied unconditionally upfront. Smart quotes
+        used correctly as Chinese punctuation INSIDE an already-valid JSON string value
+        (e.g. a "體部位" quotation within a sentence) are completely safe as-is — blanket
+        replacing them turns a harmless non-ASCII character into a raw ASCII \" that then
+        terminates the JSON string early, actively breaking JSON that was already valid.
+        Confirmed by testing: applying this unconditionally corrupted a clean test case
+        that parsed fine on its own.
+        """
+        return (text
+                .replace('\u201c', '"').replace('\u201d', '"')
+                .replace('\u2018', "'").replace('\u2019', "'"))
+
+    @classmethod
+    def parse(cls, raw: str) -> dict | None:
+        """
+        Parse the reflection JSON.
+
+        Returns the parsed dict on success, or None on failure (caller should have a
+        fallback — e.g. skip the reflection and show a simpler static message — rather
+        than crash the completion-gate unlock).
+
+        Expected shape:
+            {
+                "layer": "觀察" | "詮釋" | "應用",
+                "touched": [str],       # 0-1 items
+                "deepen": [str],        # 0-1 items, empty far more often than not
+                "next_threads": {
+                    "observation": [str], "interpretation": [str], "application": [str]
+                },
+                "narrative_summary": str,
+                "narrative_summary_en": str,
+            }
+        """
+        if not raw:
+            return None
+
+        fence_stripped = cls._strip_fences(raw)
+        data = None
+        try:
+            data = json.loads(fence_stripped)
+        except (json.JSONDecodeError, ValueError):
+            # Fallback ONLY on failure — see _normalise_smart_quotes docstring for why
+            # this must not be the default path.
+            try:
+                data = json.loads(cls._normalise_smart_quotes(fence_stripped))
+            except (json.JSONDecodeError, ValueError) as e:
+                logging.getLogger(__name__).warning(f"ReflectionParser: JSON parse failed even after smart-quote fallback: {e}")
+                return None
+
+        # Defensive defaults — a model omitting an optional field shouldn't crash the
+        # caller; treat missing fields as empty rather than raising KeyError.
+        next_threads = data.get("next_threads", {}) or {}
+        return {
+            "layer": data.get("layer", ""),
+            "touched": data.get("touched", []) or [],
+            "deepen": data.get("deepen", []) or [],
+            "next_threads": {
+                "observation": next_threads.get("observation", []) or [],
+                "interpretation": next_threads.get("interpretation", []) or [],
+                "application": next_threads.get("application", []) or [],
+            },
+            "narrative_summary": data.get("narrative_summary", ""),
+            "narrative_summary_en": data.get("narrative_summary_en", ""),
+        }
+
+    @classmethod
+    def is_valid(cls, parsed: dict | None) -> bool:
+        """Check that parsing succeeded and there's at least a touched item or a summary —
+        an empty-everything result usually means the model misunderstood the task rather
+        than a genuinely valid but sparse reflection (unlike CoreAnalysisParser's sparse
+        sections, THIS artifact should never be fully empty — something was always
+        answered)."""
+        if not parsed:
+            return False
+        return bool(parsed.get("touched")) or bool(parsed.get("narrative_summary"))
