@@ -1844,7 +1844,14 @@ def main():
         reference = render_ui()
 
         # Action buttons
-        col1, col2, col3 = st.columns(3)
+        # Updated 2026-07-16 — BST Consolidation Plan §4/§5. "問題庫 Question Bank"
+        # button removed — it led to the exact same flow as "開始研讀 Start Study"
+        # once step 5 (option 1) repointed Start Study there. Kept Start Study's button/
+        # label, not Question Bank's, since it reads as a better call-to-action for an
+        # individual learner; Question Bank's underlying entry-point logic
+        # (qbank_reference/qbank_active/qbank_raw_result) is unchanged and still used —
+        # only the front-page button that duplicated it is gone.
+        col1, col2 = st.columns(2)
         with col1:
             if st.button("開始研讀 Start Study", type="primary", use_container_width=True):
                 process_study_request(reference)
@@ -1857,18 +1864,6 @@ def main():
                     st.session_state.lesson_plan_reference = ref
                     st.session_state.lesson_plan_active = True
                     st.session_state.lesson_plan_result = None
-                    st.rerun()
-                else:
-                    st.warning("請先輸入聖經段落。Please enter a Bible reference first.")
-        with col3:
-            if st.button("📚 問題庫 Question Bank", type="secondary",
-                         use_container_width=True,
-                         help="一次生成、依經文順序、無重複的問題庫 / Generate a single-pass, verse-ordered, non-overlapping question bank"):
-                ref = reference.strip() if reference else ""
-                if ref:
-                    st.session_state.qbank_reference = ref
-                    st.session_state.qbank_active = True
-                    st.session_state.qbank_raw_result = None
                     st.rerun()
                 else:
                     st.warning("請先輸入聖經段落。Please enter a Bible reference first.")
