@@ -313,6 +313,16 @@ validated, not something being ruled out.
    still-default old Start Study flow.
 5. **Retire the question-generation portion of `process_emphasis_selection()` /
    `generate_all_emphasis_parallel()`** — once 1-3 work, not before.
+
+   **Option 1 (repoint, don't delete) DONE 2026-07-16.** "開始研讀 Start Study" now leads
+   to the same Question Bank / single-select flow as the "問題庫" button —
+   `process_study_request()`'s rate-limiting/validation/error-handling wrapper preserved,
+   only its final action changed. The old flow is completely intact and still works
+   (confirmed earlier today), just no longer reachable through the front page. Full
+   deletion deliberately not attempted yet — that's option 2, to be revisited once more
+   live testing accumulates on the new flow, not decided today. Stale front-page copy
+   (promising a since-retired "深度摘要") also caught and fixed while in there. **Not yet
+   live-tested.**
 6. **Emphasis-as-grading-tone toggle** — smaller now than originally scoped, since
    single-select already resolves the "which set" ambiguity emphasis was partly solving;
    with only one question in play, emphasis only affects grading tone, not selection bias.

@@ -445,8 +445,19 @@ def render_ui():
 
 def process_study_request(reference: str):
     """
-    Process a study request — always uses Standard Mode question generation.
-    Summary depth (quick vs deep) is chosen by the user after questions are shown.
+    Process a study request.
+
+    UPDATED 2026-07-16 — BST Consolidation Plan §4, Start Study retirement build step 5,
+    option 1 (repoint, don't delete). "開始研讀 Start Study" now leads to the same
+    Question Bank / single-select flow as the "📚 問題庫 Question Bank" button, rather
+    than the old three-set emphasis flow — per the target architecture (§2.1: Start
+    Study absorbs into Question Bank, retires as a separate pathway). The old flow
+    (process_emphasis_selection, display_emphasis_interface, generate_all_emphasis_parallel)
+    is deliberately left completely intact and reachable only by direct state manipulation
+    — not deleted, not unlinked from the codebase — kept as a working reference for at
+    least one more round, per the explicit decision not to bet deletion on one round of
+    live testing. Rate-limiting, input validation, and error handling below are unchanged
+    and apply the same way to the new destination.
 
     Args:
         reference: Bible reference input
@@ -469,7 +480,10 @@ def process_study_request(reference: str):
     SessionManager.record_request()
 
     try:
-        process_emphasis_selection(reference, client)
+        st.session_state.qbank_reference = reference.strip()
+        st.session_state.qbank_active = True
+        st.session_state.qbank_raw_result = None
+        st.rerun()
 
     except (GeminiAPIError, Exception) as e:
         logger.error(f"API error: {str(e)}")

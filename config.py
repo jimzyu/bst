@@ -64,7 +64,12 @@ class Config:
     
     # Text labels
     LABELS = {
-        'input_prompt': '輸入經文引用以獲取啟發提問與深度摘要。',
+        # Updated 2026-07-16 — BST Consolidation Plan §4/§5. Was '...啟發提問與深度摘要'
+        # (thought-provoking questions and an in-depth summary) — the deep-summary
+        # promise is stale now that summary generation is retired from Start Study
+        # (moved to Lesson Plan). Reflects the new reward: questions plus a personalized
+        # reflection on your own answer, not a static passage summary.
+        'input_prompt': '輸入經文引用以獲取啟發提問與個人化學習回顧。',
         'input_placeholder': '例如: Matthew 14:1-36',
         'input_label': '經文引用 Scriptural Reference',
         'error_empty': '請輸入有效的經文引用。',
