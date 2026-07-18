@@ -2228,10 +2228,10 @@ THEIR ANSWER:
 {answer}
 
 EVALUATION ALREADY COMPUTED (do not re-evaluate — use this, don't redo it):
-- Strengths noted: {eval_strengths}
-- Suggestion given: {eval_suggestion}
-- Flag: {eval_flag}
-- Note (only present for DEFENSIBLE_ALTERNATE or INACCURATE with a pattern): {eval_note}
+{eval_feedback}
+
+Flag: {eval_flag}
+Note (only present for DEFENSIBLE_ALTERNATE or INACCURATE with a pattern): {eval_note}
 
 OTHER QUESTIONS FROM THE SAME BANK, NOT YET ANSWERED (use ONLY these for next_threads
 below — do not invent new ones; if a level has no candidates listed, its next_threads
@@ -2279,13 +2279,19 @@ OUTPUT FORMAT — valid JSON only, no markdown fences, no preamble:
 
     @classmethod
     def get_reflection_prompt(cls, reference: str, verse_range: str, level: str,
-                               question: str, answer: str, eval_strengths: str,
-                               eval_suggestion: str, eval_flag: str, eval_note: str,
+                               question: str, answer: str, eval_feedback: str,
+                               eval_flag: str, eval_note: str,
                                next_threads_candidates: str) -> str:
         """
         Get the BST reflection prompt — the learner-facing "reward" replacing the old
         AI-generated passage summary. See BST_REFLECTION_TEMPLATE above for the full
         design rationale.
+
+        eval_feedback: the Chinese feedback block from EVALUATION_TEMPLATE's output
+        (via QuizParser.parse_evaluation_feedback() — that function splits CHINESE/
+        ENGLISH blocks; there is no separate strengths/suggestion sub-field parser, and
+        this deliberately doesn't add one — passing the whole block is simpler and
+        avoids introducing another unverified regex extractor).
 
         next_threads_candidates: pre-formatted string listing 1-3 unanswered bank
         questions per OTHER level (and optionally same-level, if more than one exists at
@@ -2299,7 +2305,7 @@ OUTPUT FORMAT — valid JSON only, no markdown fences, no preamble:
         return cls.BST_REFLECTION_TEMPLATE.format(
             ref=reference, verse_range=verse_range, level=level,
             question=question, answer=answer,
-            eval_strengths=eval_strengths or "（無）", eval_suggestion=eval_suggestion or "（無）",
+            eval_feedback=eval_feedback or "（無）",
             eval_flag=eval_flag, eval_note=eval_note or "（無）",
             next_threads_candidates=next_threads_candidates or "（無其他未答問題）"
         )

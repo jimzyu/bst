@@ -275,9 +275,20 @@ validated, not something being ruled out.
    applied unconditionally) and fixed — now a fallback-after-failure only. Unit-tested
    against clean, fence-wrapped, and broken synthetic input; **not yet tested against a
    real model call.**
-2. **Build the single-select bank-browsing screen**, replacing
-   `display_emphasis_interface()`'s current "SCREEN 1" emphasis-card selection with a
-   verse-ordered list of bank questions and a single pick.
+2. **~~Build the single-select bank-browsing screen.~~ DONE 2026-07-16.** Built as
+   genuinely new, parallel code (`sq_*` state, `display_single_question_interface()`,
+   `_select_next_threads_candidates()`) alongside the existing `display_emphasis_interface()`,
+   which remains completely untouched and is still the only thing reached through the
+   normal Start Study button — the new flow is only reachable via a new "回答這一題"
+   button added to the Question Bank display. Faithfully reuses the existing evaluate→
+   bounded-one-round-followup/redirect pattern (already well-designed) rather than
+   reinventing it, then generates the new reflection artifact instead of showing raw
+   feedback. Two real issues caught during wiring (an assumed sub-field parser that
+   doesn't exist; missing module-level imports) before either reached runtime. Verified:
+   full compile, and `_select_next_threads_candidates()`'s actual code (not a
+   reproduction) tested directly against a realistic multi-question bank. **Not yet
+   tested against a real model call** — this is the first BST build today with zero live
+   testing so far.
 3. **Wire the completion gate to the new shape** — "answered the one selected question"
    unlocks the new reflection artifact from step 1, replacing the old
    summary-and-scenario unlock.

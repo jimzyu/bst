@@ -10,7 +10,7 @@ import logging
 from config import Config
 from name_generator import generate_name, build_context_paragraph
 from prompts import PromptTemplates
-from parsers import ResponseParser, ContentRenderer, QuizParser, LessonPlanParser
+from parsers import ResponseParser, ContentRenderer, QuizParser, LessonPlanParser, QuestionBankParser, ReflectionParser
 from api_client import GeminiClient, GeminiAPIError
 from session_manager import SessionManager
 
@@ -1593,7 +1593,7 @@ def display_question_bank_interface():
                     badge = label_zh
 
                 st.markdown(
-                    f'<div style="margin-bottom:0.7rem;">'
+                    f'<div style="margin-bottom:0.3rem;">'
                     f'<span style="display:inline-block;font-size:0.75rem;font-weight:600;'
                     f'padding:0.15rem 0.5rem;border-radius:4px;margin-right:0.5rem;'
                     f'background:{color}20;color:{color};">{badge}</span>'
@@ -1601,6 +1601,34 @@ def display_question_bank_interface():
                     f'</div>',
                     unsafe_allow_html=True
                 )
+                # Added 2026-07-16 — BST Consolidation Plan §4, Start Study retirement
+                # build step 2. Single-select: clicking launches the new, parallel
+                # sq_* flow (display_single_question_interface, below) with this
+                # question pre-loaded. Deliberately a click-to-select button, not a
+                # radio group + separate confirm — simplest possible selection UX,
+                # matching the single-select-first decision in the plan document.
+                if st.button("✏️ 回答這一題 Answer this",
+                             key=f"sq_pick_{group['verse_range']}_{level_key}",
+                             use_container_width=False):
+                    st.session_state.sq_active = True
+                    st.session_state.sq_reference = reference
+                    st.session_state.sq_question = {
+                        "verse_range": group["verse_range"],
+                        "level": level_key,
+                        "level_label_zh": label_zh,
+                        "level_label_en": label_en,
+                        "zh": q["zh"],
+                        "en": q["en"],
+                        "misread": q.get("misread"),
+                    }
+                    st.session_state.sq_bank_parsed = parsed  # for next_threads candidates
+                    st.session_state.sq_answer = None
+                    st.session_state.sq_feedback = None
+                    st.session_state.sq_followup_question = None
+                    st.session_state.sq_followup_answer = None
+                    st.session_state.sq_followup_done = False
+                    st.session_state.sq_reflection = None
+                    st.rerun()
             st.markdown("---")
 
     # Raw output kept available for debugging, collapsed by default
@@ -1628,7 +1656,213 @@ def display_question_bank_interface():
         st.rerun()
 
 
-def display_lesson_plan_interface():
+def _select_next_threads_candidates(bank_parsed: dict, answered_question: dict, max_per_level: int = 2) -> str:
+    """
+    Added 2026-07-16 — BST Consolidation Plan §4, Start Study retirement build step 2.
+    Programmatically selects 1-2 not-yet-answered bank questions per level, formatted for
+    BST_REFLECTION_TEMPLATE's next_threads_candidates input. Deliberately NOT an LLM
+    call — see NOTES.md "BST Consolidation Plan — Reflection Artifact Built" for why this
+    stays programmatic (real, already-generated bank content, not invented) while the
+    reflection's touched/deepen content is the part that genuinely needs an LLM.
+
+    Excludes the answered question itself (matched on verse_range + level, which is
+    unique within a single bank per QuestionBankParser's group structure).
+    """
+    if not bank_parsed:
+        return ""
+    flat = QuestionBankParser.flat_list(bank_parsed)
+    answered_key = (answered_question["verse_range"], answered_question["level"])
+    by_level = {"observation": [], "interpretation": [], "application": []}
+    for q in flat:
+        key = (q["verse_range"], q["level"])
+        if key == answered_key:
+            continue
+        if len(by_level.get(q["level"], [])) < max_per_level:
+            by_level[q["level"]].append(q)
+    lines = []
+    for level, items in by_level.items():
+        for q in items:
+            lines.append(f"[{level}] [V.{q['verse_range']}] {q['zh']}")
+    return "\n".join(lines)
+
+
+def display_single_question_interface():
+    """
+    Added 2026-07-16 — BST Consolidation Plan §4, Start Study retirement build step 2.
+    New, PARALLEL flow for answering a single question selected from the Question Bank —
+    built additively alongside the existing display_emphasis_interface() rather than
+    editing it in place. The existing three-question emphasis quiz machinery
+    (session_manager.py) is tightly coupled to a fixed observation→interpretation→
+    application sequence; retrofitting single-select into it would fight that shape at
+    every step. This function and its sq_* session-state keys are entirely separate,
+    so the existing Start Study flow keeps working untouched while this is built and
+    tested. See NOTES.md for the full reasoning.
+
+    Mirrors display_emphasis_interface()'s evaluate → (bounded one-round followup/
+    redirect if INCOMPLETE/INACCURATE) → final feedback pattern faithfully (that part
+    is already well-designed, being reused deliberately, not reinvented) — but replaces
+    the final "show raw feedback" step with generating and showing the new personalized
+    reflection artifact (BST_REFLECTION_TEMPLATE / ReflectionParser) instead.
+    """
+    reference = st.session_state.sq_reference
+    question = st.session_state.sq_question
+    client = st.session_state.gemini_client
+
+    st.markdown(f"### ✏️ {reference}")
+
+    label_zh, label_en = question["level_label_zh"], question["level_label_en"]
+    color = _LEVEL_DISPLAY.get(question["level"], (label_zh, label_en, "#8B7355"))[2]
+    st.markdown(
+        f'<div style="margin-bottom:1rem;">'
+        f'<span style="display:inline-block;font-size:0.78rem;font-weight:700;'
+        f'padding:0.2rem 0.6rem;border-radius:4px;margin-right:0.5rem;'
+        f'background:{color}20;color:{color};">{label_zh} · {label_en}</span>'
+        f'<span style="color:var(--text-muted);font-size:0.85rem;">V.{question["verse_range"]}</span>'
+        f'</div>'
+        f'<div class="question-card">'
+        f'<div style="font-size:1.02rem;line-height:1.9;">{question["zh"]}</div>'
+        f'<div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.4rem;">{question["en"]}</div>'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+
+    # ── No answer yet — collect it ──
+    if not st.session_state.sq_feedback:
+        answer = st.text_area(
+            "你的答案 Your Answer:", height=150, key="sq_answer_input",
+            placeholder="在此輸入你的回答... / Type your answer here..."
+        )
+        if st.button("提交 Submit", type="primary", disabled=not answer.strip()):
+            st.session_state.sq_answer = answer
+            with st.spinner("正在評估... Evaluating..."):
+                feedback = client.evaluate_answer(
+                    reference=reference,
+                    question_type=question["level"],
+                    question=question["zh"],
+                    user_answer=answer,
+                    ai_answer=st.session_state.get('shared_core_analysis', {}).get('raw', ''),
+                    emphasis="standard"  # build step 6 (emphasis toggle) not yet built — see plan
+                )
+                st.session_state.sq_feedback = feedback
+            st.rerun()
+        if st.button("← 返回 Back", type="secondary"):
+            st.session_state.sq_active = False
+            st.rerun()
+        return
+
+    # ── Evaluated — check for bounded one-round followup/redirect ──
+    flag, note = QuizParser.parse_evaluation_flags(st.session_state.sq_feedback)
+    needs_followup = flag in ('INCOMPLETE', 'INACCURATE') and not st.session_state.sq_followup_done
+
+    if needs_followup:
+        if not st.session_state.sq_followup_question:
+            label = "思考一個跟進問題..." if flag == 'INCOMPLETE' else "回到經文看看..."
+            with st.spinner(label):
+                if flag == 'INCOMPLETE':
+                    ch_q, en_q = client.generate_followup_question(
+                        reference=reference, question_type=question["level"],
+                        emphasis="standard", original_question=question["zh"],
+                        user_answer=st.session_state.sq_answer, missing_note=note
+                    )
+                else:
+                    ch_q, en_q = client.generate_redirect_question(
+                        reference=reference, question_type=question["level"],
+                        emphasis="standard", original_question=question["zh"],
+                        user_answer=st.session_state.sq_answer, correction_note=note
+                    )
+                st.session_state.sq_followup_question = (ch_q, en_q)
+            st.rerun()
+        else:
+            icon = "🔍" if flag == 'INCOMPLETE' else "📖"
+            label = "跟進問題 Follow-up Question" if flag == 'INCOMPLETE' else "再看看經文 Look Again"
+            st.markdown(f"### {icon} {label}")
+            ch_q, en_q = st.session_state.sq_followup_question
+            st.info(ch_q)
+            if en_q:
+                st.caption(en_q)
+            followup_answer = st.text_area(
+                "你的回應 Your response:", height=120, key="sq_followup_input"
+            )
+            if st.button("提交回應 Submit Response", type="primary",
+                         disabled=not followup_answer.strip()):
+                st.session_state.sq_followup_answer = followup_answer
+                with st.spinner("重新評估... Re-evaluating..."):
+                    fu_label = "follow-up" if flag == 'INCOMPLETE' else "re-read response"
+                    combined_answer = (
+                        f"Initial answer: {st.session_state.sq_answer}\n\n"
+                        f"After {fu_label} question — additional response: {followup_answer}"
+                    )
+                    new_feedback = client.evaluate_answer(
+                        reference=reference, question_type=question["level"],
+                        question=question["zh"], user_answer=combined_answer,
+                        ai_answer=st.session_state.get('shared_core_analysis', {}).get('raw', ''),
+                        emphasis="standard"
+                    )
+                    st.session_state.sq_feedback = new_feedback
+                    st.session_state.sq_followup_done = True
+                st.rerun()
+        return
+
+    # ── Fully evaluated (no pending followup) — generate/show the reflection ──
+    if not st.session_state.sq_reflection:
+        with st.spinner("正在生成回顧... Generating your reflection..."):
+            ch_feedback, _ = QuizParser.parse_evaluation_feedback(st.session_state.sq_feedback)
+            candidates = _select_next_threads_candidates(
+                st.session_state.get('sq_bank_parsed'), question
+            )
+            reflection_prompt = PromptTemplates.get_reflection_prompt(
+                reference=reference, verse_range=question["verse_range"], level=label_zh,
+                question=question["zh"], answer=st.session_state.sq_answer,
+                eval_feedback=ch_feedback,
+                eval_flag=flag, eval_note=note, next_threads_candidates=candidates
+            )
+            try:
+                raw_reflection = client.generate_content_quality(reflection_prompt)
+                parsed_reflection = ReflectionParser.parse(raw_reflection)
+                if ReflectionParser.is_valid(parsed_reflection):
+                    st.session_state.sq_reflection = parsed_reflection
+                else:
+                    logger.warning("Reflection generation produced invalid/unparseable output")
+                    st.session_state.sq_reflection = {"_failed": True}
+            except Exception as e:
+                logger.error(f"Reflection generation failed: {e}")
+                st.session_state.sq_reflection = {"_failed": True}
+        st.rerun()
+
+    reflection = st.session_state.sq_reflection
+    st.success("✅ 已完成 Answered!")
+    with st.expander("你的答案 Your Answer", expanded=False):
+        st.write(st.session_state.sq_answer)
+
+    if reflection.get("_failed"):
+        st.info("回顧生成失敗，但你的答案已記錄。Reflection generation failed, but your answer was recorded.")
+    else:
+        st.markdown("### 🌿 你的學習回顧 Your Reflection")
+        if reflection.get("touched"):
+            for item in reflection["touched"]:
+                st.markdown(f"✅ {item}")
+        if reflection.get("deepen"):
+            for item in reflection["deepen"]:
+                st.markdown(f"↳ *{item}*")
+        st.markdown(f"*{reflection.get('narrative_summary', '')}*")
+        if reflection.get('narrative_summary_en'):
+            st.caption(reflection['narrative_summary_en'])
+
+        next_threads = reflection.get("next_threads", {})
+        any_threads = any(next_threads.get(l) for l in ("observation", "interpretation", "application"))
+        if any_threads:
+            st.markdown("#### 繼續探索 Continue exploring")
+            for level_key, level_label in [("observation", "觀察"), ("interpretation", "詮釋"), ("application", "應用")]:
+                for item in next_threads.get(level_key, []):
+                    st.markdown(f"→ **[{level_label}]** {item}")
+
+    st.markdown("---")
+    if st.button("📚 回到問題庫 Back to Question Bank", type="secondary"):
+        st.session_state.sq_active = False
+        st.rerun()
+
+
+
     """
     Display the two-layer lesson plan — facilitator guide + learner materials.
     Toggle between layers via a tab or toggle control.
@@ -1746,8 +1980,14 @@ def main():
     # Initialize
     initialize_app()
     
+    # Check if single-question mode is active (BST Consolidation Plan §4, Start Study
+    # retirement build step 2, added 2026-07-16 — new, parallel flow, coexists with the
+    # legacy emphasis flow below while under evaluation, same pattern as qbank_active
+    # coexisting with emphasis_active did)
+    if st.session_state.get('sq_active', False):
+        display_single_question_interface()
     # Check if lesson plan mode is active
-    if st.session_state.lesson_plan_active:
+    elif st.session_state.lesson_plan_active:
         display_lesson_plan_interface()
     # Check if question bank mode is active (one-pass redesign — see NOTES.md
     # "One-Pass Question Bank" section, 2026-07-08. Not yet the default —
