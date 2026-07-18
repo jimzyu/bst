@@ -1395,9 +1395,52 @@ def _generate_lesson_plan(reference: str, client) -> dict | None:
     """
     Generate the two-layer lesson plan for a passage.
     Returns a parsed dict or None on failure.
+
+    Added 2026-07-16 — BST Consolidation Plan step 4. Checks/populates the SAME
+    st.session_state.shared_core_analysis cache Question Bank uses (see
+    display_question_bank_interface() above) — whichever feature runs first for a given
+    reference generates the analysis; whichever runs second for the SAME reference reuses
+    it for free. This is the actual payoff step 4 exists to demonstrate: the shared
+    analysis working across two different consumers, not just within one.
+
+    Same fallback discipline as step 3: if the analysis call or parse fails, falls through
+    to the original self-contained LESSON_PLAN_TEMPLATE (core_analysis=None) rather than
+    blocking the feature.
     """
-    from parsers import LessonPlanParser
-    prompt = PromptTemplates.get_lesson_plan_prompt(reference)
+    from parsers import LessonPlanParser, CoreAnalysisParser
+
+    # Get or reuse the shared core analysis for this reference.
+    cached = st.session_state.get('shared_core_analysis')
+    core_analysis_raw = None
+    if cached and cached.get('reference') == reference:
+        core_analysis_raw = cached.get('raw')  # reuse — no API call
+    else:
+        try:
+            analysis_prompt = PromptTemplates.get_core_analysis_prompt(reference)
+            analysis_raw = client.generate_content_quality(
+                analysis_prompt,
+                system_override=PromptTemplates.QUESTION_BANK_SYSTEM
+            )
+            parsed_analysis = CoreAnalysisParser.parse(analysis_raw)
+            if CoreAnalysisParser.is_valid(parsed_analysis):
+                core_analysis_raw = parsed_analysis['raw']
+                st.session_state.shared_core_analysis = {
+                    'reference': reference, 'raw': core_analysis_raw
+                }
+            else:
+                logger.warning(
+                    f"Core analysis parsed but invalid for {reference} "
+                    f"(missing genre/central_claim) — falling back to "
+                    f"self-contained lesson plan generation."
+                )
+        except Exception as e:
+            logger.warning(
+                f"Core analysis generation failed for {reference}: {e} — "
+                f"falling back to self-contained lesson plan generation."
+            )
+            # core_analysis_raw stays None — falls through to the original path.
+
+    prompt = PromptTemplates.get_lesson_plan_prompt(reference, core_analysis=core_analysis_raw)
     try:
         raw = client.generate_content_quality(prompt)
         parsed = LessonPlanParser.parse(raw)
@@ -1429,7 +1472,7 @@ def display_question_bank_interface():
     by verse range, with stacked levels shown together within each group.
 
     Added 2026-07-14 — BST Consolidation Plan step 3: generates the shared core analysis
-    ONCE per reference (cached in st.session_state.qbank_core_analysis, invalidated when
+    ONCE per reference (cached in st.session_state.shared_core_analysis, invalidated when
     the reference changes at the entry point — see qbank_reference assignment below), then
     builds the question bank FROM that analysis via QUESTION_BANK_FROM_ANALYSIS_TEMPLATE,
     instead of each generation re-deriving genre/central claim/density map/misreadings/
@@ -1437,6 +1480,12 @@ def display_question_bank_interface():
     cached analysis rather than forcing a fresh one — the passage's structure hasn't
     changed, only the specific question phrasing might benefit from a retry, and reusing
     the cache is exactly the saving this step exists for.
+
+    UPDATED 2026-07-16 — step 4: this cache is no longer Question-Bank-specific.
+    _generate_lesson_plan() (below) checks/populates the SAME shared_core_analysis key —
+    whichever of the two features runs first for a given reference does the analysis; the
+    other reuses it for free if run afterward for the same reference. This is the actual
+    cross-feature payoff the whole consolidation plan was built toward.
 
     FALLBACK, not a hard requirement: if the core-analysis call or parse fails
     (CoreAnalysisParser.is_valid() False, or the API call itself errors), this falls back
@@ -1457,7 +1506,7 @@ def display_question_bank_interface():
         client = st.session_state.gemini_client
 
         # Step 1 of 2 — get or reuse the shared core analysis for this reference.
-        cached = st.session_state.get('qbank_core_analysis')
+        cached = st.session_state.get('shared_core_analysis')
         core_analysis_raw = None
         if cached and cached.get('reference') == reference:
             core_analysis_raw = cached.get('raw')  # reuse — no API call, no spinner needed
@@ -1472,7 +1521,7 @@ def display_question_bank_interface():
                     parsed_analysis = CoreAnalysisParser.parse(analysis_raw)
                     if CoreAnalysisParser.is_valid(parsed_analysis):
                         core_analysis_raw = parsed_analysis['raw']
-                        st.session_state.qbank_core_analysis = {
+                        st.session_state.shared_core_analysis = {
                             'reference': reference, 'raw': core_analysis_raw
                         }
                     else:

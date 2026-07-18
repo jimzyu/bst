@@ -148,6 +148,21 @@ views.
    rather than regenerate independently. See §4 below — this step has a worked-out design
    for the Start Study side specifically.
 
+   **Lesson Plan half: ~~DONE 2026-07-16~~.** `LESSON_PLAN_FROM_ANALYSIS_TEMPLATE` reuses
+   genre/central claim/misreadings/density-map from the shared analysis; still derives
+   historical background and the orienting question fresh (not covered by the shared
+   analysis); now derives its lesson sections FROM the density map rather than an
+   independent scan. The cache (renamed `qbank_core_analysis` → `shared_core_analysis`)
+   is now genuinely cross-feature — whichever of Question Bank / Lesson Plan runs first
+   for a reference, the other reuses its analysis for free. Compiled and unit-tested;
+   **not yet live-tested** — the specific thing to confirm is whether a Lesson Plan run
+   right after a Question Bank for the same reference actually skips its own analysis
+   call. See NOTES.md Pending Tests.
+
+   **Start Study half: not started.** Still the bigger, UX-facing piece — retiring Start
+   Study as a separate pathway in favour of the checkbox-based Question Bank browsing
+   experience, plus the emphasis-as-session-toggle design worked out in §4 below.
+
 5. **Retire Summaries and Scenario Generation as separate paths — absorb them into
    Lesson Plan**, per the target end state in §2.1. Summary content (theological
    significance, historical background, diagnosis) moves into Lesson Plan's Layer 1,
