@@ -219,6 +219,71 @@ barely change — they already take `emphasis` as a parameter; it just stops bei
 which of three independently-generated sets produced the question in front of the
 student.
 
+### 4.1 Design revision, 2026-07-16 — the actual code inspection changed the plan
+
+Checking the real code before scoping the build surfaced three things the original §4
+design (above) didn't account for, and the resolution reshapes what "the reward" even is:
+
+**Start Study currently fires FOUR parallel calls, not one or three** — three emphasis
+sets plus a summary, concurrently, specifically engineered so the student never waits
+after their first click. Any replacement needs to reckon with this UX property, not just
+the redundancy.
+
+**The completion gate is real, deliberate, good design — and currently unlocks the
+summary AND scenario together.** `display_emphasis_interface()` locks both behind
+finishing at least one question set (with a separate facilitator-mode override for lesson
+prep). This is the same "productive struggle before reward" principle from the Sal Khan
+discussion (2026-07-16) — worth preserving deliberately, not losing as an unnoticed side
+effect of restructuring the backend underneath it.
+
+**Resolution, decided 2026-07-16 — the reward changes, and that simplifies everything
+downstream:** the learner-facing unlock is no longer the AI-generated passage summary. It
+becomes a **BLT-style personalized reflection**, built from what the learner actually
+answered — the same touched/deepen/continue-exploring shape as BLT's learning map,
+adapted from a batch of directly-submitted question/answer pairs (via
+`EVALUATION_TEMPLATE`'s per-question feedback) rather than a flowing conversation. This is
+a genuinely new artifact, not a port — needs its own design pass before building.
+
+**This pulls part of step 5 forward, on purpose, not as scope creep:** since the AI
+summary and scenario have no remaining reason to be learner-facing once the reward
+changes, they move to become pure Lesson Plan / facilitator content now — the exact
+target end state §2.1 already described for step 5, just arriving earlier because this
+design requires it.
+
+**Selection scope, decided 2026-07-16: build single-select first, not multi-select.**
+Two reasons beyond reduced complexity: (1) it resolves the completion-gate redesign for
+free — "answered the one question you picked" is unambiguous, where multi-select forces a
+decision about how many/which levels count as enough effort; (2) it's the version that
+best rehearses the intended future direction — a single selected question becoming a BLT
+conversation's starting point (**explicitly deferred, not designed yet** — noted so it
+isn't lost, not sketched further here) is a smaller leap from "one question, one focused
+reflection" than from a multi-question batch. Multi-select is a deliberate fast-follow
+once the single-select loop (select → answer → evaluate → personalized reflection) is
+validated, not something being ruled out.
+
+### 4.2 Proposed build sequence for this revised scope
+
+1. **Design + build the BST learning-map artifact** — the biggest net-new piece. A new
+   template/parser generating a personalized touched/deepen/continue-exploring reflection
+   from one answered question's `EVALUATION_TEMPLATE` feedback. Worth getting this right in
+   isolation before wiring it into any UI.
+2. **Build the single-select bank-browsing screen**, replacing
+   `display_emphasis_interface()`'s current "SCREEN 1" emphasis-card selection with a
+   verse-ordered list of bank questions and a single pick.
+3. **Wire the completion gate to the new shape** — "answered the one selected question"
+   unlocks the new reflection artifact from step 1, replacing the old
+   summary-and-scenario unlock.
+4. **Move summary and scenario generation to Lesson Plan exclusively** — retire their
+   Start-Study-facing role. This is effectively step 5's summary-half, done now because
+   this design requires it, not deferred.
+5. **Retire the question-generation portion of `process_emphasis_selection()` /
+   `generate_all_emphasis_parallel()`** — once 1-3 work, not before.
+6. **Emphasis-as-grading-tone toggle** — smaller now than originally scoped, since
+   single-select already resolves the "which set" ambiguity emphasis was partly solving;
+   with only one question in play, emphasis only affects grading tone, not selection bias.
+   Treat as an optional fast-follow polish item after the core loop (1-5) works, not a
+   blocker to it.
+
 ---
 
 ## 5. What's explicitly NOT changing
