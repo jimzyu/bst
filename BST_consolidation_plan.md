@@ -2,7 +2,48 @@
 
 *Drafted 2026-07-14, for review. Companion to NOTES.md, which has the full chronological
 log this plan was distilled from — this document is organized by topic and decision,
-not by session.*
+not by session. Status summary added 2026-07-16 as this plan neared completion — read
+this section first, the rest of the document is the reasoning and history behind it.*
+
+---
+
+## Status summary (2026-07-16)
+
+**Core architecture: done and live-tested.** The five-path redundancy problem this plan
+set out to fix is genuinely resolved — one shared core analysis, generated once per
+reference and reused across Question Bank and Lesson Plan, confirmed working live across
+three genres (epistle, narrative, law) with one real parsing bug found and fixed along
+the way. The front page now reflects this: two buttons (Start Study, Lesson Plan), not
+three — Start Study leads into the single-select Question Bank flow directly, and its
+completion structurally requires finishing the answer-and-evaluate sequence before the
+new personalized reflection can appear (verified by direct code trace, not assumed —
+see §4.2 step 3).
+
+| Piece | Status |
+|---|---|
+| Shared core analysis (`CORE_ANALYSIS_TEMPLATE`) | ✅ Done, live-tested (3 genres) |
+| Question Bank as single source, with reuse/caching | ✅ Done, live-tested |
+| Lesson Plan consuming shared analysis | ✅ Done, live-tested |
+| Single-question answer → personalized reflection flow | ✅ Done, live-tested |
+| Summary retired from Start Study → Lesson Plan (經文的診斷 added) | ✅ Done, live-tested |
+| Start Study repointed; Question Bank button removed | ✅ Done, live-tested |
+| Completion gate for the reflection | ✅ Confirmed structurally self-enforcing — no separate gate needed |
+| **Scenario generation's destination** | ⬜ **Open** — machinery intact, unused, no design decision made |
+| **Old emphasis machinery (question-generation half)** | ⬜ **Open** — kept intact deliberately (option 1); full deletion (option 2) not yet decided |
+| `next_threads` clickable enhancement | ⬜ Deferred — real schema change, not started |
+| Emphasis-as-grading-tone toggle (step 6) | ⬜ Deferred — explicitly optional from the start |
+
+**What "done" means here specifically:** every ✅ item has been built, unit-tested, and
+confirmed working against a real model call and/or the real Streamlit UI — not just
+designed or compiled. Two real bugs were found this way (a parser bug from a fullwidth
+colon, a deleted function signature from a careless `str_replace`) that no amount of
+static checking caught — both are documented in NOTES.md with the verification method
+that should have caught them, now adopted as standard practice for further `study.py`
+changes.
+
+**What's genuinely left is two design decisions, not more building:** where scenario
+generation belongs, and when (if ever) the old three-question emphasis flow gets deleted
+rather than just left unreachable. Neither blocks anything currently working.
 
 ---
 
@@ -296,9 +337,14 @@ validated, not something being ruled out.
    (`next_threads` → `{verse_range, level, text}` objects), logged for later, not
    blocking the build sequence. INCOMPLETE/INACCURATE followup branch not yet
    specifically exercised live.
-3. **Wire the completion gate to the new shape** — "answered the one selected question"
-   unlocks the new reflection artifact from step 1, replacing the old
-   summary-and-scenario unlock.
+3. **~~Wire the completion gate to the new shape.~~ CONFIRMED 2026-07-16, no build
+   needed.** Traced `display_single_question_interface()` directly, not assumed: two
+   `return` statements structurally gate the reflection — one fires while no answer has
+   been evaluated yet, one fires while a followup round is still pending. There is no
+   code path that reaches the reflection section without both clearing first. The
+   reward is inherently gated by the flow's own structure, unlike the old flow where
+   summary/scenario were generated independently and needed an explicit
+   `has_completed_any_emphasis()` check to gate their visibility.
 4. **~~Move summary and scenario generation to Lesson Plan exclusively.~~ Summary DONE
    2026-07-16; scenario deliberately deferred.** Checked for structural conflicts before
    building: 3 of summary's 4 fields already existed in Lesson Plan's Layer 1 (引言,
