@@ -1759,6 +1759,77 @@ def display_lesson_plan_interface():
             with tab3:
                 st.markdown(l1_en or "")
 
+        # ── Scenario section (on demand) ───────────────────────────────────
+        st.markdown("---")
+        st.markdown("#### 🎭 情境案例 Threshold Scenario")
+        st.caption(
+            "為小組討論生成一個情境案例，幫助學員將經文的診斷應用到真實生活中。"
+            "  ·  Generate a threshold scenario for group discussion, "
+            "connecting the passage's diagnosis to a real-life situation."
+        )
+
+        # Initialise scenario state for this reference
+        scenario_key = f"lesson_plan_scenario_{reference.replace(' ', '_').replace(':', '')}"
+        if scenario_key not in st.session_state:
+            st.session_state[scenario_key] = None
+
+        scenario_result = st.session_state.get(scenario_key)
+
+        col_gen, col_regen = st.columns([3, 1])
+        with col_gen:
+            if scenario_result is None:
+                if st.button(
+                    "🎭 生成情境案例 Generate Scenario",
+                    key=f"gen_scenario_{scenario_key}",
+                    use_container_width=True,
+                    type="primary"
+                ):
+                    with st.spinner("正在生成情境案例… Generating scenario…"):
+                        try:
+                            # Use lesson plan layer 1 content as context enrichment
+                            context_for_scenario = l1_ch[:2000] if l1_ch else None
+                            raw = client.generate_case_study(reference)
+                            st.session_state[scenario_key] = raw
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"情境案例生成失敗。Scenario generation failed: {e}")
+        with col_regen:
+            if scenario_result is not None:
+                if st.button(
+                    "🔄 重新生成",
+                    key=f"regen_scenario_{scenario_key}",
+                    use_container_width=True
+                ):
+                    st.session_state[scenario_key] = None
+                    st.rerun()
+
+        if scenario_result:
+            # Parse Chinese and English sections
+            from parsers import ResponseParser
+            sc_ch, sc_en = ResponseParser.parse_ai_response(scenario_result)
+
+            # Fall back: try splitting on THRESHOLD_SCENARIO tags directly
+            if not sc_ch:
+                import re
+                m_ch = re.search(
+                    r'\[THRESHOLD_SCENARIO_CHINESE\](.*?)(?:\[THRESHOLD_SCENARIO_ENGLISH\]|$)',
+                    scenario_result, re.DOTALL
+                )
+                m_en = re.search(
+                    r'\[THRESHOLD_SCENARIO_ENGLISH\](.*?)$',
+                    scenario_result, re.DOTALL
+                )
+                sc_ch = m_ch.group(1).strip() if m_ch else scenario_result
+                sc_en = m_en.group(1).strip() if m_en else ""
+
+            s_tab1, s_tab2, s_tab3 = st.tabs(["繁體中文", "简体中文", "English"])
+            with s_tab1:
+                st.markdown(sc_ch)
+            with s_tab2:
+                st.markdown(cc.convert(sc_ch) if sc_ch else "")
+            with s_tab3:
+                st.markdown(sc_en or "")
+
     else:
         # ── LAYER 2: Learner Materials ────────────────────────────────────
         l2_ch = result.get("layer2_chinese", "")
@@ -1787,6 +1858,17 @@ def display_lesson_plan_interface():
         full_text += "=" * 60 + "\n\n"
         full_text += result.get("layer1_chinese", "") + "\n\n"
         full_text += result.get("layer1_english", "") + "\n\n"
+        # Include scenario in download if generated
+        _sc_key = f"lesson_plan_scenario_{reference.replace(' ', '_').replace(':', '')}"
+        _sc_raw = st.session_state.get(_sc_key)
+        if _sc_raw:
+            from parsers import ResponseParser
+            _sc_ch, _sc_en = ResponseParser.parse_ai_response(_sc_raw)
+            full_text += "=" * 60 + "\n"
+            full_text += "## 情境案例 THRESHOLD SCENARIO\n"
+            full_text += "=" * 60 + "\n\n"
+            full_text += (_sc_ch or "") + "\n\n"
+            full_text += (_sc_en or "") + "\n\n"
         full_text += "=" * 60 + "\n"
         full_text += "## 學員材料 LEARNER MATERIALS\n"
         full_text += "=" * 60 + "\n\n"
