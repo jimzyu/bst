@@ -1759,76 +1759,150 @@ def display_lesson_plan_interface():
             with tab3:
                 st.markdown(l1_en or "")
 
-        # ── Scenario section (on demand) ───────────────────────────────────
+        # ── Scenario section — context config + per-TP generation ───────────
         st.markdown("---")
         st.markdown("#### 🎭 情境案例 Threshold Scenario")
         st.caption(
-            "為小組討論生成一個情境案例，幫助學員將經文的診斷應用到真實生活中。"
-            "  ·  Generate a threshold scenario for group discussion, "
-            "connecting the passage's diagnosis to a real-life situation."
+            "為小組討論生成情境案例，幫助學員將經文的診斷應用到真實生活中。"
+            "  ·  Generate discussion scenarios connecting the passage's diagnosis "
+            "to real-life situations."
         )
 
-        # Initialise scenario state for this reference
-        scenario_key = f"lesson_plan_scenario_{reference.replace(' ', '_').replace(':', '')}"
+        # ── Context configuration (expander, persists across TPs) ────────────
+        REGIONS = ["灣區", "北美", "亞洲"]
+        PROFS   = ["（不指定）", "科技業", "教育", "醫療", "商業", "全職父母", "教會事工"]
+        STAGES  = ["（不指定）", "單身", "已婚無子", "育有子女", "空巢", "退休"]
+        SCENES  = ["（不指定）", "職場", "學校", "家庭", "社區", "教會"]
+
+        with st.expander("⚙️ 情境設定 Scenario Context", expanded=False):
+            col_s1, col_s2 = st.columns(2)
+            with col_s1:
+                st.selectbox("地區 Region", REGIONS, key="ctx_region")
+                st.selectbox("職業 Profession", PROFS, key="ctx_profession")
+            with col_s2:
+                st.selectbox("人生階段 Life Stage", STAGES, key="ctx_life_stage")
+                st.selectbox("情境場景 Scene", SCENES, key="ctx_scene")
+
+        # ── State keys for this reference ─────────────────────────────────────
+        ref_slug = reference.replace(" ", "_").replace(":", "")
+        tp_key       = f"lp_teaching_points_{ref_slug}"
+        scenario_key = f"lp_scenario_{ref_slug}"
+        used_key     = f"lp_used_names_{ref_slug}"
+
+        if tp_key not in st.session_state:
+            st.session_state[tp_key] = None          # None = not yet mapped
         if scenario_key not in st.session_state:
-            st.session_state[scenario_key] = None
+            st.session_state[scenario_key] = {}      # {tp_index: (ch, en)}
+        if used_key not in st.session_state:
+            st.session_state[used_key] = set()
 
-        scenario_result = st.session_state.get(scenario_key)
+        teaching_points = st.session_state[tp_key]
 
-        col_gen, col_regen = st.columns([3, 1])
-        with col_gen:
-            if scenario_result is None:
-                if st.button(
-                    "🎭 生成情境案例 Generate Scenario",
-                    key=f"gen_scenario_{scenario_key}",
-                    use_container_width=True,
-                    type="primary"
-                ):
-                    with st.spinner("正在生成情境案例… Generating scenario…"):
-                        try:
-                            # Use lesson plan layer 1 content as context enrichment
-                            context_for_scenario = l1_ch[:2000] if l1_ch else None
-                            raw = client.generate_case_study(reference)
-                            st.session_state[scenario_key] = raw
+        # ── State 0: Teaching points not yet mapped ───────────────────────────
+        if teaching_points is None:
+            if st.button(
+                "💡 分析教學重點並生成情境案例 Analyse Teaching Points",
+                key=f"map_tp_{ref_slug}",
+                type="primary",
+                use_container_width=True
+            ):
+                with st.spinner("正在分析教學重點… Mapping teaching points…"):
+                    try:
+                        points = client.map_passage_teaching_points(reference)
+                        if points:
+                            st.session_state[tp_key] = points
+                        else:
+                            # Fallback: no TPs found — generate one scenario directly
+                            st.session_state[tp_key] = []
+                            with st.spinner("正在生成情境案例… Generating scenario…"):
+                                raw = client.generate_case_study(reference)
+                                ch_sc, en_sc = QuizParser.extract_case_study(raw)
+                                st.session_state[scenario_key]["direct"] = (ch_sc, en_sc)
+                    except Exception as e:
+                        st.error(f"分析失敗。Analysis failed: {e}")
+                st.rerun()
+
+        # ── State 1: Teaching points mapped — show list ───────────────────────
+        elif teaching_points is not None:
+            if teaching_points:
+                st.markdown("**選擇教學重點，為每個重點生成一個情境案例：**")
+                st.markdown("*Select a teaching point to generate a scenario for it:*")
+                st.markdown("")
+
+                for i, tp in enumerate(teaching_points):
+                    zh_label = tp.get("teaching_zh", "")
+                    en_label = tp.get("teaching", "")
+                    verses   = tp.get("verses", "")
+
+                    col_tp, col_btn = st.columns([4, 1])
+                    with col_tp:
+                        st.markdown(
+                            f"<div style='margin-bottom:10px'>"
+                            f"<strong>教學重點 {i+1}</strong> "
+                            f"<span style='color:#888'>({verses})</span><br>"
+                            f"{zh_label or en_label}<br>"
+                            f"<span style='font-size:0.82em;color:#888;font-style:italic'>"
+                            f"{en_label if zh_label else ''}</span>"
+                            f"</div>",
+                            unsafe_allow_html=True
+                        )
+                    with col_btn:
+                        already = i in st.session_state[scenario_key]
+                        btn_label = "🔄 重新生成" if already else "生成 Generate"
+                        if st.button(btn_label, key=f"gen_tp_{ref_slug}_{i}",
+                                     use_container_width=True,
+                                     type="secondary" if already else "primary"):
+                            with st.spinner(f"正在生成教學重點 {i+1} 的情境案例…"):
+                                try:
+                                    prompt = _build_scenario_prompt(
+                                        reference,
+                                        tp.get("diagnosis", ""),
+                                        st.session_state[used_key]
+                                    )
+                                    raw = client.generate_content_quality(
+                                        prompt,
+                                        system_override=client.SCENARIO_SYSTEM
+                                    )
+                                    ch_sc, en_sc = QuizParser.extract_case_study(raw)
+                                    st.session_state[scenario_key][i] = (ch_sc, en_sc)
+                                except Exception as e:
+                                    st.error(f"生成失敗。Generation failed: {e}")
                             st.rerun()
-                        except Exception as e:
-                            st.error(f"情境案例生成失敗。Scenario generation failed: {e}")
-        with col_regen:
-            if scenario_result is not None:
-                if st.button(
-                    "🔄 重新生成",
-                    key=f"regen_scenario_{scenario_key}",
-                    use_container_width=True
-                ):
-                    st.session_state[scenario_key] = None
-                    st.rerun()
 
-        if scenario_result:
-            # Parse Chinese and English sections
-            from parsers import ResponseParser
-            sc_ch, sc_en = ResponseParser.parse_ai_response(scenario_result)
+                    # Show generated scenario for this TP immediately below
+                    if i in st.session_state[scenario_key]:
+                        ch_sc, en_sc = st.session_state[scenario_key][i]
+                        s_tab1, s_tab2, s_tab3 = st.tabs(
+                            [f"繁中 (TP{i+1})", f"简中 (TP{i+1})", f"EN (TP{i+1})"]
+                        )
+                        with s_tab1:
+                            st.markdown(ch_sc or "")
+                        with s_tab2:
+                            st.markdown(cc.convert(ch_sc) if ch_sc else "")
+                        with s_tab3:
+                            st.markdown(en_sc or "")
+                        st.markdown("")
 
-            # Fall back: try splitting on THRESHOLD_SCENARIO tags directly
-            if not sc_ch:
-                import re
-                m_ch = re.search(
-                    r'\[THRESHOLD_SCENARIO_CHINESE\](.*?)(?:\[THRESHOLD_SCENARIO_ENGLISH\]|$)',
-                    scenario_result, re.DOTALL
-                )
-                m_en = re.search(
-                    r'\[THRESHOLD_SCENARIO_ENGLISH\](.*?)$',
-                    scenario_result, re.DOTALL
-                )
-                sc_ch = m_ch.group(1).strip() if m_ch else scenario_result
-                sc_en = m_en.group(1).strip() if m_en else ""
+                col_reset, _ = st.columns([1, 3])
+                with col_reset:
+                    if st.button("🔁 重新分析 Re-analyse", key=f"reset_tp_{ref_slug}",
+                                 type="secondary"):
+                        st.session_state[tp_key] = None
+                        st.session_state[scenario_key] = {}
+                        st.session_state[used_key] = set()
+                        st.rerun()
 
-            s_tab1, s_tab2, s_tab3 = st.tabs(["繁體中文", "简体中文", "English"])
-            with s_tab1:
-                st.markdown(sc_ch)
-            with s_tab2:
-                st.markdown(cc.convert(sc_ch) if sc_ch else "")
-            with s_tab3:
-                st.markdown(sc_en or "")
+            else:
+                # Fallback: TP mapping returned empty — show directly generated scenario
+                if "direct" in st.session_state[scenario_key]:
+                    ch_sc, en_sc = st.session_state[scenario_key]["direct"]
+                    s_tab1, s_tab2, s_tab3 = st.tabs(["繁體中文", "简体中文", "English"])
+                    with s_tab1:
+                        st.markdown(ch_sc or "")
+                    with s_tab2:
+                        st.markdown(cc.convert(ch_sc) if ch_sc else "")
+                    with s_tab3:
+                        st.markdown(en_sc or "")
 
     else:
         # ── LAYER 2: Learner Materials ────────────────────────────────────
@@ -1858,17 +1932,22 @@ def display_lesson_plan_interface():
         full_text += "=" * 60 + "\n\n"
         full_text += result.get("layer1_chinese", "") + "\n\n"
         full_text += result.get("layer1_english", "") + "\n\n"
-        # Include scenario in download if generated
-        _sc_key = f"lesson_plan_scenario_{reference.replace(' ', '_').replace(':', '')}"
-        _sc_raw = st.session_state.get(_sc_key)
-        if _sc_raw:
-            from parsers import ResponseParser
-            _sc_ch, _sc_en = ResponseParser.parse_ai_response(_sc_raw)
+        # Include generated scenarios in download
+        _ref_slug = reference.replace(" ", "_").replace(":", "")
+        _sc_dict = st.session_state.get(f"lp_scenario_{_ref_slug}", {})
+        _tp_list = st.session_state.get(f"lp_teaching_points_{_ref_slug}") or []
+        if _sc_dict:
             full_text += "=" * 60 + "\n"
-            full_text += "## 情境案例 THRESHOLD SCENARIO\n"
+            full_text += "## 情境案例 THRESHOLD SCENARIOS\n"
             full_text += "=" * 60 + "\n\n"
-            full_text += (_sc_ch or "") + "\n\n"
-            full_text += (_sc_en or "") + "\n\n"
+            for _k, (_ch, _en) in _sc_dict.items():
+                if _k == "direct":
+                    full_text += "### 情境案例\n\n"
+                else:
+                    _tp = _tp_list[_k] if isinstance(_k, int) and _k < len(_tp_list) else {}
+                    full_text += f"### 教學重點 {_k+1} ({_tp.get('verses', '')})\n\n"
+                full_text += (_ch or "") + "\n\n"
+                full_text += (_en or "") + "\n\n"
         full_text += "=" * 60 + "\n"
         full_text += "## 學員材料 LEARNER MATERIALS\n"
         full_text += "=" * 60 + "\n\n"
